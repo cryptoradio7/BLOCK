@@ -159,9 +159,6 @@ export const EditableBlock = ({
     >
       <div
         className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
-        ref={(node) => {
-          drag(node);
-        }}
         style={{
           opacity: isDragging ? 0.5 : 1,
           backgroundColor: canDrop ? '#f0f8ff' : 'white',
@@ -186,20 +183,23 @@ export const EditableBlock = ({
       >
         {/* Header - Zone de drag */}
         <div 
+          ref={(node) => {
+            drag(node);
+          }}
           style={{ 
             marginBottom: '12px', 
             fontSize: '14px', 
             color: '#666', 
             fontWeight: 'bold',
-            cursor: 'move',
+            cursor: isDragging ? 'grabbing' : 'grab',
             padding: '8px',
-            backgroundColor: '#f8f9fa',
+            backgroundColor: isResizing ? '#e3f2fd' : '#f8f9fa',
             borderRadius: '4px',
-            border: '1px dashed #dee2e6'
+            border: '1px dashed #dee2e6',
+            userSelect: 'none'
           }}
-          onMouseDown={(e) => e.stopPropagation()}
         >
-          🔄 Bloc #{block.id} - Glisser pour déplacer
+          🔄 Bloc #{block.id} - {isDragging ? 'Déplacement...' : 'Glisser pour déplacer'}
         </div>
         
         {/* Content area */}
