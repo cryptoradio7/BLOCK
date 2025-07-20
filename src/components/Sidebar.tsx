@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Page } from '@/types'
 import styles from './Sidebar.module.css'
+import Logo from './Logo'
 
 interface SidebarProps {
   pages: Page[]
@@ -11,9 +12,11 @@ interface SidebarProps {
   onAddPage: (title?: string) => void
   onPagesReorder?: (reorderedPages: Page[]) => void
   onDeletePage?: (pageId: string) => void
+  visible: boolean
+  onToggleVisibility: () => void
 }
 
-export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage, onPagesReorder, onDeletePage }: SidebarProps) {
+export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage, onPagesReorder, onDeletePage, visible, onToggleVisibility }: SidebarProps) {
   const [isAddingPage, setIsAddingPage] = useState(false)
   const [newPageTitle, setNewPageTitle] = useState('')
   const [draggedPage, setDraggedPage] = useState<Page | null>(null)
@@ -119,15 +122,26 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
   }
 
   return (
-    <div className={styles.sidebar}>
+    <div className={`${styles.sidebar} ${!visible ? styles.hidden : ''}`}>
       <div className={styles.header}>
-        <h2>Pages</h2>
-        <button 
-          className={styles.addButton}
-          onClick={() => setIsAddingPage(true)}
-        >
-          +
-        </button>
+        <Logo />
+        <div className={styles.headerButtons}>
+          <button 
+            className={styles.addButton}
+            onClick={() => setIsAddingPage(true)}
+          >
+            +
+          </button>
+          <button 
+            className={styles.hideButton}
+            onClick={onToggleVisibility}
+            title="Masquer la sidebar"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {isAddingPage && (

@@ -9,24 +9,23 @@ export async function GET(
   try {
     const pageId = params.id
 
-    const result = await pool.query(`
-      SELECT 
-        b.id,
-        b.type,
-        b.content,
-        b."order",
-        b.created_at as "createdAt",
-        b.updated_at as "updatedAt"
-      FROM blocks b
-      WHERE b.page_id = $1
-      ORDER BY b."order" ASC
-    `, [pageId])
+    const result = await pool.query(
+      `SELECT b.id, b.type, b.content, b."order", b.width, b.height, b.x, b.y
+       FROM blocks b
+       WHERE b.page_id = $1
+       ORDER BY b."order" ASC`,
+      [pageId]
+    )
 
     const blocks: Block[] = result.rows.map(row => ({
       id: row.id.toString(),
       type: row.type,
       content: row.content,
       order: row.order,
+      width: row.width,
+      height: row.height,
+      x: row.x,
+      y: row.y,
       attachments: [] // On gérera les attachments séparément
     }))
 

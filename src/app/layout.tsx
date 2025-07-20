@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
-  title: 'BLOCK - Gestionnaire de Pages',
-  description: 'Application moderne de gestion de pages et blocs',
+  title: 'Agile Vision BLOCK - Gestionnaire de Pages',
+  description: 'Application moderne de gestion de pages et blocs par Agile Vision',
 }
 
 export default function RootLayout({

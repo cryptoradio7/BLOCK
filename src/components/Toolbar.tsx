@@ -33,7 +33,6 @@ export default function Toolbar({ onPrint, onExportPDF }: ToolbarProps) {
   return (
     <div className={styles.toolbar}>
       <div className={styles.toolbarLeft}>
-        <h1 className={styles.title}>BLOCK</h1>
       </div>
       
       <div className={styles.toolbarRight}>

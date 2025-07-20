@@ -1,6 +1,6 @@
-# BLOCKS - Gestionnaire de Pages
+# Agile Vision BLOCK - Gestionnaire de Pages
 
-Une application moderne de gestion de pages et blocs avec interface drag & drop.
+Une application moderne de gestion de pages et blocs avec interface drag & drop par Agile Vision.
 
 ## 🚀 Fonctionnalités
 

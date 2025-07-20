@@ -22,6 +22,7 @@ export default function BlockComponent({
   const [isEditing, setIsEditing] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const blockRef = useRef<HTMLDivElement>(null)
 
   const handleContentChange = (content: string) => {
     onUpdate({ content })
@@ -59,10 +60,24 @@ export default function BlockComponent({
     onDragStart()
   }
 
+  const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+    // Désactivé temporairement pour éviter les problèmes
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('Resize disabled for now')
+  }
+
   return (
     <div 
+      ref={blockRef}
       className={`${styles.block} ${isDragging ? styles.dragging : ''}`}
-      draggable
+      style={{
+        width: block.width || 300,
+        height: block.height || 200,
+        minWidth: 200,
+        minHeight: 150
+      }}
+      draggable={true}
       onDragStart={handleDragStart}
     >
       <div className={styles.blockHeader}>
@@ -70,6 +85,14 @@ export default function BlockComponent({
           <button 
             className={styles.dragHandle}
             title="Déplacer"
+            onMouseDown={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              const blockElement = e.currentTarget.closest(`.${styles.block}`) as HTMLElement
+              if (blockElement) {
+                blockElement.focus()
+              }
+            }}
           >
             ⋮⋮
           </button>
@@ -183,6 +206,25 @@ export default function BlockComponent({
         onChange={handleFileUpload}
         style={{ display: 'none' }}
       />
+
+      {/* Poignées de redimensionnement - DÉSACTIVÉES TEMPORAIREMENT */}
+      {/*
+      <div 
+        className={styles.resizeHandle}
+        data-direction="e"
+        onMouseDown={(e) => handleResizeStart(e, 'e')}
+      ></div>
+      <div 
+        className={styles.resizeHandle}
+        data-direction="n"
+        onMouseDown={(e) => handleResizeStart(e, 'n')}
+      ></div>
+      <div 
+        className={styles.resizeHandle}
+        data-direction="s"
+        onMouseDown={(e) => handleResizeStart(e, 's')}
+      ></div>
+      */}
     </div>
   )
 } 

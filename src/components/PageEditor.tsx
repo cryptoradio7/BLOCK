@@ -47,7 +47,9 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
           pageId: page.id,
           type: 'text',
           content: '',
-          order: blocks.length
+          order: blocks.length,
+          x: 20 + (blocks.length * 50),
+          y: 20 + (blocks.length * 100)
         })
       })
 
@@ -63,6 +65,13 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
   }
 
   const updateBlock = async (blockId: string, updates: Partial<Block>) => {
+    // Mise à jour immédiate de l'interface
+    const updatedBlocks = blocks.map(block =>
+      block.id === blockId ? { ...block, ...updates } : block
+    )
+    setBlocks(updatedBlocks)
+    
+    // Mise à jour en arrière-plan via API
     try {
       const response = await fetch('/api/blocks', {
         method: 'PATCH',
@@ -77,11 +86,11 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
 
       if (response.ok) {
         const updatedBlock = await response.json()
-        const updatedBlocks = blocks.map(block =>
+        const finalUpdatedBlocks = blocks.map(block =>
           block.id === blockId ? { ...block, ...updatedBlock } : block
         )
-        setBlocks(updatedBlocks)
-        updatePage(updatedBlocks)
+        setBlocks(finalUpdatedBlocks)
+        updatePage(finalUpdatedBlocks)
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du bloc:', error)
@@ -120,29 +129,22 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
     e.preventDefault()
   }
 
-  const handleDrop = (e: React.DragEvent, targetBlockId?: string) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    if (!draggedBlock) return
+    if (!draggedBlock || !dropZoneRef.current) return
 
-    let newOrder: number
-    if (targetBlockId) {
-      const targetIndex = blocks.findIndex(b => b.id === targetBlockId)
-      newOrder = targetIndex
-    } else {
-      newOrder = blocks.length
-    }
+    const rect = dropZoneRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
-    const reorderedBlocks = blocks
-      .filter(b => b.id !== draggedBlock.id)
-      .map((block, index) => ({
-        ...block,
-        order: index >= newOrder ? index + 1 : index
-      }))
-
-    reorderedBlocks.splice(newOrder, 0, { ...draggedBlock, order: newOrder })
+    // Mettre à jour la position du bloc
+    const updatedBlock = { ...draggedBlock, x, y }
+    const updatedBlocks = blocks.map(block =>
+      block.id === draggedBlock.id ? updatedBlock : block
+    )
     
-    setBlocks(reorderedBlocks)
-    updatePage(reorderedBlocks)
+    setBlocks(updatedBlocks)
+    updatePage(updatedBlocks)
     setDraggedBlock(null)
   }
 
@@ -150,12 +152,6 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
 
   return (
     <div className={styles.pageEditor}>
-      <div className={styles.pageHeader}>
-        <button className={styles.addBlockButton} onClick={addBlock}>
-          + Ajouter un bloc
-        </button>
-      </div>
-
       <div 
         className={styles.blocksContainer}
         ref={dropZoneRef}
@@ -172,8 +168,14 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
             <div
               key={block.id}
               className={styles.blockWrapper}
+              style={{
+                position: 'absolute',
+                left: block.x || 20 + (index * 50),
+                top: block.y || 20 + (index * 100),
+                zIndex: draggedBlock?.id === block.id ? 1000 : 1
+              }}
               onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, block.id)}
+              onDrop={(e) => handleDrop(e)}
             >
               <BlockComponent
                 block={block}

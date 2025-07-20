@@ -3,6 +3,10 @@ export interface Block {
   type: 'text' | 'image' | 'file'
   content: string
   order: number
+  x?: number
+  y?: number
+  width?: number
+  height?: number
   attachments?: Attachment[]
 }
 

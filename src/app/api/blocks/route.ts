@@ -5,7 +5,7 @@ import { Block } from '@/types'
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, content, order, type, attachments } = body
+    const { id, content, order, type, width, height, x, y, attachments } = body
 
     if (!id) {
       return NextResponse.json(
@@ -50,6 +50,30 @@ export async function PATCH(request: NextRequest) {
       paramCount++
     }
 
+    if (width !== undefined) {
+      updateFields.push(`width = $${paramCount}`)
+      values.push(width)
+      paramCount++
+    }
+
+    if (height !== undefined) {
+      updateFields.push(`height = $${paramCount}`)
+      values.push(height)
+      paramCount++
+    }
+
+    if (x !== undefined) {
+      updateFields.push(`x = $${paramCount}`)
+      values.push(x)
+      paramCount++
+    }
+
+    if (y !== undefined) {
+      updateFields.push(`y = $${paramCount}`)
+      values.push(y)
+      paramCount++
+    }
+
     if (updateFields.length === 0) {
       return NextResponse.json(existingBlock.rows[0])
     }
@@ -65,6 +89,10 @@ export async function PATCH(request: NextRequest) {
       type: result.rows[0].type,
       content: result.rows[0].content,
       order: result.rows[0].order,
+      width: result.rows[0].width,
+      height: result.rows[0].height,
+      x: result.rows[0].x,
+      y: result.rows[0].y,
       attachments: [] // On gérera les attachments séparément
     }
 
@@ -81,7 +109,7 @@ export async function PATCH(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { pageId, type, content, order } = body
+    const { pageId, type, content, order, width, height, x, y } = body
 
     if (!pageId || !type) {
       return NextResponse.json(
@@ -91,8 +119,8 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await pool.query(
-      'INSERT INTO blocks (page_id, type, content, "order") VALUES ($1, $2, $3, $4) RETURNING *',
-      [pageId, type, content || '', order || 0]
+      'INSERT INTO blocks (page_id, type, content, "order", width, height, x, y) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [pageId, type, content || '', order || 0, width || 300, height || 200, x || 0, y || 0]
     )
 
     const newBlock: Block = {
@@ -100,6 +128,10 @@ export async function POST(request: NextRequest) {
       type: result.rows[0].type,
       content: result.rows[0].content,
       order: result.rows[0].order,
+      width: result.rows[0].width,
+      height: result.rows[0].height,
+      x: result.rows[0].x,
+      y: result.rows[0].y,
       attachments: []
     }
 
