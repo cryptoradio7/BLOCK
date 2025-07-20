@@ -112,7 +112,9 @@ export const EditableBlock = ({
   };
 
   const handleResize = (e: any, { size }: { size: { width: number; height: number } }) => {
-    onUpdate({ ...block, width: size.width, height: size.height });
+    const intWidth = Math.round(size.width);
+    const intHeight = Math.round(size.height);
+    onUpdate({ ...block, width: intWidth, height: intHeight });
   };
 
   // Fonction de titre supprimée car non utilisée

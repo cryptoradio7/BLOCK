@@ -64,8 +64,10 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           const x = offset.x - canvasRect.left - 150;
           const y = offset.y - canvasRect.top - 50;
           
-          console.log('🎯 Moving block', item.id, 'to:', { x, y });
-          updateBlockPosition(item.id, Math.max(0, x), Math.max(0, y));
+                     const intX = Math.round(Math.max(0, x));
+           const intY = Math.round(Math.max(0, y));
+           console.log('🎯 Moving block', item.id, 'to:', { x: intX, y: intY });
+           updateBlockPosition(item.id, intX, intY);
         }
       } else {
         console.log('❌ Drop conditions not met:', { offset, id: item.id, blockType: item.blockType });
