@@ -46,6 +46,8 @@ export const EditableBlock = ({
   onMove,
 }: EditableBlockProps) => {
   const [localContent, setLocalContent] = useState(block.content);
+  const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
+  const [isResizing, setIsResizing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debounced save function
@@ -111,9 +113,22 @@ export const EditableBlock = ({
     });
   };
 
+  // Redimensionnement en temps réel (pendant le drag)
   const handleResize = (e: any, { size }: { size: { width: number; height: number } }) => {
+    setLocalSize({ width: size.width, height: size.height });
+  };
+
+  // Début du redimensionnement
+  const handleResizeStart = () => {
+    setIsResizing(true);
+  };
+
+  // Fin du redimensionnement - sauvegarder en DB
+  const handleResizeStop = (e: any, { size }: { size: { width: number; height: number } }) => {
+    setIsResizing(false);
     const intWidth = Math.round(size.width);
     const intHeight = Math.round(size.height);
+    setLocalSize({ width: intWidth, height: intHeight });
     onUpdate({ ...block, width: intWidth, height: intHeight });
   };
 
@@ -127,9 +142,11 @@ export const EditableBlock = ({
 
   return (
     <Resizable
-      width={block.width}
-      height={block.height}
+      width={localSize.width}
+      height={localSize.height}
       onResize={handleResize}
+      onResizeStart={handleResizeStart}
+      onResizeStop={handleResizeStop}
       minConstraints={[200, 100]}
       maxConstraints={[800, 600]}
     >
@@ -141,14 +158,14 @@ export const EditableBlock = ({
         style={{
           opacity: isDragging ? 0.5 : 1,
           backgroundColor: canDrop ? '#f0f8ff' : 'white',
-          border: '2px solid #e0e0e0',
+          border: isResizing ? '2px solid #007bff' : '2px solid #e0e0e0',
           borderRadius: '8px',
           padding: '16px',
           position: 'absolute',
           left: `${block.x}px`,
           top: `${block.y}px`,
-          width: `${block.width}px`,
-          height: `${block.height}px`,
+          width: `${localSize.width}px`,
+          height: `${localSize.height}px`,
           cursor: isDragging ? 'grabbing' : 'default',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           transition: 'box-shadow 0.2s ease',
