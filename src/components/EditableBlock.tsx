@@ -65,22 +65,15 @@ export const EditableBlock = ({
     [block, onUpdate]
   );
 
-  // Drag for repositioning - Version simplifiée
+  // Drag for repositioning - Version ultra-simple
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BLOCK',
-    item: () => {
-      console.log('Starting drag for block:', block.id);
-      return { id: block.id, blockType: 'existing' };
-    },
+    item: { id: block.id, blockType: 'existing' },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
     end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        console.log('✅ Bloc dropped successfully:', item.id);
-      } else {
-        console.log('❌ Bloc drop failed for:', item.id);
-      }
+      console.log('🏁 Fin du drag pour bloc:', block.id, 'dropped:', monitor.didDrop());
     },
   }));
 
@@ -181,25 +174,45 @@ export const EditableBlock = ({
           e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
         }}
       >
-        {/* Header - Zone de drag */}
-        <div 
-          ref={(node) => {
-            drag(node);
-          }}
-          style={{ 
-            marginBottom: '12px', 
-            fontSize: '14px', 
-            color: '#666', 
-            fontWeight: 'bold',
-            cursor: isDragging ? 'grabbing' : 'grab',
-            padding: '8px',
-            backgroundColor: isResizing ? '#e3f2fd' : '#f8f9fa',
-            borderRadius: '4px',
-            border: '1px dashed #dee2e6',
-            userSelect: 'none'
-          }}
-        >
-                      {isDragging ? '🚀 Déplacement en cours...' : '✋ ZONE DE DRAG - Cliquez ici pour déplacer le bloc'}
+                {/* Header - Zone de drag */}
+        <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div 
+            ref={(node) => {
+              drag(node);
+            }}
+            style={{ 
+              flex: 1,
+              fontSize: '14px', 
+              color: '#666', 
+              fontWeight: 'bold',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              padding: '8px',
+              backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
+              borderRadius: '4px',
+              border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
+              userSelect: 'none'
+            }}
+            onMouseDown={() => console.log('🖱️ MouseDown sur zone drag bloc', block.id)}
+          >
+            {isDragging ? '🚀 EN MOUVEMENT...' : '✋ DRAG ZONE'}
+          </div>
+          <button
+            style={{
+              padding: '4px 8px',
+              backgroundColor: '#4caf50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              console.log('🧪 Test click - Bloc ID:', block.id);
+              onMove(block.id, block.x + 50, block.y + 50);
+            }}
+          >
+            Test Move
+          </button>
         </div>
         
         {/* Content area */}
