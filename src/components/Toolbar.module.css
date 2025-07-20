@@ -1,0 +1,88 @@
+.toolbar {
+  height: 60px;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #007bff;
+  letter-spacing: -0.5px;
+}
+
+.toolbarRight {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.toolbarButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbarButton:hover {
+  background: #f8f9fa;
+  border-color: #adb5bd;
+  color: #212529;
+}
+
+.toolbarButton:active {
+  background: #e9ecef;
+}
+
+.toolbarButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toolbarButton.loading {
+  position: relative;
+}
+
+.toolbarButton.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media print {
+  .toolbar {
+    display: none;
+  }
+} 

@@ -1,0 +1,76 @@
+.pageEditor {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.addBlockButton {
+  padding: 10px 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addBlockButton:hover {
+  background: #218838;
+}
+
+.blocksContainer {
+  min-height: 400px;
+}
+
+.blockWrapper {
+  margin-bottom: 20px;
+  transition: transform 0.2s;
+}
+
+.blockWrapper:hover {
+  transform: translateY(-2px);
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.emptyState p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.emptyState button {
+  padding: 12px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.emptyState button:hover {
+  background: #0056b3;
+} 

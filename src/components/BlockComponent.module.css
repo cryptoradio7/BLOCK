@@ -1,0 +1,207 @@
+.block {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  cursor: move;
+}
+
+.block:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.block.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+}
+
+.blockHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.blockControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dragHandle {
+  background: none;
+  border: none;
+  cursor: move;
+  color: #6c757d;
+  font-size: 16px;
+  padding: 4px;
+}
+
+.dragHandle:hover {
+  color: #007bff;
+}
+
+.typeSelector {
+  padding: 4px 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
+
+.blockActions {
+  display: flex;
+  gap: 4px;
+  position: relative;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.actionButton:hover {
+  background: #f8f9fa;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 120px;
+}
+
+.dropdownMenu button {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #dc3545;
+}
+
+.dropdownMenu button:hover {
+  background: #f8f9fa;
+}
+
+.blockContent {
+  min-height: 60px;
+}
+
+.textContent {
+  width: 100%;
+}
+
+.textArea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.textArea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.textDisplay {
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  min-height: 60px;
+  cursor: text;
+  white-space: pre-wrap;
+}
+
+.textDisplay:hover {
+  border-color: #ced4da;
+  background: #f8f9fa;
+}
+
+.imageContent {
+  text-align: center;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 4px;
+}
+
+.imagePlaceholder {
+  padding: 20px;
+  border: 2px dashed #ced4da;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.imageUrlInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.attachments {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f3f4;
+}
+
+.attachments h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.attachment {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.attachmentName {
+  font-size: 14px;
+  color: #495057;
+}
+
+.removeAttachment {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.removeAttachment:hover {
+  background: #dc3545;
+  color: white;
+} 
