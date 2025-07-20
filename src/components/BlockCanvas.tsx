@@ -49,13 +49,15 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'BLOCK',
     drop: (item: any, monitor) => {
+      console.log('Drop event:', item); // Debug
       const offset = monitor.getClientOffset();
-      if (offset && item.id) {
+      if (offset && item.id && item.blockType === 'existing') {
         const canvasRect = document.getElementById('block-canvas')?.getBoundingClientRect();
         if (canvasRect) {
           const x = offset.x - canvasRect.left - 150; // Centrer le bloc sur le curseur
           const y = offset.y - canvasRect.top - 50;
           
+          console.log('Moving block to:', x, y); // Debug
           // Mise à jour de la position d'un bloc existant
           updateBlockPosition(item.id, Math.max(0, x), Math.max(0, y));
         }
@@ -182,6 +184,25 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         onClick={() => createNewBlock(100, 100)}
       >
         ➕ Nouveau bloc
+      </div>
+      
+      {/* Info de debug */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          padding: '10px',
+          backgroundColor: isOver ? '#d4edda' : '#f8f9fa',
+          border: '1px solid #dee2e6',
+          borderRadius: '4px',
+          fontSize: '12px',
+          maxWidth: '200px',
+        }}
+      >
+        Blocs: {blocks.length}<br/>
+        Drop zone: {isOver ? 'Active' : 'Inactive'}<br/>
+        Page ID: {pageId}
       </div>
     </div>
   );

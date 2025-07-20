@@ -59,10 +59,16 @@ export const EditableBlock = ({
   // Drag for repositioning
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BLOCK',
-    item: { id: block.id, x: block.x, y: block.y },
+    item: { id: block.id, blockType: 'existing' }, // Marquer comme bloc existant
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
+    end: (item, monitor) => {
+      // Log pour debug
+      if (monitor.didDrop()) {
+        console.log('Bloc dropped:', item.id);
+      }
+    },
   }));
 
   // Drop pour les fichiers désactivé temporairement pour éviter les conflits
