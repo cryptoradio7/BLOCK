@@ -49,11 +49,11 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
   return (
     <div className={styles.pageEditor}>
       <div className={styles.pageContent}>
-        <div className={styles.emptyState}>
+          <div className={styles.emptyState}>
           <h2>Page : {page.title}</h2>
           <p>Cette page est vide pour le moment</p>
           <p>Les fonctionnalités de blocs ont été supprimées</p>
-        </div>
+            </div>
       </div>
     </div>
   )

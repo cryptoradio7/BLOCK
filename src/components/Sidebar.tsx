@@ -126,12 +126,12 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
       <div className={styles.header}>
         <Logo />
         <div className={styles.headerButtons}>
-          <button 
-            className={styles.addButton}
-            onClick={() => setIsAddingPage(true)}
-          >
-            +
-          </button>
+        <button 
+          className={styles.addButton}
+          onClick={() => setIsAddingPage(true)}
+        >
+          +
+        </button>
           <button 
             className={styles.hideButton}
             onClick={onToggleVisibility}
