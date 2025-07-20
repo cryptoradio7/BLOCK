@@ -48,19 +48,27 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   // Drop zone pour déplacer les blocs
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'BLOCK',
+    hover: (item: any, monitor) => {
+      console.log('🔄 Hovering with:', item);
+    },
     drop: (item: any, monitor) => {
-      console.log('Drop event:', item); // Debug
+      console.log('📦 Drop event received:', item);
       const offset = monitor.getClientOffset();
+      console.log('📍 Drop offset:', offset);
+      
       if (offset && item.id && item.blockType === 'existing') {
         const canvasRect = document.getElementById('block-canvas')?.getBoundingClientRect();
+        console.log('📐 Canvas rect:', canvasRect);
+        
         if (canvasRect) {
-          const x = offset.x - canvasRect.left - 150; // Centrer le bloc sur le curseur
+          const x = offset.x - canvasRect.left - 150;
           const y = offset.y - canvasRect.top - 50;
           
-          console.log('Moving block to:', x, y); // Debug
-          // Mise à jour de la position d'un bloc existant
+          console.log('🎯 Moving block', item.id, 'to:', { x, y });
           updateBlockPosition(item.id, Math.max(0, x), Math.max(0, y));
         }
+      } else {
+        console.log('❌ Drop conditions not met:', { offset, id: item.id, blockType: item.blockType });
       }
     },
     collect: (monitor) => ({
@@ -168,22 +176,37 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         />
       ))}
       
-      {/* Zone de drop pour créer de nouveaux blocs */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          padding: '10px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontSize: '14px',
-        }}
-        onClick={() => createNewBlock(100, 100)}
-      >
-        ➕ Nouveau bloc
+      {/* Actions */}
+      <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px' }}>
+        <div
+          style={{
+            padding: '10px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+          }}
+          onClick={() => createNewBlock(100, 100)}
+        >
+          ➕ Nouveau bloc
+        </div>
+        <div
+          style={{
+            padding: '10px',
+            backgroundColor: '#28a745',
+            color: 'white',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+          }}
+          onClick={() => {
+            console.log('🧪 Test: Current blocks:', blocks);
+            console.log('🧪 Test: Page ID:', pageId);
+          }}
+        >
+          🧪 Test Debug
+        </div>
       </div>
       
       {/* Info de debug */}

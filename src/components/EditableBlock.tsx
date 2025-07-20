@@ -56,17 +56,21 @@ export const EditableBlock = ({
     [block, onUpdate]
   );
 
-  // Drag for repositioning
+  // Drag for repositioning - Version simplifiée
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BLOCK',
-    item: { id: block.id, blockType: 'existing' }, // Marquer comme bloc existant
+    item: () => {
+      console.log('Starting drag for block:', block.id);
+      return { id: block.id, blockType: 'existing' };
+    },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
     end: (item, monitor) => {
-      // Log pour debug
       if (monitor.didDrop()) {
-        console.log('Bloc dropped:', item.id);
+        console.log('✅ Bloc dropped successfully:', item.id);
+      } else {
+        console.log('❌ Bloc drop failed for:', item.id);
       }
     },
   }));
