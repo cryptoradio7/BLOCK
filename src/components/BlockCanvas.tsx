@@ -25,8 +25,9 @@ export const BlockCanvas = () => {
           y: block.y || 0,
           width: block.width || 300,
           height: block.height || 200,
-          title: block.title || '',
           content: block.content || '',
+          type: block.type || 'text',
+          page_id: block.page_id,
           attachments: [], // Pour l'instant, pas d'attachments
         }));
         setBlocks(transformedBlocks);
@@ -72,12 +73,12 @@ export const BlockCanvas = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: 'Nouveau bloc',
-          content: '',
+          content: 'Contenu du bloc...',
           x,
           y,
           width: 300,
           height: 200,
+          page_id: 1, // Pour l'instant, page par défaut
         }),
       });
 
@@ -89,8 +90,9 @@ export const BlockCanvas = () => {
           y: newBlock.y,
           width: newBlock.width,
           height: newBlock.height,
-          title: newBlock.title || '',
           content: newBlock.content || '',
+          type: newBlock.type || 'text',
+          page_id: newBlock.page_id,
           attachments: [],
         }]);
       }

@@ -34,14 +34,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { title, content, x, y, width, height } = body;
+    const { content, x, y, width, height } = body;
 
     const result = await pool.query(
       `UPDATE blocks 
-       SET title = $1, content = $2, x = $3, y = $4, width = $5, height = $6, updated_at = NOW()
-       WHERE id = $7
+       SET content = $1, x = $2, y = $3, width = $4, height = $5, updated_at = NOW()
+       WHERE id = $6
        RETURNING *`,
-      [title, content, x, y, width, height, parseInt(params.id)]
+      [content, x, y, width, height, parseInt(params.id)]
     );
 
     if (result.rows.length === 0) {

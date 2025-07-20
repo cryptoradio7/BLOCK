@@ -11,8 +11,9 @@ export type BlockType = {
   y: number;
   width: number;
   height: number;
-  title?: string;
   content: string;
+  type?: string;
+  page_id?: number;
   attachments: Array<{
     id: number;
     name: string;
@@ -45,7 +46,6 @@ export const EditableBlock = ({
   onMove,
 }: EditableBlockProps) => {
   const [localContent, setLocalContent] = useState(block.content);
-  const [localTitle, setLocalTitle] = useState(block.title || '');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Debounced save function
@@ -104,11 +104,7 @@ export const EditableBlock = ({
     onUpdate({ ...block, width: size.width, height: size.height });
   };
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setLocalTitle(newTitle);
-    debouncedSave({ title: newTitle });
-  };
+  // Fonction de titre supprimée car non utilisée
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newContent = e.target.value;
@@ -151,22 +147,9 @@ export const EditableBlock = ({
           e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
         }}
       >
-        {/* Header with title */}
-        <div style={{ marginBottom: '12px' }}>
-          <input
-            type="text"
-            value={localTitle}
-            onChange={handleTitleChange}
-            placeholder="Titre du bloc"
-            style={{
-              width: '100%',
-              border: 'none',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              outline: 'none',
-              backgroundColor: 'transparent',
-            }}
-          />
+        {/* Header */}
+        <div style={{ marginBottom: '12px', fontSize: '14px', color: '#666', fontWeight: 'bold' }}>
+          Bloc #{block.id}
         </div>
         
         {/* Content area */}
