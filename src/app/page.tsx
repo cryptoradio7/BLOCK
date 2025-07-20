@@ -6,6 +6,7 @@ import Toolbar from '@/components/Toolbar'
 import PageEditor from '@/components/PageEditor'
 import { BlockCanvas } from '@/components/BlockCanvas'
 import { DndProvider } from '@/components/DndProvider'
+import { SimpleDragTest } from '@/components/SimpleDragTest'
 import { Page } from '@/types'
 
 export default function Home() {
@@ -101,6 +102,7 @@ export default function Home() {
         />
         <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
           <Toolbar />
+          <SimpleDragTest />
           {currentPage && (
             <BlockCanvas pageId={parseInt(currentPageId)} />
           )}
