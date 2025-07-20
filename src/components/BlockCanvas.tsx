@@ -4,32 +4,38 @@ import { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { EditableBlock, BlockType } from './EditableBlock';
 
-export const BlockCanvas = () => {
+interface BlockCanvasProps {
+  pageId?: number;
+}
+
+export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Charger les blocs depuis l'API
   useEffect(() => {
     fetchBlocks();
-  }, []);
+  }, [pageId]);
 
   const fetchBlocks = async () => {
     try {
       const response = await fetch('/api/blocks');
       if (response.ok) {
         const data = await response.json();
-        // Transformer les données pour correspondre au type BlockType
-        const transformedBlocks = data.map((block: any) => ({
-          id: block.id,
-          x: block.x || 0,
-          y: block.y || 0,
-          width: block.width || 300,
-          height: block.height || 200,
-          content: block.content || '',
-          type: block.type || 'text',
-          page_id: block.page_id,
-          attachments: [], // Pour l'instant, pas d'attachments
-        }));
+        // Transformer les données pour correspondre au type BlockType et filtrer par page
+        const transformedBlocks = data
+          .filter((block: any) => block.page_id === pageId)
+          .map((block: any) => ({
+            id: block.id,
+            x: block.x || 0,
+            y: block.y || 0,
+            width: block.width || 300,
+            height: block.height || 200,
+            content: block.content || '',
+            type: block.type || 'text',
+            page_id: block.page_id,
+            attachments: [], // Pour l'instant, pas d'attachments
+          }));
         setBlocks(transformedBlocks);
       }
     } catch (error) {
@@ -78,7 +84,7 @@ export const BlockCanvas = () => {
           y,
           width: 300,
           height: 200,
-          page_id: 1, // Pour l'instant, page par défaut
+          page_id: pageId,
         }),
       });
 

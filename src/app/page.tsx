@@ -100,7 +100,7 @@ export default function Home() {
       <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
         <Toolbar />
         {currentPage && (
-          <BlockCanvas />
+          <BlockCanvas pageId={parseInt(currentPageId)} />
         )}
         {!sidebarVisible && (
           <button 
