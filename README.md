@@ -5,19 +5,12 @@ Une application moderne de gestion de pages et blocs avec interface drag & drop 
 ## 🚀 Fonctionnalités
 
 - **Gestion de pages** : Créer, nommer et organiser des pages
-- **Blocs modulaires** : Ajouter des blocs de texte, images et fichiers
-- **Drag & Drop** : Réorganiser les blocs par glisser-déposer
-- **Pièces jointes** : Ajouter des fichiers et images aux blocs
-- **Export PDF** : Télécharger les pages en format PDF
 - **Interface moderne** : Design épuré et responsive
 
 ## 🛠️ Technologies
 
 - **Frontend** : Next.js 14, React, TypeScript
 - **Styling** : CSS Modules
-- **Animations** : Framer Motion
-- **Drag & Drop** : React DnD
-- **PDF** : jsPDF
 - **API** : Next.js API Routes
 
 ## 📦 Installation
@@ -38,17 +31,13 @@ L'application sera accessible sur `http://localhost:3001`
 src/
 ├── app/                 # App Router Next.js
 │   ├── api/            # Routes API
-│   │   ├── pages/      # Gestion des pages
-│   │   ├── blocks/     # Gestion des blocs
-│   │   ├── files/      # Upload de fichiers
-│   │   └── export/     # Export PDF
+│   │   └── pages/      # Gestion des pages
 │   ├── layout.tsx      # Layout principal
 │   └── page.tsx        # Page d'accueil
 ├── components/         # Composants React
 │   ├── Sidebar.tsx     # Barre latérale
 │   ├── Toolbar.tsx     # Barre d'outils
-│   ├── PageEditor.tsx  # Éditeur de page
-│   └── BlockComponent.tsx # Composant de bloc
+│   └── PageEditor.tsx  # Éditeur de page
 ├── types/              # Types TypeScript
 └── styles/             # Styles CSS
 ```
@@ -59,10 +48,7 @@ src/
 |----------|---------|-------------|
 | `/api/pages` | GET | Récupérer toutes les pages |
 | `/api/pages` | POST | Créer une nouvelle page |
-| `/api/blocks` | PATCH | Mettre à jour un bloc |
-| `/api/blocks` | POST | Créer un nouveau bloc |
-| `/api/files` | POST | Upload de fichier |
-| `/api/export` | POST | Export PDF |
+| `/api/pages/[id]` | DELETE | Supprimer une page |
 
 ## 🎨 Interface
 

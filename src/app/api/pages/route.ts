@@ -17,7 +17,6 @@ export async function GET() {
     const pages: Page[] = result.rows.map(row => ({
       id: row.id.toString(),
       title: row.title,
-      blocks: [], // On chargera les blocs séparément
       createdAt: new Date(row.createdAt),
       updatedAt: new Date(row.updatedAt)
     }))
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
     const newPage: Page = {
       id: result.rows[0].id.toString(),
       title: result.rows[0].title,
-      blocks: [],
       createdAt: new Date(result.rows[0].created_at),
       updatedAt: new Date(result.rows[0].updated_at)
     }

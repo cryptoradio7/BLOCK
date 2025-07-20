@@ -4,60 +4,41 @@
   overflow-y: auto;
 }
 
-.addBlockButton {
-  padding: 10px 20px;
-  background: var(--agile-green);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.addBlockButton:hover {
-  background: var(--agile-green-dark);
-}
-
-.blocksContainer {
+.pageContent {
   min-height: 400px;
-  position: relative;
   width: 100%;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.blockWrapper {
-  transition: transform 0.2s;
-  width: 300px;
+.loadingState {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
 }
 
-.blockWrapper:hover {
-  transform: scale(1.02);
+.loadingState p {
+  font-size: 18px;
+  margin-bottom: 20px;
 }
 
 .emptyState {
   text-align: center;
   padding: 60px 20px;
   color: #6c757d;
+  max-width: 600px;
+}
+
+.emptyState h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--agile-green);
 }
 
 .emptyState p {
-  font-size: 18px;
-  margin-bottom: 20px;
-}
-
-.emptyState button {
-  padding: 12px 24px;
-  background: var(--agile-green);
-  color: white;
-  border: none;
-  border-radius: 6px;
   font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.emptyState button:hover {
-  background: var(--agile-green-dark);
+  margin-bottom: 10px;
+  line-height: 1.5;
 } 
