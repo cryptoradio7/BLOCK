@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
@@ -49,6 +49,13 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Synchroniser la taille locale quand le bloc change de l'extérieur
+  useEffect(() => {
+    if (!isResizing) {
+      setLocalSize({ width: block.width, height: block.height });
+    }
+  }, [block.width, block.height, isResizing]);
 
   // Debounced save function
   const debouncedSave = useCallback(
