@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Sidebar from '@/components/Sidebar'
 import Toolbar from '@/components/Toolbar'
 import PageEditor from '@/components/PageEditor'
+import { BlockCanvas } from '@/components/BlockCanvas'
 import { Page } from '@/types'
 
 export default function Home() {
@@ -99,14 +100,7 @@ export default function Home() {
       <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
         <Toolbar />
         {currentPage && (
-          <PageEditor 
-            page={currentPage}
-            onPageUpdate={(updatedPage) => {
-              setPages(pages.map(p => 
-                p.id === updatedPage.id ? updatedPage : p
-              ))
-            }}
-          />
+          <BlockCanvas />
         )}
         {!sidebarVisible && (
           <button 

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
+import { DndProvider } from '@/components/DndProvider'
 
 export const metadata: Metadata = {
   title: 'Agile Vision BLOCK - Gestionnaire de Pages',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
-        {children}
+        <DndProvider>
+          {children}
+        </DndProvider>
       </body>
     </html>
   )
