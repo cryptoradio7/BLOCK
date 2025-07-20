@@ -45,24 +45,19 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
     }
   };
 
-  // Drop zone pour créer de nouveaux blocs
+  // Drop zone pour déplacer les blocs
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'BLOCK',
     drop: (item: any, monitor) => {
       const offset = monitor.getClientOffset();
-      if (offset) {
+      if (offset && item.id) {
         const canvasRect = document.getElementById('block-canvas')?.getBoundingClientRect();
         if (canvasRect) {
-          const x = offset.x - canvasRect.left;
-          const y = offset.y - canvasRect.top;
+          const x = offset.x - canvasRect.left - 150; // Centrer le bloc sur le curseur
+          const y = offset.y - canvasRect.top - 50;
           
-          // Si c'est un nouveau bloc (pas de position initiale)
-          if (!item.x && !item.y) {
-            createNewBlock(x, y);
-          } else {
-            // Mise à jour de la position d'un bloc existant
-            updateBlockPosition(item.id, x, y);
-          }
+          // Mise à jour de la position d'un bloc existant
+          updateBlockPosition(item.id, Math.max(0, x), Math.max(0, y));
         }
       }
     },

@@ -73,4 +73,34 @@ a {
   background: var(--agile-green-dark);
   transform: scale(1.1);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Styles pour react-resizable */
+.react-resizable {
+  position: relative;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  bottom: 0;
+  right: 0;
+  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI2IiB2aWV3Qm94PSIwIDAgNiA2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiNhYWEiPjxwYXRoIGQ9Im0wIDZoNnY2aC02eiIvPjxwYXRoIGQ9Im0zIDNoM3YzaC0zeiIvPjwvZz48L3N2Zz4=');
+  background-position: bottom right;
+  padding: 0 3px 3px 0;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  box-sizing: border-box;
+  cursor: se-resize;
+}
+
+/* Style pour les blocs draggables */
+.draggable-block {
+  user-select: none;
+}
+
+.draggable-block.is-dragging {
+  opacity: 0.5;
+  z-index: 1000;
 } 

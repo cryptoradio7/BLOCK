@@ -65,14 +65,15 @@ export const EditableBlock = ({
     }),
   }));
 
-  // Drop for files
-  const [{ canDrop }, drop] = useDrop(() => ({
-    accept: ['FILE', 'IMAGE'],
-    drop: (item: { files: FileList }) => handleFileUpload(item.files),
-    collect: (monitor) => ({
-      canDrop: !!monitor.canDrop(),
-    }),
-  }));
+  // Drop pour les fichiers désactivé temporairement pour éviter les conflits
+  // const [{ canDrop }, drop] = useDrop(() => ({
+  //   accept: ['FILE', 'IMAGE'],
+  //   drop: (item: { files: FileList }) => handleFileUpload(item.files),
+  //   collect: (monitor) => ({
+  //     canDrop: !!monitor.canDrop(),
+  //   }),
+  // }));
+  const canDrop = false;
 
   const handleFileUpload = async (files: FileList) => {
     const newAttachments = await Promise.all(
@@ -121,9 +122,9 @@ export const EditableBlock = ({
       maxConstraints={[800, 600]}
     >
       <div
+        className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
         ref={(node) => {
           drag(node);
-          drop(node);
         }}
         style={{
           opacity: isDragging ? 0.5 : 1,
@@ -136,7 +137,7 @@ export const EditableBlock = ({
           top: `${block.y}px`,
           width: `${block.width}px`,
           height: `${block.height}px`,
-          cursor: isDragging ? 'grabbing' : 'grab',
+          cursor: isDragging ? 'grabbing' : 'default',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           transition: 'box-shadow 0.2s ease',
         }}
@@ -147,9 +148,22 @@ export const EditableBlock = ({
           e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
         }}
       >
-        {/* Header */}
-        <div style={{ marginBottom: '12px', fontSize: '14px', color: '#666', fontWeight: 'bold' }}>
-          Bloc #{block.id}
+        {/* Header - Zone de drag */}
+        <div 
+          style={{ 
+            marginBottom: '12px', 
+            fontSize: '14px', 
+            color: '#666', 
+            fontWeight: 'bold',
+            cursor: 'move',
+            padding: '8px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '4px',
+            border: '1px dashed #dee2e6'
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          🔄 Bloc #{block.id} - Glisser pour déplacer
         </div>
         
         {/* Content area */}
