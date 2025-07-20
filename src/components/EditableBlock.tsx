@@ -199,7 +199,7 @@ export const EditableBlock = ({
             userSelect: 'none'
           }}
         >
-          🔄 Bloc #{block.id} - {isDragging ? 'Déplacement...' : 'Glisser pour déplacer'}
+                      {isDragging ? '🚀 Déplacement en cours...' : '✋ ZONE DE DRAG - Cliquez ici pour déplacer le bloc'}
         </div>
         
         {/* Content area */}
