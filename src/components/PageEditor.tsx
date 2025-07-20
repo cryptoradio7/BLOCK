@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Page, Block } from '@/types'
 import BlockComponent from './BlockComponent'
 import styles from './PageEditor.module.css'
@@ -11,34 +11,97 @@ interface PageEditorProps {
 }
 
 export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
-  const [blocks, setBlocks] = useState<Block[]>(page.blocks)
+  const [blocks, setBlocks] = useState<Block[]>([])
   const [draggedBlock, setDraggedBlock] = useState<Block | null>(null)
+  const [loading, setLoading] = useState(true)
   const dropZoneRef = useRef<HTMLDivElement>(null)
 
-  const addBlock = () => {
-    const newBlock: Block = {
-      id: Date.now().toString(),
-      type: 'text',
-      content: '',
-      order: blocks.length
+  // Charger les blocs de la page
+  useEffect(() => {
+    loadBlocks()
+  }, [page.id])
+
+  const loadBlocks = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/pages/${page.id}/blocks`)
+      if (response.ok) {
+        const blocksData = await response.json()
+        setBlocks(blocksData)
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des blocs:', error)
+    } finally {
+      setLoading(false)
     }
-    const updatedBlocks = [...blocks, newBlock]
-    setBlocks(updatedBlocks)
-    updatePage(updatedBlocks)
   }
 
-  const updateBlock = (blockId: string, updates: Partial<Block>) => {
-    const updatedBlocks = blocks.map(block =>
-      block.id === blockId ? { ...block, ...updates } : block
-    )
-    setBlocks(updatedBlocks)
-    updatePage(updatedBlocks)
+  const addBlock = async () => {
+    try {
+      const response = await fetch('/api/blocks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pageId: page.id,
+          type: 'text',
+          content: '',
+          order: blocks.length
+        })
+      })
+
+      if (response.ok) {
+        const newBlock = await response.json()
+        const updatedBlocks = [...blocks, newBlock]
+        setBlocks(updatedBlocks)
+        updatePage(updatedBlocks)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création du bloc:', error)
+    }
   }
 
-  const deleteBlock = (blockId: string) => {
-    const updatedBlocks = blocks.filter(block => block.id !== blockId)
-    setBlocks(updatedBlocks)
-    updatePage(updatedBlocks)
+  const updateBlock = async (blockId: string, updates: Partial<Block>) => {
+    try {
+      const response = await fetch('/api/blocks', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: blockId,
+          ...updates
+        })
+      })
+
+      if (response.ok) {
+        const updatedBlock = await response.json()
+        const updatedBlocks = blocks.map(block =>
+          block.id === blockId ? { ...block, ...updatedBlock } : block
+        )
+        setBlocks(updatedBlocks)
+        updatePage(updatedBlocks)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du bloc:', error)
+    }
+  }
+
+  const deleteBlock = async (blockId: string) => {
+    try {
+      const response = await fetch(`/api/blocks/${blockId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        const updatedBlocks = blocks.filter(block => block.id !== blockId)
+        setBlocks(updatedBlocks)
+        updatePage(updatedBlocks)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression du bloc:', error)
+    }
   }
 
   const updatePage = (updatedBlocks: Block[]) => {
@@ -88,7 +151,6 @@ export default function PageEditor({ page, onPageUpdate }: PageEditorProps) {
   return (
     <div className={styles.pageEditor}>
       <div className={styles.pageHeader}>
-        <h2 className={styles.pageTitle}>{page.title}</h2>
         <button className={styles.addBlockButton} onClick={addBlock}>
           + Ajouter un bloc
         </button>

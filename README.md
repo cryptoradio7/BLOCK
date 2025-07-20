@@ -75,7 +75,7 @@ src/
 
 Le projet est configuré pour évoluer ensemble. Les principales améliorations prévues :
 
-- [ ] Base de données PostgreSQL avec Prisma
+- [x] Base de données PostgreSQL avec pg (node-postgres)
 - [ ] Authentification utilisateur
 - [ ] Collaboration en temps réel
 - [ ] Templates de pages

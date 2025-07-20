@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
+import pool from '@/lib/db'
 import { Page } from '@/types'
 
-// Simulation d'une base de données en mémoire
-let pages: Page[] = [
-  {
-    id: '1',
-    title: 'Page d\'accueil',
-    blocks: [],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-]
-
 export async function GET() {
-  return NextResponse.json(pages)
+  try {
+    const result = await pool.query(`
+      SELECT 
+        p.id,
+        p.title,
+        p.created_at as "createdAt",
+        p.updated_at as "updatedAt"
+      FROM pages p
+      ORDER BY p.created_at DESC
+    `)
+    
+    const pages: Page[] = result.rows.map(row => ({
+      id: row.id.toString(),
+      title: row.title,
+      blocks: [], // On chargera les blocs séparément
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt)
+    }))
+
+    return NextResponse.json(pages)
+  } catch (error) {
+    console.error('Erreur lors de la récupération des pages:', error)
+    return NextResponse.json(
+      { error: 'Erreur lors de la récupération des pages' },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -28,18 +44,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const newPage: Page = {
-      id: Date.now().toString(),
-      title,
-      blocks: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
+    const result = await pool.query(
+      'INSERT INTO pages (title) VALUES ($1) RETURNING *',
+      [title]
+    )
 
-    pages.push(newPage)
+    const newPage: Page = {
+      id: result.rows[0].id.toString(),
+      title: result.rows[0].title,
+      blocks: [],
+      createdAt: new Date(result.rows[0].created_at),
+      updatedAt: new Date(result.rows[0].updated_at)
+    }
 
     return NextResponse.json(newPage, { status: 201 })
   } catch (error) {
+    console.error('Erreur lors de la création de la page:', error)
     return NextResponse.json(
       { error: 'Erreur lors de la création de la page' },
       { status: 500 }

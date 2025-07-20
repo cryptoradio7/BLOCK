@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
-  title: 'BLOCKS - Gestionnaire de Pages',
+  title: 'BLOCK - Gestionnaire de Pages',
   description: 'Application moderne de gestion de pages et blocs',
 }
 
