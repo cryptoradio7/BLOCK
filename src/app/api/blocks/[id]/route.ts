@@ -36,12 +36,18 @@ export async function PUT(
     const body = await request.json();
     const { content, x, y, width, height } = body;
 
+    // Arrondir les coordonnées pour PostgreSQL
+    const roundedX = Math.round(x);
+    const roundedY = Math.round(y);
+    const roundedWidth = Math.round(width);
+    const roundedHeight = Math.round(height);
+
     const result = await pool.query(
       `UPDATE blocks 
        SET content = $1, x = $2, y = $3, width = $4, height = $5, updated_at = NOW()
        WHERE id = $6
        RETURNING *`,
-      [content, x, y, width, height, parseInt(params.id)]
+      [content, roundedX, roundedY, roundedWidth, roundedHeight, parseInt(params.id)]
     );
 
     if (result.rows.length === 0) {
