@@ -156,8 +156,9 @@ a {
   height: auto;
   border: 2px solid #ddd;
   border-radius: 4px;
-  margin: 8px 0;
-  display: block;
+  margin: 4px 8px 4px 0; /* Marge à droite pour permettre le texte à côté */
+  display: inline-block; /* Permet au texte de s'écouler autour */
+  vertical-align: top; /* Alignement en haut pour un meilleur rendu */
   transition: all 0.2s ease;
   resize: both;
   overflow: hidden;
@@ -228,6 +229,52 @@ a {
 
 [contenteditable] img.resizable:hover::after {
   opacity: 1;
+}
+
+/* Amélioration de l'édition de texte autour des images */
+[contenteditable] {
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+/* Espacement autour des images pour faciliter l'écriture */
+[contenteditable] img + br {
+  line-height: 1.2;
+}
+
+/* Style pour les zones cliquables autour des images */
+[contenteditable]:focus {
+  outline: 2px solid rgba(0, 123, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* Curseur plus visible dans le contenu éditable */
+[contenteditable]:focus::before {
+  content: '';
+  position: absolute;
+  width: 1px;
+  height: 1em;
+  background: #007bff;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Style pour faciliter le clic à côté des images */
+[contenteditable] img:hover + * {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* Indication visuelle pour les zones d'écriture */
+[contenteditable]:empty::before {
+  content: 'Cliquez ici pour écrire...';
+  color: #6c757d;
+  font-style: italic;
+  pointer-events: none;
 }
 
 /* Styles pour le scroll de la zone de travail */
