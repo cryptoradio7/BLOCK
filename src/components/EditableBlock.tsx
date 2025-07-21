@@ -174,6 +174,16 @@ export const EditableBlock = ({
           transform: isDragging ? 'rotate(2deg) scale(1.02)' : 'none',
           zIndex: isDragging ? 1000 : 1,
         }}
+        onMouseDown={(e) => {
+          // Empêcher le drag si on clique sur la poignée de redimensionnement
+          const target = e.target as HTMLElement;
+          if (target.classList.contains('react-resizable-handle') || 
+              target.closest('.react-resizable-handle')) {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+          }
+        }}
         onMouseEnter={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';

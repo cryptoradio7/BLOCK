@@ -87,6 +87,8 @@ a {
   border: 2px solid #fff;
   border-radius: 0 0 4px 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  z-index: 1001; /* Au-dessus du bloc draggable */
+  pointer-events: auto; /* S'assurer que les événements sont capturés */
 }
 
 .react-resizable-handle-se {
@@ -99,6 +101,24 @@ a {
 
 .react-resizable-handle:hover {
   background-color: #0056b3;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.react-resizable-handle:active {
+  background-color: #004085;
+  transform: scale(1.2);
+}
+
+/* Zone de capture élargie pour la poignée */
+.react-resizable-handle::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  cursor: se-resize;
 }
 
 /* Style pour les blocs draggables */

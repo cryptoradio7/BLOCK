@@ -113,12 +113,13 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           id: item.id, 
           blockType: item.blockType 
         });
+        return undefined;
       }
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
     }),
-  }));
+  }), [blocks]);
 
   const createNewBlock = async (x: number, y: number) => {
     try {
