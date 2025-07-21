@@ -62,6 +62,8 @@ export const EditableBlock = ({
     }
   }, [block.width, block.height, isResizing]);
 
+
+
   // Ajouter des boutons de suppression aux images existantes au montage
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -676,16 +678,17 @@ export const EditableBlock = ({
           )}
         </div>
         
-        {/* Content area - Rich text editor */}
+                {/* Content area - Rich text editor */}
         <div
           contentEditable
+          dir="ltr"
           dangerouslySetInnerHTML={{ __html: localContent }}
           onInput={handleContentChange}
-          onClick={handleContentClick} // Gérer les clics sur les images
-          onDoubleClick={handleContentDoubleClick} // Double-clic pour supprimer les images
-          onKeyDown={handleContentKeyDown} // Touches Delete/Backspace pour supprimer les images
-          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-          onPaste={handlePasteInContent} // Gérer le paste d'images dans le contenu
+          onClick={handleContentClick}
+          onDoubleClick={handleContentDoubleClick}
+          onKeyDown={handleContentKeyDown}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPaste={handlePasteInContent}
           suppressContentEditableWarning={true}
           style={{
             width: '100%',
@@ -700,7 +703,9 @@ export const EditableBlock = ({
             fontFamily: 'inherit',
             cursor: 'text',
             overflow: 'auto',
-            padding: '4px',
+            padding: '8px',
+            direction: 'ltr',
+            textAlign: 'left',
           }}
         />
         
@@ -733,176 +738,91 @@ export const EditableBlock = ({
             }}>
               {block.attachments.map((file) => {
                 const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+                const icon = isImage ? '🖼️' : '📎';
                 
-                if (isImage) {
-                  // Affichage d'une image en miniature
-                  return (
-                    <div 
-                      key={file.id}
-                      style={{ 
-                        position: 'relative',
-                        cursor: 'pointer',
-                        borderRadius: '4px',
-                        overflow: 'hidden',
-                        border: '1px solid #e0e0e0',
-                        transition: 'all 0.2s',
-                        backgroundColor: '#f8f9fa',
-                        marginBottom: '4px',
-                        minHeight: '44px'
-                      }}
+                return (
+                  <div 
+                    key={file.id} 
+                    style={{ 
+                      fontSize: '11px', 
+                      marginBottom: '3px',
+                      cursor: 'pointer',
+                      color: '#007bff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      lineHeight: '1.4',
+                      position: 'relative',
+                      minHeight: '24px',
+                      border: '1px solid #e0e0e0',
+                      backgroundColor: '#f8f9fa'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(file.url, '_blank');
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#e3f2fd';
+                      e.currentTarget.style.borderColor = '#007bff';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      e.currentTarget.style.borderColor = '#e0e0e0';
+                    }}
+                    title={`${isImage ? 'Image' : 'Fichier'}: ${file.name}`}
+                  >
+                    <span style={{ flexShrink: 0, fontSize: '10px' }}>{icon}</span>
+                    <span style={{ 
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      fontWeight: '500'
+                    }}>
+                      {file.name.length > 25 ? file.name.substring(0, 25) + '...' : file.name}
+                    </span>
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        window.open(file.url, '_blank');
+                        handleDeleteAttachment(file.id, file.name);
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.02)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                      title={`Image: ${file.name}`}
-                    >
-                      <img 
-                        src={file.url} 
-                        alt={file.name}
-                        style={{
-                          width: '100%',
-                          height: '40px',
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
-                      />
-                      <div style={{
-                        fontSize: '8px',
-                        padding: '2px 4px',
-                        color: '#666',
-                        backgroundColor: 'rgba(255,255,255,0.9)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        🖼️ {file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteAttachment(file.id, file.name);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          top: '2px',
-                          right: '2px',
-                          width: '16px',
-                          height: '16px',
-                          border: 'none',
-                          borderRadius: '50%',
-                          backgroundColor: 'rgba(220, 53, 69, 0.8)',
-                          color: 'white',
-                          fontSize: '10px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          lineHeight: '1',
-                          transition: 'all 0.2s',
-                          zIndex: 10
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 1)';
-                          e.currentTarget.style.transform = 'scale(1.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 0.8)';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                        title={`Supprimer ${file.name}`}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                } else {
-                  // Affichage d'un fichier normal
-                  return (
-                    <div 
-                      key={file.id} 
-                      style={{ 
-                        fontSize: '10px', 
-                        marginBottom: '2px',
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        border: 'none',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        color: 'white',
+                        fontSize: '10px',
                         cursor: 'pointer',
-                        color: '#007bff',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '4px',
-                        padding: '3px 6px',
-                        borderRadius: '3px',
-                        transition: 'background-color 0.2s',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        lineHeight: '1.4',
-                        position: 'relative',
-                        minHeight: '20px'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(file.url, '_blank');
+                        justifyContent: 'center',
+                        lineHeight: '1',
+                        transition: 'all 0.2s',
+                        flexShrink: 0,
+                        marginLeft: '6px',
+                        fontWeight: 'bold'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                        e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 1)';
+                        e.currentTarget.style.transform = 'scale(1.1)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 0.8)';
+                        e.currentTarget.style.transform = 'scale(1)';
                       }}
-                      title={file.name}
+                      title={`Supprimer ${file.name}`}
                     >
-                      <span style={{ flexShrink: 0, fontSize: '8px' }}>📎</span>
-                      <span style={{ 
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flex: 1
-                      }}>
-                        {file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteAttachment(file.id, file.name);
-                        }}
-                        style={{
-                          width: '12px',
-                          height: '12px',
-                          border: 'none',
-                          borderRadius: '50%',
-                          backgroundColor: 'rgba(220, 53, 69, 0.7)',
-                          color: 'white',
-                          fontSize: '8px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          lineHeight: '1',
-                          transition: 'all 0.2s',
-                          flexShrink: 0,
-                          marginLeft: '4px'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 1)';
-                          e.currentTarget.style.transform = 'scale(1.1)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 0.7)';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                        title={`Supprimer ${file.name}`}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                }
+                      ×
+                    </button>
+                  </div>
+                );
               })}
             </div>
           </div>

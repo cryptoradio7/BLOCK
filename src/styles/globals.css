@@ -150,6 +150,13 @@ a {
   z-index: 1000;
 }
 
+
+/* Direction de texte gauche-droite pour contenteditable */
+[contenteditable][dir="ltr"] {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
 /* Styles pour les images dans le contenu des blocs */
 [contenteditable] img {
   max-width: 100%;
