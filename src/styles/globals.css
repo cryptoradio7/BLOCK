@@ -80,19 +80,25 @@ a {
   position: relative;
 }
 
+/* Styles pour les poignées de redimensionnement react-resizable */
 .react-resizable-handle {
   position: absolute;
+  background-color: #007bff;
+  border: 2px solid #fff;
+  border-radius: 0 0 4px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.react-resizable-handle-se {
   width: 20px;
   height: 20px;
-  bottom: 0;
-  right: 0;
-  background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNiIgaGVpZ2h0PSI2IiB2aWV3Qm94PSIwIDAgNiA2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxnIGZpbGw9IiNhYWEiPjxwYXRoIGQ9Im0wIDZoNnY2aC02eiIvPjxwYXRoIGQ9Im0zIDNoM3YzaC0zeiIvPjwvZz48L3N2Zz4=');
-  background-position: bottom right;
-  padding: 0 3px 3px 0;
-  background-repeat: no-repeat;
-  background-origin: content-box;
-  box-sizing: border-box;
+  bottom: -2px;
+  right: -2px;
   cursor: se-resize;
+}
+
+.react-resizable-handle:hover {
+  background-color: #0056b3;
 }
 
 /* Style pour les blocs draggables */

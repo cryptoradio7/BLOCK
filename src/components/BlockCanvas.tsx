@@ -49,28 +49,70 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: 'BLOCK',
     hover: (item: any, monitor) => {
-      console.log('🔄 Hovering with:', item);
+      // Hover feedback visuel seulement
     },
     drop: (item: any, monitor) => {
       console.log('📦 Drop event received:', item);
-      const offset = monitor.getClientOffset();
-      console.log('📍 Drop offset:', offset);
       
-      if (offset && item.id && item.blockType === 'existing') {
-        const canvasRect = document.getElementById('block-canvas')?.getBoundingClientRect();
+      if (item.id && item.blockType === 'existing') {
+        // Obtenir la position absolue de la souris
+        const clientOffset = monitor.getClientOffset();
+        if (!clientOffset) {
+          console.log('❌ No client offset');
+          return;
+        }
+        
+        // Obtenir la position initiale du clic sur le bloc
+        const initialClientOffset = monitor.getInitialClientOffset();
+        const initialSourceClientOffset = monitor.getInitialSourceClientOffset();
+        
+        console.log('📍 Client offset:', clientOffset);
+        console.log('🔵 Initial client offset:', initialClientOffset);
+        console.log('🟡 Initial source offset:', initialSourceClientOffset);
+        
+        // Trouver le bloc actuel
+        const currentBlock = blocks.find(b => b.id === item.id);
+        if (!currentBlock) {
+          console.log('❌ Block not found');
+          return;
+        }
+        
+        // Obtenir les dimensions du canvas
+        const canvasElement = document.getElementById('block-canvas');
+        if (!canvasElement) {
+          console.log('❌ Canvas not found');
+          return;
+        }
+        
+        const canvasRect = canvasElement.getBoundingClientRect();
         console.log('📐 Canvas rect:', canvasRect);
         
-        if (canvasRect) {
-          const x = offset.x - canvasRect.left - 150;
-          const y = offset.y - canvasRect.top - 50;
-          
-                     const intX = Math.round(Math.max(0, x));
-           const intY = Math.round(Math.max(0, y));
-           console.log('🎯 Moving block', item.id, 'to:', { x: intX, y: intY });
-           updateBlockPosition(item.id, intX, intY);
+        // Calculer l'offset du clic initial dans le bloc
+        let clickOffsetX = 0;
+        let clickOffsetY = 0;
+        
+        if (initialClientOffset && initialSourceClientOffset) {
+          clickOffsetX = initialClientOffset.x - initialSourceClientOffset.x;
+          clickOffsetY = initialClientOffset.y - initialSourceClientOffset.y;
         }
+        
+        console.log('🎯 Click offset in block:', { x: clickOffsetX, y: clickOffsetY });
+        
+        // Position finale = position souris - position clic dans le bloc - position canvas
+        const newX = Math.max(0, Math.round(clientOffset.x - canvasRect.left - clickOffsetX));
+        const newY = Math.max(0, Math.round(clientOffset.y - canvasRect.top - clickOffsetY));
+        
+        console.log('🏁 Final position:', { x: newX, y: newY });
+        console.log('📊 From position:', { x: currentBlock.x, y: currentBlock.y });
+        
+        updateBlockPosition(item.id, newX, newY);
+        
+        return { moved: true };
       } else {
-        console.log('❌ Drop conditions not met:', { offset, id: item.id, blockType: item.blockType });
+        console.log('❌ Drop conditions not met:', { 
+          id: item.id, 
+          blockType: item.blockType 
+        });
       }
     },
     collect: (monitor) => ({
@@ -115,22 +157,40 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   };
 
   const updateBlockPosition = async (id: number, x: number, y: number) => {
+    console.log('🔧 updateBlockPosition called with:', { id, x, y });
     const block = blocks.find(b => b.id === id);
+    console.log('🔍 Found block:', block);
+    
     if (block) {
       const updatedBlock = { ...block, x, y };
-      setBlocks(prev => prev.map(b => b.id === id ? updatedBlock : b));
+      console.log('📝 Updated block:', updatedBlock);
+      
+      setBlocks(prev => {
+        const newBlocks = prev.map(b => b.id === id ? updatedBlock : b);
+        console.log('📊 State updated, new positions:', newBlocks.map(b => ({ id: b.id, x: b.x, y: b.y })));
+        return newBlocks;
+      });
       
       try {
-        await fetch(`/api/blocks/${id}`, {
+        const response = await fetch(`/api/blocks/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(updatedBlock),
         });
+        console.log('📡 API response status:', response.status);
+        
+        if (!response.ok) {
+          console.error('❌ API update failed:', response.statusText);
+        } else {
+          console.log('✅ Position saved to database successfully');
+        }
       } catch (error) {
-        console.error('Erreur lors de la mise à jour de la position:', error);
+        console.error('❌ Error updating position:', error);
       }
+    } else {
+      console.error('❌ Block not found with id:', id);
     }
   };
 

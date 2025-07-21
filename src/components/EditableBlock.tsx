@@ -65,13 +65,14 @@ export const EditableBlock = ({
     [block, onUpdate]
   );
 
-  // Drag for repositioning - Version ultra-simple
+  // Drag for repositioning - simplifié
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'BLOCK',
     item: { id: block.id, blockType: 'existing' },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
+    canDrag: () => !isResizing, // Seule protection : pas de drag pendant resize
     end: (item, monitor) => {
       console.log('🏁 Fin du drag pour bloc:', block.id, 'dropped:', monitor.didDrop());
     },
@@ -149,13 +150,17 @@ export const EditableBlock = ({
       onResizeStop={handleResizeStop}
       minConstraints={[200, 100]}
       maxConstraints={[800, 600]}
+      resizeHandles={['se']}
     >
       <div
+        ref={(node) => {
+          drag(node);
+        }}
         className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
         style={{
           opacity: isDragging ? 0.5 : 1,
           backgroundColor: canDrop ? '#f0f8ff' : 'white',
-          border: isResizing ? '2px solid #007bff' : '2px solid #e0e0e0',
+          border: isResizing ? '2px solid #007bff' : (isDragging ? '3px solid #ff9800' : '2px solid #e0e0e0'),
           borderRadius: '8px',
           padding: '16px',
           position: 'absolute',
@@ -163,40 +168,67 @@ export const EditableBlock = ({
           top: `${block.y}px`,
           width: `${localSize.width}px`,
           height: `${localSize.height}px`,
-          cursor: isDragging ? 'grabbing' : 'default',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          transition: 'box-shadow 0.2s ease',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          boxShadow: isDragging ? '0 8px 16px rgba(255, 152, 0, 0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+          transition: isDragging ? 'none' : 'box-shadow 0.2s ease',
+          transform: isDragging ? 'rotate(2deg) scale(1.02)' : 'none',
+          zIndex: isDragging ? 1000 : 1,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          if (!isDragging) {
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          if (!isDragging) {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }
         }}
       >
-                {/* Header - Zone de drag */}
-        <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div 
-            ref={(node) => {
-              drag(node);
-            }}
-            style={{ 
-              flex: 1,
-              fontSize: '14px', 
-              color: '#666', 
-              fontWeight: 'bold',
-              cursor: isDragging ? 'grabbing' : 'grab',
-              padding: '8px',
-              backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
-              borderRadius: '4px',
-              border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
-              userSelect: 'none'
-            }}
-            onMouseDown={() => console.log('🖱️ MouseDown sur zone drag bloc', block.id)}
-          >
-            {isDragging ? '🚀 EN MOUVEMENT...' : '✋ DRAG ZONE'}
+        {/* Header simplifié */}
+        <div style={{ 
+          marginBottom: '12px', 
+          display: 'flex', 
+          gap: '8px', 
+          alignItems: 'center',
+          position: 'relative'
+        }}>
+          <div style={{ 
+            flex: 1,
+            fontSize: '14px', 
+            color: '#666', 
+            fontWeight: 'bold',
+            padding: '8px',
+            backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
+            borderRadius: '4px',
+            border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
+            userSelect: 'none'
+          }}>
+            {isDragging ? '🚀 EN MOUVEMENT...' : '📦 Bloc #' + block.id}
           </div>
+          
+          {/* Indicateur de drag dans le coin */}
+          <div style={{
+            position: 'absolute',
+            top: '-8px',
+            right: '-8px',
+            fontSize: '16px',
+            color: isDragging ? '#ff9800' : '#666',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '50%',
+            width: '24px',
+            height: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid #e0e0e0',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          }}>
+            {isDragging ? '🚀' : '⬌'}
+          </div>
+          
           <button
+            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             style={{
               padding: '4px 8px',
               backgroundColor: '#4caf50',
@@ -220,6 +252,7 @@ export const EditableBlock = ({
           value={localContent}
           onChange={handleContentChange}
           placeholder="Contenu du bloc..."
+          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
           style={{
             width: '100%',
             height: '60%',
@@ -230,12 +263,16 @@ export const EditableBlock = ({
             lineHeight: '1.5',
             backgroundColor: 'transparent',
             fontFamily: 'inherit',
+            cursor: 'text',
           }}
         />
         
         {/* Attachments */}
         {block.attachments.length > 0 && (
-          <div style={{ marginTop: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '8px' }}>
+          <div 
+            style={{ marginTop: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '8px' }}
+            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+          >
             <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#666' }}>
               Fichiers joints ({block.attachments.length})
             </h4>
@@ -248,7 +285,10 @@ export const EditableBlock = ({
         )}
         
         {/* File upload button */}
-        <div style={{ marginTop: '12px' }}>
+        <div 
+          style={{ marginTop: '12px' }}
+          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+        >
           <input
             type="file"
             ref={fileInputRef}
