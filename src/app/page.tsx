@@ -82,10 +82,37 @@ export default function Home() {
 
   const reorderPages = async (reorderedPages: Page[]) => {
     try {
+      // Vérifier s'il y a des changements de titre
+      const titleChanges = reorderedPages.filter(newPage => {
+        const oldPage = pages.find(p => p.id === newPage.id)
+        return oldPage && oldPage.title !== newPage.title
+      })
+
       // Mettre à jour l'état local immédiatement pour une réponse rapide
       setPages(reorderedPages)
+
+      // Sauvegarder les changements de titre d'abord
+      for (const changedPage of titleChanges) {
+        try {
+          const response = await fetch(`/api/pages/${changedPage.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ title: changedPage.title })
+          })
+
+          if (!response.ok) {
+            console.error('❌ Erreur lors de la sauvegarde du titre de la page:', changedPage.id)
+          } else {
+            console.log('✅ Titre de page sauvegardé:', changedPage.title)
+          }
+        } catch (error) {
+          console.error('❌ Erreur lors de la mise à jour du titre:', error)
+        }
+      }
       
-      // Sauvegarder l'ordre en base de données
+      // Puis sauvegarder l'ordre en base de données
       const pageIds = reorderedPages.map(page => page.id)
       const response = await fetch('/api/pages/reorder', {
         method: 'POST',
@@ -96,12 +123,14 @@ export default function Home() {
       })
 
       if (!response.ok) {
-        console.error('Erreur lors de la sauvegarde de l\'ordre des pages')
+        console.error('❌ Erreur lors de la sauvegarde de l\'ordre des pages')
         // En cas d'erreur, recharger les pages pour remettre l'ordre correct
         loadPages()
+      } else {
+        console.log('✅ Ordre des pages sauvegardé')
       }
     } catch (error) {
-      console.error('Erreur lors de la réorganisation des pages:', error)
+      console.error('❌ Erreur lors de la réorganisation des pages:', error)
       // En cas d'erreur, recharger les pages
       loadPages()
     }
