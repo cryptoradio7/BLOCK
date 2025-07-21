@@ -172,6 +172,10 @@ export const EditableBlock = ({
     if (imageFiles.length > 0) {
       e.preventDefault(); // Empêcher le paste normal
       
+      // IMPORTANT: Stocker toutes les références AVANT les opérations asynchrones
+      const contentElement = e.currentTarget;
+      const currentContent = contentElement?.innerHTML || localContent;
+      
       try {
         console.log(`📷 Upload de ${imageFiles.length} image(s) en cours vers contenu...`);
         
@@ -212,18 +216,17 @@ export const EditableBlock = ({
 
         const uploadedFiles = await Promise.all(uploadPromises);
 
-        // Référence vers l'élément de contenu
-        const contentElement = e.currentTarget;
-        
-        // Insérer les images dans le contenu
-        let newContent = contentElement.innerHTML;
+        // Insérer les images dans le contenu (utiliser les références stockées)
+        let newContent = currentContent;
         uploadedFiles.forEach((file) => {
           const imageHtml = `<img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block; margin: 8px 0;" />`;
           newContent += imageHtml;
         });
 
-        // Mettre à jour le contenu
-        contentElement.innerHTML = newContent;
+        // Mettre à jour le contenu en toute sécurité
+        if (contentElement) {
+          contentElement.innerHTML = newContent;
+        }
         setLocalContent(newContent);
         debouncedSave({ content: newContent });
 
