@@ -53,7 +53,7 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isTitleFocused, setIsTitleFocused] = useState(false);
+
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -245,11 +245,10 @@ export const EditableBlock = ({
             type="text"
             value={localTitle}
             onChange={handleTitleChange}
-            placeholder={isTitleFocused || localTitle.trim() !== "" ? "" : "Titre du bloc..."}
+            placeholder=""
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             onDragStart={(e) => e.preventDefault()} // Empêcher le drag natif
-            onFocus={() => setIsTitleFocused(true)}
-            onBlur={() => setIsTitleFocused(false)}
+
             style={{
               flex: 1,
               fontSize: '14px', 

@@ -129,7 +129,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          content: 'Contenu du bloc...',
+          content: '',
           x,
           y,
           width: 300,

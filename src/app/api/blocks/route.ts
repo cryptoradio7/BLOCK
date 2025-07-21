@@ -9,6 +9,7 @@ export async function GET() {
       SELECT 
         id, 
         type,
+        title,
         content, 
         x, 
         y, 
@@ -40,10 +41,10 @@ export async function POST(request: NextRequest) {
     const { content, x, y, width, height, page_id } = body;
 
     const result = await pool.query(
-      `INSERT INTO blocks (type, content, x, y, width, height, page_id) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      `INSERT INTO blocks (type, title, content, x, y, width, height, page_id) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
        RETURNING *`,
-      ['text', content || 'Nouveau bloc', x || 50, y || 50, width || 300, height || 200, page_id || 1]
+      ['text', '', content || '', x || 50, y || 50, width || 300, height || 200, page_id || 1]
     );
 
     console.log('✅ Bloc créé avec ID:', result.rows[0].id);
