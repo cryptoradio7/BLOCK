@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
@@ -52,7 +52,6 @@ export const EditableBlock = ({
   const [localTitle, setLocalTitle] = useState(block.title || '');
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
@@ -610,13 +609,11 @@ export const EditableBlock = ({
           }
         }}
         onMouseEnter={(e) => {
-          setIsHovered(true);
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
           }
         }}
         onMouseLeave={(e) => {
-          setIsHovered(false);
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
           }
@@ -682,49 +679,7 @@ export const EditableBlock = ({
               cursor: 'text',
             }}
           />
-          
-          {/* Icône poubelle au survol */}
-          {isHovered && (
-            <div 
-              style={{
-                position: 'absolute',
-                top: '-8px',
-                right: '-8px',
-                fontSize: '16px',
-                color: '#6c757d',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                borderRadius: '50%',
-                width: '24px',
-                height: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid #e0e0e0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                zIndex: 10,
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (window.confirm('Êtes-vous sûr de vouloir supprimer ce bloc ?')) {
-                  onDelete(block.id);
-                }
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#dc3545';
-                e.currentTarget.style.backgroundColor = '#fff5f5';
-                e.currentTarget.style.borderColor = '#dc3545';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6c757d';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-                e.currentTarget.style.borderColor = '#e0e0e0';
-              }}
-            >
-              🗑️
-            </div>
-          )}
+
         </div>
         
                 {/* Content area - Rich text editor */}

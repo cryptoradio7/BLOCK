@@ -37,7 +37,8 @@ src/
 ├── components/         # Composants React
 │   ├── Sidebar.tsx     # Barre latérale
 │   ├── Toolbar.tsx     # Barre d'outils
-│   └── PageEditor.tsx  # Éditeur de page
+│   ├── BlockCanvas.tsx # Canvas des blocs
+│   └── EditableBlock.tsx # Blocs éditables
 ├── types/              # Types TypeScript
 └── styles/             # Styles CSS
 ```

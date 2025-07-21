@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Sidebar from '@/components/Sidebar'
 import Toolbar from '@/components/Toolbar'
-import PageEditor from '@/components/PageEditor'
 import { BlockCanvas } from '@/components/BlockCanvas'
 import { DndProvider } from '@/components/DndProvider'
 import { Page } from '@/types'
