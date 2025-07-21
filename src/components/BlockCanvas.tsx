@@ -124,38 +124,59 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
   const createNewBlock = async (x: number, y: number) => {
     try {
+      console.log('🚀 DÉBUT createNewBlock:', { x, y, pageId });
+      
+      const requestBody = {
+        content: 'Nouveau bloc',
+        x,
+        y,
+        width: 300,
+        height: 200,
+        page_id: pageId,
+      };
+      
+      console.log('📤 Envoi requête API:', requestBody);
+      
       const response = await fetch('/api/blocks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content: '',
-          x,
-          y,
-          width: 300,
-          height: 200,
-          page_id: pageId,
-        }),
+        body: JSON.stringify(requestBody),
       });
+
+      console.log('📥 Réponse API status:', response.status);
 
       if (response.ok) {
         const newBlock = await response.json();
-        setBlocks(prev => [...prev, {
+        console.log('📦 Nouveau bloc reçu:', newBlock);
+        
+        const blockForState = {
           id: newBlock.id,
           x: newBlock.x,
           y: newBlock.y,
           width: newBlock.width,
           height: newBlock.height,
           content: newBlock.content || '',
-          title: newBlock.title || '', // Inclure le titre lors de la création
+          title: newBlock.title || '',
           type: newBlock.type || 'text',
           page_id: newBlock.page_id,
           attachments: [],
-        }]);
+        };
+        
+        console.log('🔄 Ajout au state:', blockForState);
+        setBlocks(prev => {
+          const newBlocks = [...prev, blockForState];
+          console.log('📊 Nouveaux blocs dans state:', newBlocks.length);
+          return newBlocks;
+        });
+        
+        console.log('✅ BLOC AJOUTÉ AU STATE !');
+      } else {
+        console.error('❌ Erreur API:', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Erreur lors de la création du bloc:', error);
+      console.error('❌ ERREUR createNewBlock:', error);
     }
   };
 
@@ -267,27 +288,23 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       {/* Bouton flottant pour ajouter un bloc */}
       <button
         className="add-block-button"
-        onClick={async (e) => {
+        onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          console.log('🔘 Clic sur bouton d\'ajout de bloc');
+          console.log('🔘 CLIC BOUTON - Création de bloc en cours...');
           
-          const canvasElement = document.getElementById('block-canvas');
-          if (canvasElement) {
-            const rect = canvasElement.getBoundingClientRect();
-            const scrollTop = canvasElement.scrollTop;
-            
-            // Position au centre de la vue actuelle
-            const centerX = Math.max(50, (rect.width - 300) / 2);
-            const centerY = Math.max(50, scrollTop + (window.innerHeight - 200) / 2);
-            
-            console.log('📍 Position calculée:', { centerX, centerY, scrollTop });
-            
-            await createNewBlock(centerX, centerY);
-            console.log('✅ Bloc créé !');
-          } else {
-            console.log('❌ Canvas non trouvé');
-          }
+          // Position simple et fixe pour test
+          const x = 100;
+          const y = 100;
+          
+          console.log('📍 Position:', { x, y, pageId });
+          
+          // Appel direct de création
+          createNewBlock(x, y).then(() => {
+            console.log('✅ BLOC CRÉÉ avec succès !');
+          }).catch((error) => {
+            console.error('❌ ERREUR création bloc:', error);
+          });
         }}
 
         onMouseEnter={(e) => {
