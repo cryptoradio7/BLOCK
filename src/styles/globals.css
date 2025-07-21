@@ -282,3 +282,158 @@ a {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 } 
+
+/* ===== STYLES D'IMPRESSION - AFFICHAGE EN CASCADE ===== */
+@media print {
+  /* Masquer les éléments non nécessaires à l'impression */
+  [class*="sidebar"],
+  [class*="toolbar"],
+  .floating-actions,
+  button,
+  [data-testid="toolbar"],
+  nav,
+  header,
+  .show-sidebar-button {
+    display: none !important;
+  }
+
+  /* Configuration générale de la page */
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+    line-height: 1.4;
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  /* Conteneur principal - pleine largeur */
+  .app {
+    display: block !important;
+    height: auto !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    background: white !important;
+    position: static !important;
+    display: block !important;
+    flex: none !important;
+  }
+
+  /* Canvas des blocs - affichage en cascade */
+  #block-canvas {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 20pt !important;
+    margin: 0 !important;
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  /* Blocs individuels - affichage en cascade */
+  .draggable-block {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    margin: 0 0 15pt 0 !important;
+    padding: 10pt !important;
+    border: 1pt solid #ddd !important;
+    border-radius: 4pt !important;
+    background: white !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    display: block !important;
+    transform: none !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  /* Contenu des blocs */
+  .draggable-block textarea,
+  .draggable-block [contenteditable] {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 60pt !important;
+    border: none !important;
+    background: transparent !important;
+    resize: none !important;
+    font-size: 11pt !important;
+    line-height: 1.3 !important;
+    padding: 5pt !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* Titre des blocs */
+  .draggable-block input[type="text"] {
+    width: 100% !important;
+    height: auto !important;
+    font-size: 14pt !important;
+    font-weight: bold !important;
+    border: none !important;
+    border-bottom: 1pt solid #ddd !important;
+    background: transparent !important;
+    padding: 5pt 0 !important;
+    margin-bottom: 8pt !important;
+    outline: none !important;
+  }
+
+  /* Images dans le contenu */
+  .draggable-block img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 8pt auto !important;
+    border: 1pt solid #ddd !important;
+    border-radius: 2pt !important;
+    page-break-inside: avoid;
+  }
+
+  /* Attachements et fichiers */
+  .attachment,
+  .file-item {
+    display: block !important;
+    margin: 5pt 0 !important;
+    padding: 5pt !important;
+    border: 1pt solid #ddd !important;
+    border-radius: 2pt !important;
+    font-size: 10pt !important;
+  }
+
+  /* Masquer les contrôles de redimensionnement */
+  .resize-handle,
+  .drag-handle,
+  .delete-button,
+  .upload-button,
+  [class*="resize"],
+  [class*="drag"] {
+    display: none !important;
+  }
+
+  /* Saut de page entre les blocs si nécessaire */
+  .draggable-block:nth-child(6n) {
+    page-break-after: auto;
+  }
+
+  /* Éviter les sauts de page à l'intérieur des blocs */
+  .draggable-block,
+  .draggable-block * {
+    page-break-inside: avoid;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Optimisation pour l'impression couleur */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+}
