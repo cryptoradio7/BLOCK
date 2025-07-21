@@ -62,6 +62,59 @@ export const EditableBlock = ({
     }
   }, [block.width, block.height, isResizing]);
 
+  // Ajouter des boutons de suppression aux images existantes au montage
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
+      if (contentDiv) {
+        const images = contentDiv.querySelectorAll('img:not(.processed)');
+        if (images.length > 0) {
+          images.forEach((element) => {
+            const img = element as HTMLImageElement;
+            // Marquer comme traité
+            img.classList.add('processed');
+            
+            // Vérifier si l'image n'est pas déjà dans un container
+            if (!img.parentElement?.classList.contains('image-container')) {
+              // Créer un container pour l'image
+              const imageContainer = document.createElement('div');
+              imageContainer.className = 'image-container';
+              imageContainer.style.cssText = 'display: inline-block; position: relative; margin: 8px 0;';
+              
+              // Créer le bouton de suppression
+              const deleteButton = document.createElement('button');
+              deleteButton.className = 'image-delete-button';
+              deleteButton.innerHTML = '×';
+              deleteButton.title = 'Supprimer cette image';
+              deleteButton.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm('Supprimer cette image ?')) {
+                  imageContainer.remove();
+                  // Sauvegarder le contenu mis à jour
+                  const newContent = contentDiv.innerHTML;
+                  setLocalContent(newContent);
+                  onUpdate({ ...block, content: newContent });
+                }
+              };
+              
+              // Insérer le container avant l'image
+              img.parentNode?.insertBefore(imageContainer, img);
+              // Déplacer l'image dans le container
+              imageContainer.appendChild(img);
+              // Ajouter le bouton
+              imageContainer.appendChild(deleteButton);
+              
+              // Ajuster les styles de l'image
+              img.style.margin = '0';
+            }
+          });
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [block.content, block.id]);
+
   // Debounced save function
   const debouncedSave = useCallback(
     debounce((updatedBlock: Partial<BlockType>) => {
@@ -216,10 +269,15 @@ export const EditableBlock = ({
 
         const uploadedFiles = await Promise.all(uploadPromises);
 
-        // Insérer les images dans le contenu (utiliser les références stockées)
+        // Insérer les images dans le contenu avec bouton de suppression
         let newContent = currentContent;
         uploadedFiles.forEach((file) => {
-          const imageHtml = `<img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block; margin: 8px 0;" />`;
+          const imageHtml = `
+            <div class="image-container" style="display: inline-block; position: relative; margin: 8px 0;">
+              <img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block;" />
+              <button class="image-delete-button" onclick="this.parentElement.remove(); arguments[0].stopPropagation();" title="Supprimer cette image">×</button>
+            </div>
+          `;
           newContent += imageHtml;
         });
 
@@ -409,9 +467,12 @@ export const EditableBlock = ({
     }
   };
 
+
+
   // Gérer les clics sur les images pour améliorer l'UX et permettre la suppression
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
+    
     if (target.tagName === 'IMG') {
       // Retirer la classe selected de toutes les autres images
       const allImages = e.currentTarget.querySelectorAll('img');
@@ -466,6 +527,7 @@ export const EditableBlock = ({
           drag(node);
         }}
         className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
+        data-block-id={block.id}
         style={{
           opacity: isDragging ? 0.5 : 1,
           backgroundColor: isDragOver ? '#f0f8ff' : 'white',

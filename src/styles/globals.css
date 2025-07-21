@@ -220,6 +220,51 @@ a {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* Conteneur pour les boutons de suppression d'images */
+.image-delete-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.image-delete-button:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+}
+
+/* Image avec position relative pour le bouton de suppression */
+[contenteditable] img {
+  position: relative;
+}
+
+/* Container relatif pour chaque image */
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-container:hover .image-delete-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Style de feedback visuel pour le redimensionnement */
 [contenteditable] img.resizable:hover {
   box-shadow: 0 0 16px rgba(0, 123, 255, 0.4);
