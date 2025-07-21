@@ -216,20 +216,11 @@ export const EditableBlock = ({
 
         const uploadedFiles = await Promise.all(uploadPromises);
 
-        // Insérer les images dans le contenu avec espaces pour écrire autour
+        // Insérer les images dans le contenu (utiliser les références stockées)
         let newContent = currentContent;
         uploadedFiles.forEach((file) => {
-          // Ajouter une ligne vide avant l'image s'il y a déjà du contenu
-          if (newContent.trim() !== '') {
-            newContent += '<br/>';
-          }
-          
-          // Image avec espace pour écrire à côté et en dessous
-          const imageHtml = `<img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - cliquez à côté pour écrire" />&nbsp;`;
+          const imageHtml = `<img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block; margin: 8px 0;" />`;
           newContent += imageHtml;
-          
-          // Ajouter une ligne vide après pour faciliter l'écriture en dessous
-          newContent += '<br/><br/>';
         });
 
         // Mettre à jour le contenu en toute sécurité
@@ -307,55 +298,18 @@ export const EditableBlock = ({
     debouncedSave({ content: newContent });
   };
 
-  // Gérer les clics sur les images et faciliter l'écriture autour
+  // Gérer les clics sur les images pour améliorer l'UX
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    const contentDiv = e.currentTarget;
-    
     if (target.tagName === 'IMG') {
       // Retirer la classe selected de toutes les autres images
-      const allImages = contentDiv.querySelectorAll('img');
+      const allImages = e.currentTarget.querySelectorAll('img');
       allImages.forEach(img => img.classList.remove('selected'));
       
       // Ajouter la classe selected à l'image cliquée
       target.classList.add('selected');
       
       console.log('🖼️ Image sélectionnée pour redimensionnement');
-    } else {
-      // Si on clique ailleurs, désélectionner toutes les images
-      const allImages = contentDiv.querySelectorAll('img');
-      allImages.forEach(img => img.classList.remove('selected'));
-    }
-  };
-
-  // Fonction pour placer le curseur à côté ou après une image
-  const placeCursorNearImage = (img: HTMLImageElement, position: 'after' | 'beside' = 'after') => {
-    const selection = window.getSelection();
-    if (selection) {
-      const range = document.createRange();
-      
-      if (position === 'after') {
-        // Placer le curseur après l'image
-        range.setStartAfter(img);
-      } else {
-        // Placer le curseur à côté de l'image
-        range.setStartAfter(img);
-      }
-      
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  };
-
-  // Gérer les double-clics sur les images pour placer le curseur
-  const handleContentDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    
-    if (target.tagName === 'IMG') {
-      e.preventDefault();
-      placeCursorNearImage(target as HTMLImageElement, 'after');
-      console.log('📝 Curseur placé après l\'image pour écrire');
     }
   };
 
@@ -535,7 +489,6 @@ export const EditableBlock = ({
           dangerouslySetInnerHTML={{ __html: localContent }}
           onInput={handleContentChange}
           onClick={handleContentClick} // Gérer les clics sur les images
-          onDoubleClick={handleContentDoubleClick} // Placer le curseur près des images
           onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
           onPaste={handlePasteInContent} // Gérer le paste d'images dans le contenu
           suppressContentEditableWarning={true}
@@ -547,7 +500,7 @@ export const EditableBlock = ({
             border: 'none',
             outline: 'none',
             fontSize: '14px',
-            lineHeight: '1.6', // Améliorer l'espacement des lignes
+            lineHeight: '1.5',
             backgroundColor: 'transparent',
             fontFamily: 'inherit',
             cursor: 'text',
