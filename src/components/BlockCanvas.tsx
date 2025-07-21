@@ -46,35 +46,36 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   };
 
   // Drop zone pour déplacer les blocs
-  const [{ isOver }, drop] = useDrop(() => ({
+  const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'BLOCK',
     hover: (item: any, monitor) => {
-      console.log('🔄 Hovering with:', item);
+      // Hover feedback handled by visual cues
     },
     drop: (item: any, monitor) => {
-      console.log('📦 Drop event received:', item);
-      const offset = monitor.getClientOffset();
-      console.log('📍 Drop offset:', offset);
+      const clientOffset = monitor.getClientOffset();
       
-      if (offset && item.id && item.blockType === 'existing') {
-        const canvasRect = document.getElementById('block-canvas')?.getBoundingClientRect();
-        console.log('📐 Canvas rect:', canvasRect);
-        
-        if (canvasRect) {
-          const x = offset.x - canvasRect.left - 150;
-          const y = offset.y - canvasRect.top - 50;
-          
-                     const intX = Math.round(Math.max(0, x));
-           const intY = Math.round(Math.max(0, y));
-           console.log('🎯 Moving block', item.id, 'to:', { x: intX, y: intY });
-           updateBlockPosition(item.id, intX, intY);
-        }
-      } else {
-        console.log('❌ Drop conditions not met:', { offset, id: item.id, blockType: item.blockType });
+      if (!clientOffset || !item.id || item.blockType !== 'existing') {
+        return;
       }
+
+      const canvasElement = document.getElementById('block-canvas');
+      if (!canvasElement) {
+        return;
+      }
+
+      const canvasRect = canvasElement.getBoundingClientRect();
+      
+      // Calculer la position relative au canvas avec un offset pour centrer approximativement
+      const x = Math.max(0, Math.round(clientOffset.x - canvasRect.left - 100));
+      const y = Math.max(0, Math.round(clientOffset.y - canvasRect.top - 30));
+      
+      updateBlockPosition(item.id, x, y);
+      
+      return { moved: true };
     },
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
     }),
   }));
 
@@ -164,9 +165,11 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         position: 'relative',
         width: '100%',
         height: '100vh',
-        backgroundColor: isOver ? '#f0f8ff' : '#fafafa',
+        backgroundColor: isOver ? '#e3f2fd' : '#fafafa',
         overflow: 'hidden',
         cursor: 'default',
+        border: isOver ? '3px dashed #2196f3' : '1px solid #e0e0e0',
+        transition: 'all 0.2s ease',
       }}
     >
       {blocks.map((block) => (
@@ -179,55 +182,54 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       ))}
       
       {/* Actions */}
-      <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px' }}>
+      <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
         <div
           style={{
-            padding: '10px',
+            padding: '12px 20px',
             backgroundColor: '#007bff',
             color: 'white',
-            borderRadius: '4px',
+            borderRadius: '6px',
             cursor: 'pointer',
             fontSize: '14px',
+            fontWeight: 'bold',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            transition: 'all 0.2s ease',
           }}
           onClick={() => createNewBlock(100, 100)}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#0056b3';
+            e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#007bff';
+            e.currentTarget.style.transform = 'translateY(0)';
+          }}
         >
           ➕ Nouveau bloc
         </div>
-        <div
-          style={{
-            padding: '10px',
-            backgroundColor: '#28a745',
-            color: 'white',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-          }}
-          onClick={() => {
-            console.log('🧪 Test: Current blocks:', blocks);
-            console.log('🧪 Test: Page ID:', pageId);
-          }}
-        >
-          🧪 Test Debug
-        </div>
       </div>
       
-      {/* Info de debug */}
+      {/* Info du canvas */}
       <div
         style={{
           position: 'absolute',
           top: '20px',
           left: '20px',
-          padding: '10px',
-          backgroundColor: isOver ? '#d4edda' : '#f8f9fa',
-          border: '1px solid #dee2e6',
-          borderRadius: '4px',
+          padding: '10px 14px',
+          backgroundColor: isOver ? '#e8f5e8' : 'rgba(248, 249, 250, 0.95)',
+          border: isOver ? '2px solid #4caf50' : '1px solid rgba(222, 226, 230, 0.8)',
+          borderRadius: '6px',
           fontSize: '12px',
           maxWidth: '200px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          transition: 'all 0.2s ease',
+          backdropFilter: 'blur(4px)',
         }}
       >
-        Blocs: {blocks.length}<br/>
-        Drop zone: {isOver ? 'Active' : 'Inactive'}<br/>
-        Page ID: {pageId}
+        Blocs: <strong>{blocks.length}</strong>
+        {isOver && <div style={{ color: '#4caf50', fontWeight: 'bold', marginTop: '4px' }}>
+          💡 Relâchez pour déposer !
+        </div>}
       </div>
     </div>
   );

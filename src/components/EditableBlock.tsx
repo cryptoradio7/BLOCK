@@ -65,17 +65,28 @@ export const EditableBlock = ({
     [block, onUpdate]
   );
 
-  // Drag for repositioning - Version ultra-simple
-  const [{ isDragging }, drag] = useDrag(() => ({
+  // Drag for repositioning
+  const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
     type: 'BLOCK',
-    item: { id: block.id, blockType: 'existing' },
+    item: () => ({ id: block.id, blockType: 'existing' }),
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-    end: (item, monitor) => {
-      console.log('🏁 Fin du drag pour bloc:', block.id, 'dropped:', monitor.didDrop());
-    },
   }));
+
+  // Connecter dragPreview à tout le bloc pour un meilleur feedback visuel
+  const connectDragPreview = (element: HTMLElement | null) => {
+    if (element) {
+      dragPreview(element);
+    }
+  };
+
+  // Drag handle séparé pour la zone de contrôle
+  const connectDragHandle = (element: HTMLElement | null) => {
+    if (element) {
+      drag(element);
+    }
+  };
 
   // Drop pour les fichiers désactivé temporairement pour éviter les conflits
   // const [{ canDrop }, drop] = useDrop(() => ({
@@ -151,11 +162,12 @@ export const EditableBlock = ({
       maxConstraints={[800, 600]}
     >
       <div
+        ref={connectDragPreview}
         className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
         style={{
-          opacity: isDragging ? 0.5 : 1,
+          opacity: isDragging ? 0.7 : 1,
           backgroundColor: canDrop ? '#f0f8ff' : 'white',
-          border: isResizing ? '2px solid #007bff' : '2px solid #e0e0e0',
+          border: isResizing ? '2px solid #007bff' : (isDragging ? '2px solid #ff9800' : '2px solid #e0e0e0'),
           borderRadius: '8px',
           padding: '16px',
           position: 'absolute',
@@ -163,56 +175,62 @@ export const EditableBlock = ({
           top: `${block.y}px`,
           width: `${localSize.width}px`,
           height: `${localSize.height}px`,
-          cursor: isDragging ? 'grabbing' : 'default',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          transition: 'box-shadow 0.2s ease',
+          cursor: 'default',
+          boxShadow: isDragging ? '0 8px 16px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
+          transition: isDragging ? 'none' : 'box-shadow 0.2s ease',
+          transform: isDragging ? 'rotate(2deg)' : 'none',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          if (!isDragging) {
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          }
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          if (!isDragging) {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }
         }}
       >
                 {/* Header - Zone de drag */}
-        <div style={{ marginBottom: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div 
-            ref={(node) => {
-              drag(node);
-            }}
-            style={{ 
-              flex: 1,
-              fontSize: '14px', 
-              color: '#666', 
-              fontWeight: 'bold',
-              cursor: isDragging ? 'grabbing' : 'grab',
-              padding: '8px',
-              backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
-              borderRadius: '4px',
-              border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
-              userSelect: 'none'
-            }}
-            onMouseDown={() => console.log('🖱️ MouseDown sur zone drag bloc', block.id)}
-          >
-            {isDragging ? '🚀 EN MOUVEMENT...' : '✋ DRAG ZONE'}
+        <div 
+          ref={connectDragHandle}
+          style={{ 
+            marginBottom: '12px', 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            padding: '12px',
+            backgroundColor: isDragging ? '#ff9800' : '#2196f3',
+            borderRadius: '6px',
+            border: '2px solid ' + (isDragging ? '#e65100' : '#1976d2'),
+            userSelect: 'none',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            transition: isDragging ? 'none' : 'all 0.2s ease'
+          }}
+          onMouseDown={() => {}}
+          onMouseEnter={(e) => {
+            if (!isDragging) {
+              e.currentTarget.style.backgroundColor = '#1e88e5';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDragging) {
+              e.currentTarget.style.backgroundColor = '#2196f3';
+            }
+          }}
+        >
+          <div style={{ 
+            fontSize: '14px', 
+            color: 'white', 
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '16px' }}>⬌</span>
+            {isDragging ? 'DÉPLACEMENT EN COURS...' : `BLOC #${block.id} - CLIQUEZ ET GLISSEZ`}
           </div>
-          <button
-            style={{
-              padding: '4px 8px',
-              backgroundColor: '#4caf50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              console.log('🧪 Test click - Bloc ID:', block.id);
-              onMove(block.id, block.x + 50, block.y + 50);
-            }}
-          >
-            Test Move
-          </button>
         </div>
         
         {/* Content area */}
