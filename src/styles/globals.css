@@ -294,6 +294,28 @@ a {
   background: linear-gradient(180deg, #999, #666);
 }
 
+/* Bouton d'ajout de bloc - toujours visible */
+.add-block-button {
+  position: fixed !important;
+  bottom: 30px !important;
+  right: 30px !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  border: none !important;
+  background-color: #2ECC71 !important;
+  color: white !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4) !important;
+  transition: all 0.3s ease !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 /* Animation pour l'indicateur de scroll */
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% {
@@ -328,11 +350,16 @@ a {
   [class*="sidebar"],
   [class*="toolbar"],
   .floating-actions,
-  button,
+  button:not(.add-block-button),
   [data-testid="toolbar"],
   nav,
   header,
   .show-sidebar-button {
+    display: none !important;
+  }
+
+  /* Masquer le bouton d'ajout à l'impression */
+  .add-block-button {
     display: none !important;
   }
 
