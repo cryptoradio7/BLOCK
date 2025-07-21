@@ -112,6 +112,93 @@ export const EditableBlock = ({
     });
   };
 
+  // Fonction pour gérer le paste d'images
+  const handlePaste = async (e: React.ClipboardEvent) => {
+    const items = e.clipboardData.items;
+    const imageFiles: File[] = [];
+
+    // Parcourir tous les éléments du presse-papier
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Vérifier si c'est un fichier image
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    // Si on a trouvé des images, les uploader
+    if (imageFiles.length > 0) {
+      e.preventDefault(); // Empêcher le paste normal du texte
+      
+      try {
+        console.log(`📷 Upload de ${imageFiles.length} image(s) en cours...`);
+        
+        // Créer un FileList à partir des fichiers
+        const dataTransfer = new DataTransfer();
+        imageFiles.forEach(file => dataTransfer.items.add(file));
+        
+        // Ajouter un indicateur visuel temporaire
+        const tempDiv = document.createElement('div');
+        tempDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #28a745;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        tempDiv.textContent = `📷 Upload de ${imageFiles.length} image(s)...`;
+        document.body.appendChild(tempDiv);
+        
+        await handleFileUpload(dataTransfer.files);
+        
+        // Mettre à jour la notification
+        tempDiv.textContent = `✅ ${imageFiles.length} image(s) ajoutée(s) !`;
+        tempDiv.style.background = '#28a745';
+        
+        // Supprimer la notification après 2 secondes
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+        }, 2000);
+        
+        console.log(`✅ ${imageFiles.length} image(s) collée(s) avec succès !`);
+      } catch (error) {
+        console.error('❌ Erreur lors du collage d\'image:', error);
+        
+        // Notification d'erreur
+        const tempDiv = document.createElement('div');
+        tempDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #dc3545;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        tempDiv.textContent = '❌ Erreur lors du collage de l\'image';
+        document.body.appendChild(tempDiv);
+        
+        setTimeout(() => {
+          document.body.removeChild(tempDiv);
+        }, 3000);
+      }
+    }
+    
+    // Si pas d'images, laisser le paste normal se faire
+  };
+
   // Redimensionnement en temps réel (pendant le drag)
   const handleResize = (e: any, { size }: { size: { width: number; height: number } }) => {
     setLocalSize({ width: size.width, height: size.height });
@@ -232,6 +319,7 @@ export const EditableBlock = ({
             handleFileUpload(e.dataTransfer.files);
           }
         }}
+        onPaste={handlePaste} // Ajouter l'écouteur de paste
       >
         {/* Header avec titre éditable */}
         <div style={{ 
@@ -248,6 +336,7 @@ export const EditableBlock = ({
             placeholder=""
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             onDragStart={(e) => e.preventDefault()} // Empêcher le drag natif
+            onPaste={handlePaste} // Gérer aussi le paste d'images dans le titre
 
             style={{
               flex: 1,
@@ -313,6 +402,7 @@ export const EditableBlock = ({
           onChange={handleContentChange}
           placeholder=""
           onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+          onPaste={handlePaste} // Gérer le paste d'images
 
           style={{
             width: '100%',
@@ -348,50 +438,110 @@ export const EditableBlock = ({
               Fichiers joints ({block.attachments.length})
             </h4>
             <div style={{ 
-              maxHeight: '60px', 
+              maxHeight: '80px', 
               overflowY: 'auto',
-              paddingRight: '2px'
+              paddingRight: '2px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '3px'
             }}>
-              {block.attachments.map((file) => (
-                <div 
-                  key={file.id} 
-                  style={{ 
-                    fontSize: '10px', 
-                    marginBottom: '1px',
-                    cursor: 'pointer',
-                    color: '#007bff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '2px',
-                    padding: '1px 3px',
-                    borderRadius: '2px',
-                    transition: 'background-color 0.2s',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    lineHeight: '1.2'
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(file.url, '_blank');
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f8f9fa';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                  title={file.name} // Tooltip pour voir le nom complet
-                >
-                  <span style={{ flexShrink: 0, fontSize: '8px' }}>📎</span>
-                  <span style={{ 
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {file.name.length > 25 ? file.name.substring(0, 25) + '...' : file.name}
-                  </span>
-                </div>
-              ))}
+              {block.attachments.map((file) => {
+                const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+                
+                if (isImage) {
+                  // Affichage d'une image en miniature
+                  return (
+                    <div 
+                      key={file.id}
+                      style={{ 
+                        cursor: 'pointer',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                        border: '1px solid #e0e0e0',
+                        transition: 'all 0.2s',
+                        backgroundColor: '#f8f9fa'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(file.url, '_blank');
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.02)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                      title={`Image: ${file.name}`}
+                    >
+                      <img 
+                        src={file.url} 
+                        alt={file.name}
+                        style={{
+                          width: '100%',
+                          height: '40px',
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
+                      <div style={{
+                        fontSize: '8px',
+                        padding: '2px 4px',
+                        color: '#666',
+                        backgroundColor: 'rgba(255,255,255,0.9)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        🖼️ {file.name.length > 20 ? file.name.substring(0, 20) + '...' : file.name}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  // Affichage d'un fichier normal
+                  return (
+                    <div 
+                      key={file.id} 
+                      style={{ 
+                        fontSize: '10px', 
+                        marginBottom: '1px',
+                        cursor: 'pointer',
+                        color: '#007bff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2px',
+                        padding: '1px 3px',
+                        borderRadius: '2px',
+                        transition: 'background-color 0.2s',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        lineHeight: '1.2'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(file.url, '_blank');
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      title={file.name}
+                    >
+                      <span style={{ flexShrink: 0, fontSize: '8px' }}>📎</span>
+                      <span style={{ 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {file.name.length > 25 ? file.name.substring(0, 25) + '...' : file.name}
+                      </span>
+                    </div>
+                  );
+                }
+              })}
             </div>
           </div>
         ) : (
