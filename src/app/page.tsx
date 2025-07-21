@@ -80,6 +80,33 @@ export default function Home() {
     }
   }
 
+  const reorderPages = async (reorderedPages: Page[]) => {
+    try {
+      // Mettre à jour l'état local immédiatement pour une réponse rapide
+      setPages(reorderedPages)
+      
+      // Sauvegarder l'ordre en base de données
+      const pageIds = reorderedPages.map(page => page.id)
+      const response = await fetch('/api/pages/reorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pageIds })
+      })
+
+      if (!response.ok) {
+        console.error('Erreur lors de la sauvegarde de l\'ordre des pages')
+        // En cas d'erreur, recharger les pages pour remettre l'ordre correct
+        loadPages()
+      }
+    } catch (error) {
+      console.error('Erreur lors de la réorganisation des pages:', error)
+      // En cas d'erreur, recharger les pages
+      loadPages()
+    }
+  }
+
   const currentPage = pages.find(page => page.id === currentPageId)
 
   if (loading) {
@@ -94,7 +121,7 @@ export default function Home() {
           currentPageId={currentPageId}
           onPageSelect={setCurrentPageId}
           onAddPage={addPage}
-          onPagesReorder={setPages}
+          onPagesReorder={reorderPages}
           onDeletePage={deletePage}
           visible={sidebarVisible}
           onToggleVisibility={() => setSidebarVisible(!sidebarVisible)}

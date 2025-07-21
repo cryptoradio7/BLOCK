@@ -11,7 +11,7 @@ export async function GET() {
         p.created_at as "createdAt",
         p.updated_at as "updatedAt"
       FROM pages p
-      ORDER BY p.created_at DESC
+      ORDER BY p.updated_at DESC
     `)
     
     const pages: Page[] = result.rows.map(row => ({

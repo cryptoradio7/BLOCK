@@ -53,6 +53,7 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTitleFocused, setIsTitleFocused] = useState(false);
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -151,9 +152,9 @@ export const EditableBlock = ({
       onResize={handleResize}
       onResizeStart={handleResizeStart}
       onResizeStop={handleResizeStop}
-      minConstraints={[200, 100]}
-      maxConstraints={[800, 600]}
-      resizeHandles={['se']}
+      minConstraints={[50, 30]}
+      maxConstraints={[2000, 1500]}
+      resizeHandles={['se', 's', 'e']}
     >
       <div
         ref={(node) => {
@@ -176,6 +177,9 @@ export const EditableBlock = ({
           transition: isDragging ? 'none' : 'box-shadow 0.2s ease',
           transform: isDragging ? 'rotate(2deg) scale(1.02)' : 'none',
           zIndex: isDragging ? 1000 : 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
         }}
         onMouseDown={(e) => {
           // Empêcher le drag si on clique sur la poignée de redimensionnement
@@ -241,9 +245,11 @@ export const EditableBlock = ({
             type="text"
             value={localTitle}
             onChange={handleTitleChange}
-            placeholder="Titre du bloc..."
+            placeholder={isTitleFocused || localTitle.trim() !== "" ? "" : "Titre du bloc..."}
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             onDragStart={(e) => e.preventDefault()} // Empêcher le drag natif
+            onFocus={() => setIsTitleFocused(true)}
+            onBlur={() => setIsTitleFocused(false)}
             style={{
               flex: 1,
               fontSize: '14px', 
@@ -306,11 +312,14 @@ export const EditableBlock = ({
         <textarea
           value={localContent}
           onChange={handleContentChange}
-          placeholder="Contenu du bloc..."
+          placeholder=""
           onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+
           style={{
             width: '100%',
-            height: '60%',
+            flex: 1,
+            minHeight: '60px',
+            maxHeight: block.attachments.length > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)',
             border: 'none',
             resize: 'none',
             outline: 'none',
@@ -319,59 +328,88 @@ export const EditableBlock = ({
             backgroundColor: 'transparent',
             fontFamily: 'inherit',
             cursor: 'text',
+            overflow: 'auto',
           }}
         />
         
         {/* Attachments */}
         {block.attachments.length > 0 ? (
           <div 
-            style={{ marginTop: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '8px' }}
+            style={{ 
+              marginTop: '8px', 
+              borderTop: '1px solid #e0e0e0', 
+              paddingTop: '6px',
+              flexShrink: 0,
+              maxHeight: '80px',
+              overflow: 'hidden'
+            }}
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
           >
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '12px', color: '#666' }}>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '10px', color: '#666', fontWeight: 'bold' }}>
               Fichiers joints ({block.attachments.length})
             </h4>
-            {block.attachments.map((file) => (
-              <div 
-                key={file.id} 
-                style={{ 
-                  fontSize: '12px', 
-                  marginBottom: '4px',
-                  cursor: 'pointer',
-                  color: '#007bff',
-                  textDecoration: 'underline',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '2px 0',
-                  borderRadius: '3px',
-                  transition: 'background-color 0.2s'
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open(file.url, '_blank');
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f8f9fa';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                📎 {file.name}
-              </div>
-            ))}
+            <div style={{ 
+              maxHeight: '60px', 
+              overflowY: 'auto',
+              paddingRight: '2px'
+            }}>
+              {block.attachments.map((file) => (
+                <div 
+                  key={file.id} 
+                  style={{ 
+                    fontSize: '10px', 
+                    marginBottom: '1px',
+                    cursor: 'pointer',
+                    color: '#007bff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '2px',
+                    padding: '1px 3px',
+                    borderRadius: '2px',
+                    transition: 'background-color 0.2s',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    lineHeight: '1.2'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(file.url, '_blank');
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                  title={file.name} // Tooltip pour voir le nom complet
+                >
+                  <span style={{ flexShrink: 0, fontSize: '8px' }}>📎</span>
+                  <span style={{ 
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {file.name.length > 25 ? file.name.substring(0, 25) + '...' : file.name}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <div 
             style={{ 
-              marginTop: '12px', 
+              marginTop: '8px', 
               borderTop: '1px dashed #d0d0d0', 
-              paddingTop: '8px',
+              paddingTop: '6px',
               textAlign: 'center',
-              fontSize: '11px',
+              fontSize: '9px',
               color: '#999',
-              fontStyle: 'italic'
+              fontStyle: 'italic',
+              height: '30px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
             }}
             onMouseDown={(e) => e.stopPropagation()}
           >
