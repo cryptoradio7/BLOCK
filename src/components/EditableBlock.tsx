@@ -629,7 +629,7 @@ export const EditableBlock = ({
             width: '100%',
             flex: 1,
             minHeight: '60px',
-            maxHeight: block.attachments.length > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)',
+            maxHeight: block.attachments.length > 0 ? 'calc(100% - 150px)' : 'calc(100% - 80px)',
             border: 'none',
             outline: 'none',
             fontSize: '14px',
@@ -650,8 +650,8 @@ export const EditableBlock = ({
               borderTop: '1px solid #e0e0e0', 
               paddingTop: '8px',
               flexShrink: 0,
-              maxHeight: '90px',
-              overflow: 'hidden'
+              maxHeight: '100px',
+              overflow: 'visible'
             }}
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
           >
@@ -659,12 +659,15 @@ export const EditableBlock = ({
               Fichiers joints ({block.attachments.length})
             </h4>
             <div style={{ 
-              maxHeight: '82px', 
+              maxHeight: '90px', 
               overflowY: 'auto',
-              paddingRight: '6px',
+              overflowX: 'hidden',
+              paddingRight: '8px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '4px'
+              gap: '4px',
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#ccc #f1f1f1'
             }}>
               {block.attachments.map((file) => {
                 const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
