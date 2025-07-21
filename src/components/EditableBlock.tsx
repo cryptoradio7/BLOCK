@@ -12,6 +12,7 @@ export type BlockType = {
   width: number;
   height: number;
   content: string;
+  title?: string;
   type?: string;
   page_id?: number;
   attachments: Array<{
@@ -46,6 +47,7 @@ export const EditableBlock = ({
   onMove,
 }: EditableBlockProps) => {
   const [localContent, setLocalContent] = useState(block.content);
+  const [localTitle, setLocalTitle] = useState(block.title || '');
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,6 +143,12 @@ export const EditableBlock = ({
     debouncedSave({ content: newContent });
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setLocalTitle(newTitle);
+    debouncedSave({ title: newTitle });
+  };
+
   return (
     <Resizable
       width={localSize.width}
@@ -195,7 +203,7 @@ export const EditableBlock = ({
           }
         }}
       >
-        {/* Header simplifié */}
+        {/* Header avec titre éditable */}
         <div style={{ 
           marginBottom: '12px', 
           display: 'flex', 
@@ -203,19 +211,26 @@ export const EditableBlock = ({
           alignItems: 'center',
           position: 'relative'
         }}>
-          <div style={{ 
-            flex: 1,
-            fontSize: '14px', 
-            color: '#666', 
-            fontWeight: 'bold',
-            padding: '8px',
-            backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
-            borderRadius: '4px',
-            border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
-            userSelect: 'none'
-          }}>
-            {isDragging ? '🚀 EN MOUVEMENT...' : '📦 Bloc #' + block.id}
-          </div>
+          <input
+            type="text"
+            value={localTitle}
+            onChange={handleTitleChange}
+            placeholder="Titre du bloc..."
+            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+            onDragStart={(e) => e.preventDefault()} // Empêcher le drag natif
+            style={{
+              flex: 1,
+              fontSize: '14px', 
+              color: '#333', 
+              fontWeight: 'bold',
+              padding: '8px',
+              backgroundColor: isDragging ? '#ffeb3b' : (isResizing ? '#e3f2fd' : '#f8f9fa'),
+              border: '2px solid ' + (isDragging ? '#ff9800' : '#dee2e6'),
+              borderRadius: '4px',
+              outline: 'none',
+              cursor: 'text',
+            }}
+          />
           
           {/* Indicateur de drag dans le coin */}
           <div style={{
@@ -236,25 +251,6 @@ export const EditableBlock = ({
           }}>
             {isDragging ? '🚀' : '⬌'}
           </div>
-          
-          <button
-            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-            style={{
-              padding: '4px 8px',
-              backgroundColor: '#4caf50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
-            onClick={() => {
-              console.log('🧪 Test click - Bloc ID:', block.id);
-              onMove(block.id, block.x + 50, block.y + 50);
-            }}
-          >
-            Test Move
-          </button>
         </div>
         
         {/* Content area */}

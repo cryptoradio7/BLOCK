@@ -254,41 +254,6 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         >
           ➕ Nouveau bloc
         </div>
-        <div
-          style={{
-            padding: '10px',
-            backgroundColor: '#28a745',
-            color: 'white',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-          }}
-          onClick={() => {
-            console.log('🧪 Test: Current blocks:', blocks);
-            console.log('🧪 Test: Page ID:', pageId);
-          }}
-        >
-          🧪 Test Debug
-        </div>
-      </div>
-      
-      {/* Info de debug */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          padding: '10px',
-          backgroundColor: isOver ? '#d4edda' : '#f8f9fa',
-          border: '1px solid #dee2e6',
-          borderRadius: '4px',
-          fontSize: '12px',
-          maxWidth: '200px',
-        }}
-      >
-        Blocs: {blocks.length}<br/>
-        Drop zone: {isOver ? 'Active' : 'Inactive'}<br/>
-        Page ID: {pageId}
       </div>
     </div>
   );
