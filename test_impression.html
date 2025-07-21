@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Impression - BLOCK</title>
+    <style>
+        /* Styles de base */
+        * {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            background: white;
+        }
+
+        .toolbar {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        #block-canvas {
+            position: relative;
+            width: 100%;
+            height: 200vh;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        .draggable-block {
+            position: absolute;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .draggable-block input[type="text"] {
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            padding: 8px 0;
+            margin-bottom: 12px;
+        }
+
+        .draggable-block [contenteditable] {
+            width: 100%;
+            min-height: 80px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            outline: none;
+        }
+
+        .draggable-block img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* STYLES D'IMPRESSION */
+        @media print {
+            /* Masquer les éléments non nécessaires */
+            [class*="sidebar"],
+            [class*="toolbar"],
+            button,
+            nav,
+            header {
+                display: none !important;
+            }
+
+            /* Configuration générale */
+            html, body {
+                margin: 0;
+                padding: 0;
+                font-size: 12pt;
+                line-height: 1.4;
+                background: white !important;
+            }
+
+            .app {
+                display: block !important;
+                height: auto !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                background: white !important;
+                position: static !important;
+            }
+
+            #block-canvas {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 20pt !important;
+                margin: 0 !important;
+                min-height: auto !important;
+            }
+
+            /* Blocs en cascade */
+            .draggable-block {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                margin: 0 0 15pt 0 !important;
+                padding: 10pt !important;
+                border: 1pt solid #ddd !important;
+                border-radius: 4pt !important;
+                background: white !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+                display: block !important;
+                left: auto !important;
+                top: auto !important;
+            }
+
+            .draggable-block input[type="text"] {
+                width: 100% !important;
+                height: auto !important;
+                font-size: 14pt !important;
+                font-weight: bold !important;
+                border: none !important;
+                border-bottom: 1pt solid #ddd !important;
+                background: transparent !important;
+                padding: 5pt 0 !important;
+                margin-bottom: 8pt !important;
+            }
+
+            .draggable-block [contenteditable] {
+                width: 100% !important;
+                height: auto !important;
+                min-height: 60pt !important;
+                border: none !important;
+                background: transparent !important;
+                font-size: 11pt !important;
+                line-height: 1.3 !important;
+                padding: 5pt !important;
+                margin: 0 !important;
+            }
+
+            .draggable-block img {
+                max-width: 100% !important;
+                height: auto !important;
+                display: block !important;
+                margin: 8pt auto !important;
+                border: 1pt solid #ddd !important;
+                border-radius: 2pt !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="sidebar">
+            <h3 style="padding: 20px;">Sidebar (masquée à l'impression)</h3>
+        </div>
+
+        <div class="main-content">
+            <div class="toolbar">
+                <h2>Toolbar (masquée à l'impression)</h2>
+                <button onclick="window.print()">🖨️ Imprimer</button>
+            </div>
+
+            <div id="block-canvas">
+                <div class="draggable-block" style="left: 50px; top: 50px; width: 300px; height: 150px;">
+                    <input type="text" value="Premier Bloc - Titre">
+                    <div contenteditable="true">
+                        Ceci est le contenu du premier bloc. Il devrait s'afficher en cascade lors de l'impression.
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='50'%3E%3Crect width='100' height='50' fill='%23e9ecef'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23495057'%3EImage%3C/text%3E%3C/svg%3E" alt="Test image">
+                    </div>
+                </div>
+
+                <div class="draggable-block" style="left: 400px; top: 100px; width: 350px; height: 200px;">
+                    <input type="text" value="Deuxième Bloc - Titre">
+                    <div contenteditable="true">
+                        Ceci est le contenu du deuxième bloc. Lors de l'impression, il devrait apparaître juste après le premier bloc, en cascade verticale, sans position absolue.
+                    </div>
+                </div>
+
+                <div class="draggable-block" style="left: 150px; top: 350px; width: 280px; height: 120px;">
+                    <input type="text" value="Troisième Bloc - Titre">
+                    <div contenteditable="true">
+                        Troisième bloc avec du contenu court. Il devrait aussi s'afficher en cascade.
+                    </div>
+                </div>
+
+                <div class="draggable-block" style="left: 500px; top: 300px; width: 320px; height: 180px;">
+                    <input type="text" value="Quatrième Bloc - Titre">
+                    <div contenteditable="true">
+                        Dernier bloc de test. L'impression devrait montrer tous les blocs les uns après les autres, en pleine largeur de page, sans les positions absolues de l'écran.
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='75'%3E%3Crect width='150' height='75' fill='%23007bff'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white'%3EImage 2%3C/text%3E%3C/svg%3E" alt="Test image 2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("📄 Fichier de test d'impression chargé");
+        console.log("🖨️ Cliquez sur 'Imprimer' ou utilisez Ctrl+P pour tester l'impression en cascade");
+    </script>
+</body>
+</html> 
