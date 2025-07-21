@@ -242,9 +242,12 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         position: 'relative',
         width: '100%',
         height: '100vh',
+        minHeight: '200vh', // Hauteur minimum de 2 écrans pour permettre le scroll
         backgroundColor: isOver ? '#f0f8ff' : '#fafafa',
-        overflow: 'hidden',
+        overflowY: 'auto', // Scroll vertical
+        overflowX: 'hidden', // Pas de scroll horizontal
         cursor: 'default',
+        paddingBottom: '100px', // Espace en bas pour faciliter le placement
       }}
     >
       {blocks.map((block) => (
@@ -257,21 +260,112 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         />
       ))}
       
-      {/* Actions */}
-      <div style={{ position: 'absolute', top: '20px', right: '20px', display: 'flex', gap: '10px' }}>
+      {/* Actions flottantes */}
+      <div 
+        className="floating-actions"
+        style={{ 
+          position: 'fixed', // Position fixe pour rester visible pendant le scroll
+          top: '80px', 
+          right: '20px', 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '10px',
+          zIndex: 1000, // Au-dessus des blocs
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          padding: '10px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        }}>
         <div
           style={{
-            padding: '10px',
+            padding: '8px 12px',
             backgroundColor: '#007bff',
             color: 'white',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: '12px',
+            textAlign: 'center',
           }}
           onClick={() => createNewBlock(100, 100)}
+          title="Créer un bloc en haut"
         >
-          ➕ Nouveau bloc
+          ➕ Bloc (haut)
         </div>
+        
+        <div
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#28a745',
+            color: 'white',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            textAlign: 'center',
+          }}
+          onClick={() => createNewBlock(100, window.innerHeight + 100)}
+          title="Créer un bloc au milieu"
+        >
+          ➕ Bloc (milieu)
+        </div>
+        
+        <div
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            textAlign: 'center',
+          }}
+          onClick={() => createNewBlock(100, window.innerHeight * 1.5)}
+          title="Créer un bloc en bas"
+        >
+          ➕ Bloc (bas)
+        </div>
+        
+        <div
+          style={{
+            padding: '8px 12px',
+            backgroundColor: '#6c757d',
+            color: 'white',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '12px',
+            textAlign: 'center',
+          }}
+          onClick={() => {
+            // Créer un bloc à position aléatoire
+            const randomY = Math.random() * (window.innerHeight * 1.8) + 100;
+            const randomX = Math.random() * (window.innerWidth - 400) + 100;
+            createNewBlock(randomX, randomY);
+          }}
+          title="Créer un bloc à position aléatoire"
+        >
+                     🎲 Aléatoire
+         </div>
+       </div>
+
+      {/* Indicateur de scroll en bas */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        padding: '8px 16px',
+        backgroundColor: 'rgba(0, 123, 255, 0.8)',
+        color: 'white',
+        borderRadius: '20px',
+        fontSize: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        zIndex: 500,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+      }}>
+        <span>📜</span>
+        <span>Zone de travail étendue - Scrollez pour voir plus !</span>
+        <span>⬇️</span>
       </div>
     </div>
   );

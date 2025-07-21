@@ -228,4 +228,57 @@ a {
 
 [contenteditable] img.resizable:hover::after {
   opacity: 1;
+}
+
+/* Styles pour le scroll de la zone de travail */
+#block-canvas {
+  scrollbar-width: thin;
+  scrollbar-color: #007bff #f1f1f1;
+}
+
+#block-canvas::-webkit-scrollbar {
+  width: 12px;
+}
+
+#block-canvas::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+#block-canvas::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #007bff, #0056b3);
+  border-radius: 6px;
+  border: 2px solid #f1f1f1;
+}
+
+#block-canvas::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #0056b3, #004085);
+}
+
+/* Animation pour l'indicateur de scroll */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-4px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-2px) translateX(-50%);
+  }
+}
+
+/* Style pour les boutons flottants */
+.floating-actions {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.floating-actions > div {
+  transition: all 0.2s ease;
+}
+
+.floating-actions > div:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 } 
