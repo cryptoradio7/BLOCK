@@ -53,7 +53,6 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -83,15 +82,8 @@ export const EditableBlock = ({
     },
   }));
 
-  // Drop pour les fichiers désactivé temporairement pour éviter les conflits
-  // const [{ canDrop }, drop] = useDrop(() => ({
-  //   accept: ['FILE', 'IMAGE'],
-  //   drop: (item: { files: FileList }) => handleFileUpload(item.files),
-  //   collect: (monitor) => ({
-  //     canDrop: !!monitor.canDrop(),
-  //   }),
-  // }));
-  const canDrop = false;
+  // État pour le drag and drop de fichiers depuis le bureau
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileUpload = async (files: FileList) => {
     const newAttachments = await Promise.all(
@@ -170,8 +162,8 @@ export const EditableBlock = ({
         className={`draggable-block ${isDragging ? 'is-dragging' : ''}`}
         style={{
           opacity: isDragging ? 0.5 : 1,
-          backgroundColor: canDrop ? '#f0f8ff' : 'white',
-          border: isResizing ? '2px solid #007bff' : (isDragging ? '3px solid #ff9800' : '2px solid #e0e0e0'),
+          backgroundColor: isDragOver ? '#f0f8ff' : 'white',
+          border: isDragOver ? '2px dashed #007bff' : (isResizing ? '2px solid #007bff' : (isDragging ? '3px solid #ff9800' : '2px solid #e0e0e0')),
           borderRadius: '8px',
           padding: '16px',
           position: 'absolute',
@@ -205,6 +197,35 @@ export const EditableBlock = ({
           setIsHovered(false);
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(true);
+        }}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          // Vérifier si on quitte vraiment le bloc (pas juste un enfant)
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX;
+          const y = e.clientY;
+          if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+            setIsDragOver(false);
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragOver(false);
+          if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+            handleFileUpload(e.dataTransfer.files);
           }
         }}
       >
@@ -302,7 +323,7 @@ export const EditableBlock = ({
         />
         
         {/* Attachments */}
-        {block.attachments.length > 0 && (
+        {block.attachments.length > 0 ? (
           <div 
             style={{ marginTop: '12px', borderTop: '1px solid #e0e0e0', paddingTop: '8px' }}
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
@@ -311,40 +332,53 @@ export const EditableBlock = ({
               Fichiers joints ({block.attachments.length})
             </h4>
             {block.attachments.map((file) => (
-              <div key={file.id} style={{ fontSize: '12px', marginBottom: '4px' }}>
+              <div 
+                key={file.id} 
+                style={{ 
+                  fontSize: '12px', 
+                  marginBottom: '4px',
+                  cursor: 'pointer',
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '2px 0',
+                  borderRadius: '3px',
+                  transition: 'background-color 0.2s'
+                }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(file.url, '_blank');
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8f9fa';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
                 📎 {file.name}
               </div>
             ))}
           </div>
-        )}
-        
-        {/* File upload button */}
-        <div 
-          style={{ marginTop: '12px' }}
-          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
-            multiple
-            style={{ display: 'none' }}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '6px 12px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer',
+        ) : (
+          <div 
+            style={{ 
+              marginTop: '12px', 
+              borderTop: '1px dashed #d0d0d0', 
+              paddingTop: '8px',
+              textAlign: 'center',
+              fontSize: '11px',
+              color: '#999',
+              fontStyle: 'italic'
             }}
+            onMouseDown={(e) => e.stopPropagation()}
           >
-            📎 Ajouter un fichier
-          </button>
-        </div>
+            Glissez-déposez des fichiers ici
+          </div>
+        )}
+
       </div>
     </Resizable>
   );
