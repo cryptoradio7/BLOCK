@@ -211,6 +211,23 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
     }
   };
 
+  const deleteBlock = async (id: number) => {
+    try {
+      const response = await fetch(`/api/blocks/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setBlocks(prev => prev.filter(b => b.id !== id));
+        console.log('✅ Bloc supprimé:', id);
+      } else {
+        console.error('❌ Erreur lors de la suppression du bloc');
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de la suppression du bloc:', error);
+    }
+  };
+
   if (loading) {
     return <div>Chargement des blocs...</div>;
   }
@@ -236,6 +253,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           block={block}
           onUpdate={updateBlock}
           onMove={updateBlockPosition}
+          onDelete={deleteBlock}
         />
       ))}
       
