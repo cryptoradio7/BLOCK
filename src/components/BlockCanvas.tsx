@@ -264,6 +264,56 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       
       
 
+      {/* Bouton flottant pour ajouter un bloc */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          const canvasElement = document.getElementById('block-canvas');
+          if (canvasElement) {
+            const rect = canvasElement.getBoundingClientRect();
+            const scrollTop = canvasElement.scrollTop;
+            
+            // Position au centre de la vue actuelle
+            const centerX = Math.max(50, (rect.width - 300) / 2);
+            const centerY = Math.max(50, scrollTop + (window.innerHeight - 200) / 2);
+            
+            createNewBlock(centerX, centerY);
+          }
+        }}
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          border: 'none',
+          backgroundColor: 'var(--agile-green, #2ECC71)',
+          color: 'white',
+          fontSize: '24px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(46, 204, 113, 0.4)',
+          transition: 'all 0.3s ease',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--agile-green-dark, #27AE60)';
+          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(46, 204, 113, 0.6)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--agile-green, #2ECC71)';
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(46, 204, 113, 0.4)';
+        }}
+        title="Ajouter un nouveau bloc"
+      >
+        +
+      </button>
+
       {/* Indicateur de scroll en bas */}
       <div style={{
         position: 'absolute',
