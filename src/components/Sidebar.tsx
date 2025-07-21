@@ -11,6 +11,7 @@ interface SidebarProps {
   onPageSelect: (pageId: string) => void
   onAddPage: (title?: string) => void
   onPagesReorder: (pages: Page[]) => void
+  onUpdatePageTitle: (pageId: string, newTitle: string) => void
   onDeletePage?: (pageId: string) => void
   visible: boolean
   onToggleVisibility: () => void
@@ -22,6 +23,7 @@ export default function Sidebar({
   onPageSelect, 
   onAddPage, 
   onPagesReorder, 
+  onUpdatePageTitle,
   onDeletePage, 
   visible, 
   onToggleVisibility 
@@ -150,10 +152,8 @@ export default function Sidebar({
 
   const handleSaveEdit = () => {
     if (editingPageId && editingTitle.trim()) {
-      const updatedPages = pages.map(page =>
-        page.id === editingPageId ? { ...page, title: editingTitle.trim() } : page
-      )
-      onPagesReorder(updatedPages)
+      console.log('📝 Sauvegarde du titre de page depuis Sidebar:', { editingPageId, editingTitle })
+      onUpdatePageTitle(editingPageId, editingTitle.trim())
       setEditingPageId(null)
       setEditingTitle('')
     }

@@ -80,6 +80,39 @@ export default function Home() {
     }
   }
 
+  // Fonction dédiée pour sauvegarder le titre d'une page
+  const updatePageTitle = async (pageId: string, newTitle: string) => {
+    try {
+      console.log('💾 Sauvegarde titre page:', { pageId, newTitle })
+      
+      const response = await fetch(`/api/pages/${pageId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: newTitle })
+      })
+
+      if (!response.ok) {
+        console.error('❌ Erreur lors de la sauvegarde du titre de la page:', pageId)
+        throw new Error('Erreur API')
+      } else {
+        console.log('✅ Titre de page sauvegardé:', newTitle)
+        
+        // Mettre à jour l'état local
+        setPages(prevPages => 
+          prevPages.map(page => 
+            page.id === pageId ? { ...page, title: newTitle } : page
+          )
+        )
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de la mise à jour du titre:', error)
+      // En cas d'erreur, recharger les pages
+      loadPages()
+    }
+  }
+
   const reorderPages = async (reorderedPages: Page[]) => {
     try {
       // Vérifier s'il y a des changements de titre
@@ -93,23 +126,7 @@ export default function Home() {
 
       // Sauvegarder les changements de titre d'abord
       for (const changedPage of titleChanges) {
-        try {
-          const response = await fetch(`/api/pages/${changedPage.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ title: changedPage.title })
-          })
-
-          if (!response.ok) {
-            console.error('❌ Erreur lors de la sauvegarde du titre de la page:', changedPage.id)
-          } else {
-            console.log('✅ Titre de page sauvegardé:', changedPage.title)
-          }
-        } catch (error) {
-          console.error('❌ Erreur lors de la mise à jour du titre:', error)
-        }
+        await updatePageTitle(changedPage.id, changedPage.title)
       }
       
       // Puis sauvegarder l'ordre en base de données
@@ -151,6 +168,7 @@ export default function Home() {
           onPageSelect={setCurrentPageId}
           onAddPage={addPage}
           onPagesReorder={reorderPages}
+          onUpdatePageTitle={updatePageTitle}
           onDeletePage={deletePage}
           visible={sidebarVisible}
           onToggleVisibility={() => setSidebarVisible(!sidebarVisible)}
