@@ -639,9 +639,6 @@ export const EditableBlock = ({
             cursor: 'text',
             overflow: 'auto',
             padding: '4px',
-            resize: 'none',
-            wordWrap: 'break-word',
-            overflowWrap: 'break-word',
           }}
         />
         
