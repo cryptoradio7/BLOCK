@@ -4,20 +4,11 @@ import { useState } from 'react'
 import styles from './Toolbar.module.css'
 
 interface ToolbarProps {
-  onPrint?: () => void
   onExportPDF?: () => void
 }
 
-export default function Toolbar({ onPrint, onExportPDF }: ToolbarProps) {
+export default function Toolbar({ onExportPDF }: ToolbarProps) {
   const [isExporting, setIsExporting] = useState(false)
-
-  const handlePrint = () => {
-    if (onPrint) {
-      onPrint()
-    } else {
-      window.print()
-    }
-  }
 
   const handleExportPDF = async () => {
     if (onExportPDF) {
@@ -36,19 +27,6 @@ export default function Toolbar({ onPrint, onExportPDF }: ToolbarProps) {
       </div>
       
       <div className={styles.toolbarRight}>
-        <button 
-          className={styles.toolbarButton}
-          onClick={handlePrint}
-          title="Imprimer"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="6,9 6,2 18,2 18,9"></polyline>
-            <path d="M6,18H4a2,2 0 0,1-2-2V11a2,2 0 0,1,2-2H20a2,2 0 0,1,2,2v5a2,2 0 0,1-2,2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
-          Imprimer
-        </button>
-        
         <button 
           className={`${styles.toolbarButton} ${isExporting ? styles.loading : ''}`}
           onClick={handleExportPDF}

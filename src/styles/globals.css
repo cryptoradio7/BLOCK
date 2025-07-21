@@ -157,6 +157,35 @@ a {
   text-align: left !important;
 }
 
+/* Force direction LTR pour nos blocs spécifiquement - ULTRA SPECIFIQUE */
+[data-block-id] [contenteditable][dir="ltr"] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+  writing-mode: horizontal-tb !important;
+}
+
+[data-block-id] [contenteditable][dir="ltr"] *,
+[data-block-id] [contenteditable][dir="ltr"] div,
+[data-block-id] [contenteditable][dir="ltr"] span,
+[data-block-id] [contenteditable][dir="ltr"] p {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+/* Force sur tous les éléments contenteditable de l'app */
+.draggable-block [contenteditable] {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+.draggable-block [contenteditable] * {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
 /* Styles pour les images dans le contenu des blocs */
 [contenteditable] img {
   max-width: 100%;

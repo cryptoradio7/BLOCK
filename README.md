@@ -53,7 +53,7 @@ src/
 ## 🎨 Interface
 
 - **Sidebar** : Liste des pages avec bouton d'ajout
-- **Toolbar** : Boutons impression et export PDF
+- **Toolbar** : Bouton export PDF
 - **Page Editor** : Zone d'édition avec blocs draggables
 - **Block Component** : Éditeur de contenu avec pièces jointes
 

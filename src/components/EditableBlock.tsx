@@ -62,6 +62,27 @@ export const EditableBlock = ({
     }
   }, [block.width, block.height, isResizing]);
 
+  // Forcer la direction LTR au montage et quand le contenu change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
+      if (contentDiv) {
+        contentDiv.dir = 'ltr';
+        contentDiv.style.direction = 'ltr';
+        contentDiv.style.textAlign = 'left';
+        
+        // Nettoyer le HTML de tout attribut de direction RTL
+        const cleanContent = contentDiv.innerHTML.replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"');
+        if (cleanContent !== contentDiv.innerHTML) {
+          contentDiv.innerHTML = cleanContent;
+          setLocalContent(cleanContent);
+        }
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [block.id, localContent]);
+
 
 
   // Ajouter des boutons de suppression aux images existantes au montage
@@ -92,6 +113,11 @@ export const EditableBlock = ({
                 e.stopPropagation();
                 if (confirm('Supprimer cette image ?')) {
                   imageContainer.remove();
+                  // FORCER la direction LTR après modification pour bouton image
+                  contentDiv.dir = 'ltr';
+                  contentDiv.style.direction = 'ltr';
+                  contentDiv.style.textAlign = 'left';
+                  
                   // Sauvegarder le contenu mis à jour
                   const newContent = contentDiv.innerHTML;
                   setLocalContent(newContent);
@@ -117,9 +143,17 @@ export const EditableBlock = ({
     return () => clearTimeout(timer);
   }, [block.content, block.id]);
 
-  // Debounced save function
+  // Debounced save function avec nettoyage du contenu
   const debouncedSave = useCallback(
     debounce((updatedBlock: Partial<BlockType>) => {
+      // Nettoyer le contenu avant sauvegarde
+      if (updatedBlock.content) {
+        const cleanContent = updatedBlock.content
+          .replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"')
+          .replace(/style\s*=\s*["'][^"']*direction\s*:\s*rtl[^"']*["']/gi, '')
+          .replace(/unicode-bidi\s*:\s*bidi-override/gi, '');
+        updatedBlock.content = cleanContent;
+      }
       onUpdate({ ...block, ...updatedBlock });
     }, 1000),
     [block, onUpdate]
@@ -283,9 +317,13 @@ export const EditableBlock = ({
           newContent += imageHtml;
         });
 
-        // Mettre à jour le contenu en toute sécurité
+        // Mettre à jour le contenu en toute sécurité AVEC préservation de la direction
         if (contentElement) {
           contentElement.innerHTML = newContent;
+          // FORCER la direction LTR après modification innerHTML
+          contentElement.dir = 'ltr';
+          contentElement.style.direction = 'ltr';
+          contentElement.style.textAlign = 'left';
         }
         setLocalContent(newContent);
         debouncedSave({ content: newContent });
@@ -354,6 +392,12 @@ export const EditableBlock = ({
 
   const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
     const newContent = e.currentTarget.innerHTML;
+    
+    // Force la direction LTR à chaque modification
+    e.currentTarget.dir = 'ltr';
+    e.currentTarget.style.direction = 'ltr';
+    e.currentTarget.style.textAlign = 'left';
+    
     setLocalContent(newContent);
     debouncedSave({ content: newContent });
   };
@@ -437,6 +481,11 @@ export const EditableBlock = ({
       // Sauvegarder le nouveau contenu sans l'image
       const contentDiv = imgElement.closest('[contenteditable]') as HTMLDivElement;
       if (contentDiv) {
+        // FORCER la direction LTR après suppression d'image
+        contentDiv.dir = 'ltr';
+        contentDiv.style.direction = 'ltr';
+        contentDiv.style.textAlign = 'left';
+        
         const newContent = contentDiv.innerHTML;
         setLocalContent(newContent);
         debouncedSave({ content: newContent });
@@ -680,9 +729,27 @@ export const EditableBlock = ({
         
                 {/* Content area - Rich text editor */}
         <div
+          ref={(el) => {
+            if (el) {
+              // Force LTR à chaque rendu
+              el.dir = 'ltr';
+              el.style.direction = 'ltr';
+              el.style.textAlign = 'left';
+              el.style.unicodeBidi = 'embed';
+              
+              // Nettoyer le contenu de tout attribut RTL
+              const cleanContent = localContent
+                .replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"')
+                .replace(/direction\s*:\s*rtl/gi, 'direction: ltr')
+                .replace(/text-align\s*:\s*right/gi, 'text-align: left');
+              
+              if (el.innerHTML !== cleanContent) {
+                el.innerHTML = cleanContent;
+              }
+            }
+          }}
           contentEditable
           dir="ltr"
-          dangerouslySetInnerHTML={{ __html: localContent }}
           onInput={handleContentChange}
           onClick={handleContentClick}
           onDoubleClick={handleContentDoubleClick}
@@ -706,6 +773,7 @@ export const EditableBlock = ({
             padding: '8px',
             direction: 'ltr',
             textAlign: 'left',
+            unicodeBidi: 'embed',
           }}
         />
         

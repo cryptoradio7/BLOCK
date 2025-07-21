@@ -155,6 +155,167 @@ export default function Home() {
 
   const currentPage = pages.find(page => page.id === currentPageId)
 
+
+
+  // Fonction d'export PDF - Version simplifiée qui fonctionne
+  const handleExportPDF = async () => {
+    console.log('📄 Export PDF en cours...')
+    
+    // Notification de début d'export
+    const notification = document.createElement('div')
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #007bff;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      z-index: 9999;
+      box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    `
+    notification.textContent = '📄 Préparation du PDF...'
+    document.body.appendChild(notification)
+    
+    try {
+      // Méthode simple : utiliser l'impression du navigateur pour générer un PDF
+      // L'utilisateur pourra choisir "Enregistrer en PDF" dans la boîte d'impression
+      
+      // Préparer le titre du document pour le PDF
+      const originalTitle = document.title
+      document.title = `BLOCK - ${currentPage?.title || 'Page'} - ${new Date().toLocaleDateString()}`
+      
+      // Ajouter des styles PDF optimisés
+      const pdfStyles = document.createElement('style')
+      pdfStyles.id = 'pdf-export-styles'
+      pdfStyles.innerHTML = `
+        @media print {
+          @page { 
+            margin: 1.5cm;
+            size: A4;
+          }
+          
+          body { 
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
+            font-family: 'Arial', sans-serif !important;
+            font-size: 12pt !important;
+            line-height: 1.4 !important;
+          }
+          
+          .sidebar, .toolbar, .show-sidebar-button, .add-block-button,
+          button, .react-resizable-handle, [title*="Supprimer"],
+          .image-delete-button { 
+            display: none !important; 
+          }
+          
+          .main-content { 
+            margin-left: 0 !important; 
+            width: 100% !important;
+            padding: 0 !important;
+          }
+          
+          #block-canvas {
+            position: static !important;
+            height: auto !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+          
+          .draggable-block { 
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 0 15pt 0 !important;
+            padding: 12pt !important;
+            border: 1pt solid #ddd !important;
+            border-radius: 3pt !important;
+            page-break-inside: avoid;
+            box-shadow: none !important;
+            transform: none !important;
+            display: block !important;
+            background: white !important;
+          }
+          
+          .draggable-block [contenteditable] {
+            border: none !important;
+            padding: 6pt !important;
+            font-size: 11pt !important;
+            line-height: 1.3 !important;
+            background: transparent !important;
+          }
+          
+          .draggable-block input[type="text"] {
+            border: none !important;
+            border-bottom: 1pt solid #999 !important;
+            font-size: 13pt !important;
+            font-weight: bold !important;
+            margin-bottom: 8pt !important;
+            background: transparent !important;
+            color: #000 !important;
+          }
+          
+          .draggable-block img {
+            max-width: 100% !important;
+            height: auto !important;
+            page-break-inside: avoid;
+            margin: 5pt 0 !important;
+          }
+          
+          /* Titre de page en en-tête */
+          #block-canvas::before {
+            content: "${currentPage?.title || 'BLOCK - Page'} - ${new Date().toLocaleDateString('fr-FR')}";
+            display: block;
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 20pt;
+            padding-bottom: 10pt;
+            border-bottom: 2pt solid #333;
+            color: #333;
+          }
+        }
+      `
+      document.head.appendChild(pdfStyles)
+      
+      // Mettre à jour la notification
+      notification.textContent = '🖨️ Cliquez sur "Enregistrer en PDF" dans la boîte d\'impression'
+      notification.style.background = '#28a745'
+      
+      // Déclencher l'impression (l'utilisateur pourra choisir PDF)
+      setTimeout(() => {
+        window.print()
+        
+        // Nettoyer après impression
+        setTimeout(() => {
+          document.title = originalTitle
+          const stylesElement = document.getElementById('pdf-export-styles')
+          if (stylesElement) {
+            document.head.removeChild(stylesElement)
+          }
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification)
+          }
+        }, 2000)
+        
+      }, 1000)
+      
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'export PDF:', error)
+      notification.textContent = '❌ Erreur lors de la préparation PDF'
+      notification.style.background = '#dc3545'
+      
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification)
+        }
+      }, 4000)
+    }
+  }
+
   if (loading) {
     return <div className="app">Chargement...</div>
   }
@@ -174,7 +335,9 @@ export default function Home() {
           onToggleVisibility={() => setSidebarVisible(!sidebarVisible)}
         />
         <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
-          <Toolbar />
+          <Toolbar 
+            onExportPDF={handleExportPDF}
+          />
           {currentPage && (
             <BlockCanvas pageId={parseInt(currentPageId)} />
           )}
