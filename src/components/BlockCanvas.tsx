@@ -127,7 +127,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       console.log('🚀 DÉBUT createNewBlock:', { x, y, pageId });
       
       const requestBody = {
-        content: 'Nouveau bloc',
+        content: '',
         x,
         y,
         width: 300,
