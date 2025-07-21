@@ -1,27 +1,35 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Page } from '@/types'
-import styles from './Sidebar.module.css'
 import Logo from './Logo'
+import styles from './Sidebar.module.css'
 
 interface SidebarProps {
   pages: Page[]
   currentPageId: string
   onPageSelect: (pageId: string) => void
   onAddPage: (title?: string) => void
-  onPagesReorder?: (reorderedPages: Page[]) => void
+  onPagesReorder: (pages: Page[]) => void
   onDeletePage?: (pageId: string) => void
   visible: boolean
   onToggleVisibility: () => void
 }
 
-export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage, onPagesReorder, onDeletePage, visible, onToggleVisibility }: SidebarProps) {
+export default function Sidebar({ 
+  pages, 
+  currentPageId, 
+  onPageSelect, 
+  onAddPage, 
+  onPagesReorder, 
+  onDeletePage, 
+  visible, 
+  onToggleVisibility 
+}: SidebarProps) {
   const [isAddingPage, setIsAddingPage] = useState(false)
   const [newPageTitle, setNewPageTitle] = useState('')
   const [draggedPage, setDraggedPage] = useState<Page | null>(null)
   const [dragOverPageId, setDragOverPageId] = useState<string | null>(null)
-  const [showDragIndicators, setShowDragIndicators] = useState(false)
   const [editingPageId, setEditingPageId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
 
@@ -44,53 +52,98 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
 
   const handleDragStart = (e: React.DragEvent, page: Page) => {
     e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', page.id)
     setDraggedPage(page)
-    setShowDragIndicators(true)
+    console.log('🚀 Drag started:', page.title, 'ID:', page.id)
   }
 
   const handleDragOver = (e: React.DragEvent, pageId: string) => {
     e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    
+    if (!draggedPage) {
+      console.log('⚠️ No dragged page in dragOver')
+      return
+    }
+    
+    if (draggedPage.id === pageId) {
+      console.log('⚠️ Cannot drop on self:', pageId)
+      return
+    }
+    
+    console.log('✅ Drag over:', pageId)
     setDragOverPageId(pageId)
   }
 
-  const handleDragLeave = () => {
-    setDragOverPageId(null)
+  const handleDragEnter = (e: React.DragEvent, pageId: string) => {
+    e.preventDefault()
+    console.log('🔍 Drag enter:', pageId)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Ne pas réinitialiser si on survole un enfant
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      console.log('👋 Drag leave')
+      setDragOverPageId(null)
+    }
   }
 
   const handleDrop = (e: React.DragEvent, targetPageId: string) => {
     e.preventDefault()
-    if (!draggedPage || !onPagesReorder) return
+    e.stopPropagation()
+    
+    console.log('📍 Drop triggered on:', targetPageId)
+    
+    if (!draggedPage) {
+      console.log('❌ No dragged page in drop')
+      return
+    }
+    
+    if (draggedPage.id === targetPageId) {
+      console.log('❌ Cannot drop on self:', targetPageId)
+      return
+    }
 
+    console.log('📍 Valid drop on:', targetPageId)
+    
     const draggedIndex = pages.findIndex(p => p.id === draggedPage.id)
     const targetIndex = pages.findIndex(p => p.id === targetPageId)
 
-    if (draggedIndex === -1 || targetIndex === -1) return
+    console.log(`📊 Moving from index ${draggedIndex} to ${targetIndex}`)
+    console.log('📊 Dragged page:', draggedPage.title)
+    console.log('📊 Target page:', pages.find(p => p.id === targetPageId)?.title)
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      console.log('❌ Invalid indices:', draggedIndex, targetIndex)
+      return
+    }
 
     const reorderedPages = [...pages]
     const [movedPage] = reorderedPages.splice(draggedIndex, 1)
     reorderedPages.splice(targetIndex, 0, movedPage)
 
+    console.log('🎯 New order:', reorderedPages.map(p => p.title))
+
     onPagesReorder(reorderedPages)
     setDraggedPage(null)
     setDragOverPageId(null)
-    setShowDragIndicators(false)
   }
 
   const handleDragEnd = () => {
+    console.log('🏁 Drag ended - cleaning up')
     setDraggedPage(null)
     setDragOverPageId(null)
-    setShowDragIndicators(false)
   }
 
   const handleDeletePage = (e: React.MouseEvent, pageId: string) => {
-    e.stopPropagation() // Empêche la sélection de la page
+    e.stopPropagation()
     if (onDeletePage) {
       onDeletePage(pageId)
     }
   }
 
   const handleEditPage = (e: React.MouseEvent, page: Page) => {
-    e.stopPropagation() // Empêche la sélection de la page
+    e.stopPropagation()
     setEditingPageId(page.id)
     setEditingTitle(page.title)
   }
@@ -100,9 +153,7 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
       const updatedPages = pages.map(page =>
         page.id === editingPageId ? { ...page, title: editingTitle.trim() } : page
       )
-      if (onPagesReorder) {
-        onPagesReorder(updatedPages)
-      }
+      onPagesReorder(updatedPages)
       setEditingPageId(null)
       setEditingTitle('')
     }
@@ -121,17 +172,20 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
     }
   }
 
+
+
   return (
     <div className={`${styles.sidebar} ${!visible ? styles.hidden : ''}`}>
       <div className={styles.header}>
         <Logo />
         <div className={styles.headerButtons}>
-        <button 
-          className={styles.addButton}
-          onClick={() => setIsAddingPage(true)}
-        >
-          +
-        </button>
+          <button 
+            className={styles.addButton}
+            onClick={() => setIsAddingPage(true)}
+            title="Ajouter une page"
+          >
+            +
+          </button>
           <button 
             className={styles.hideButton}
             onClick={onToggleVisibility}
@@ -148,7 +202,7 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
         <div className={styles.addPageForm}>
           <input
             type="text"
-            placeholder="Nom de la page (Entrée pour valider, Échap pour annuler)"
+            placeholder="Nom de la page"
             value={newPageTitle}
             onChange={(e) => setNewPageTitle(e.target.value)}
             onKeyDown={handleKeyPress}
@@ -158,21 +212,24 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
       )}
 
       <div className={styles.pageList}>
-        {pages.map((page, index) => (
+        {pages.map((page) => (
           <div
             key={page.id}
-            className={`${styles.pageItem} ${page.id === currentPageId ? styles.active : ''} ${
-              draggedPage?.id === page.id ? styles.dragging : ''
-            } ${dragOverPageId === page.id ? styles.dragOver : ''}`}
+            className={`${styles.pageItem} ${
+              page.id === currentPageId ? styles.active : ''
+            } ${draggedPage?.id === page.id ? styles.dragging : ''} ${
+              dragOverPageId === page.id ? styles.dragOver : ''
+            }`}
             onClick={() => onPageSelect(page.id)}
             draggable
             onDragStart={(e) => handleDragStart(e, page)}
             onDragOver={(e) => handleDragOver(e, page.id)}
+            onDragEnter={(e) => handleDragEnter(e, page.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, page.id)}
             onDragEnd={handleDragEnd}
           >
-            <div className={styles.pageContent}>
+            <div className={styles.pageContent} style={{ pointerEvents: draggedPage?.id === page.id ? 'none' : 'auto' }}>
               <div className={styles.pageInfo}>
                 {editingPageId === page.id ? (
                   <input
@@ -183,32 +240,34 @@ export default function Sidebar({ pages, currentPageId, onPageSelect, onAddPage,
                     onBlur={handleSaveEdit}
                     className={styles.editInput}
                     autoFocus
+                    onDragStart={(e) => e.stopPropagation()}
                   />
                 ) : (
                   <span 
                     className={styles.pageTitle}
                     onClick={(e) => handleEditPage(e, page)}
                     title="Cliquez pour modifier le titre"
+                    onDragStart={(e) => e.stopPropagation()}
                   >
                     {page.title}
                   </span>
                 )}
               </div>
-              <div className={styles.dragHandle}>⋮⋮</div>
+              <div 
+                className={styles.dragHandle}
+                onDragStart={(e) => e.stopPropagation()}
+                style={{ pointerEvents: 'none' }}
+              >
+                ⋮⋮
+              </div>
             </div>
             
-            <div className={styles.pageActions}>
-              {showDragIndicators && draggedPage?.id !== page.id && (
-                <div className={styles.dragIndicators}>
-                  <div className={`${styles.dragIndicator} ${styles.dragUp}`} />
-                  <div className={`${styles.dragIndicator} ${styles.dragDown}`} />
-                </div>
-              )}
-              
+            <div className={styles.pageActions} style={{ pointerEvents: draggedPage?.id === page.id ? 'none' : 'auto' }}>
               {onDeletePage && pages.length > 1 && (
                 <button
                   className={styles.deleteButton}
                   onClick={(e) => handleDeletePage(e, page.id)}
+                  onDragStart={(e) => e.stopPropagation()}
                   title="Supprimer la page"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
