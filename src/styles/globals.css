@@ -153,6 +153,7 @@ a {
 /* Styles pour les images dans le contenu des blocs */
 [contenteditable] img {
   max-width: 100%;
+  width: auto;
   height: auto;
   border: 2px solid #ddd;
   border-radius: 4px;
@@ -161,8 +162,8 @@ a {
   transition: all 0.2s ease;
   resize: both;
   overflow: hidden;
-  min-width: 100px;
-  min-height: 60px;
+  min-width: 50px;
+  min-height: 30px;
   cursor: pointer;
 }
 
@@ -231,12 +232,12 @@ a {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   background: 
     linear-gradient(135deg, transparent 50%, rgba(0, 123, 255, 0.8) 50%),
     linear-gradient(45deg, transparent 50%, rgba(0, 123, 255, 0.8) 50%);
-  background-size: 6px 6px;
+  background-size: 5px 5px;
   background-position: bottom right;
   background-repeat: no-repeat;
   cursor: se-resize;
@@ -247,6 +248,11 @@ a {
 
 [contenteditable] img.resizable:hover::after {
   opacity: 1;
+}
+
+/* Images responsive dans les blocs */
+[contenteditable] img {
+  box-sizing: border-box;
 }
 
 /* Styles pour le scroll de la zone de travail */
