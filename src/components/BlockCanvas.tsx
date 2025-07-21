@@ -32,6 +32,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
             width: block.width || 300,
             height: block.height || 200,
             content: block.content || '',
+            title: block.title || '', // Récupérer le titre depuis la base de données
             type: block.type || 'text',
             page_id: block.page_id,
             attachments: [], // Pour l'instant, pas d'attachments
@@ -147,6 +148,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           width: newBlock.width,
           height: newBlock.height,
           content: newBlock.content || '',
+          title: newBlock.title || '', // Inclure le titre lors de la création
           type: newBlock.type || 'text',
           page_id: newBlock.page_id,
           attachments: [],
