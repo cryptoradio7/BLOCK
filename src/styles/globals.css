@@ -148,4 +148,84 @@ a {
 .draggable-block.is-dragging {
   opacity: 0.5;
   z-index: 1000;
+}
+
+/* Styles pour les images dans le contenu des blocs */
+[contenteditable] img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  margin: 8px 0;
+  display: block;
+  transition: all 0.2s ease;
+  resize: both;
+  overflow: hidden;
+  min-width: 100px;
+  min-height: 60px;
+  cursor: pointer;
+}
+
+[contenteditable] img:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.4);
+  transform: scale(1.02);
+}
+
+[contenteditable] img:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
+  outline: none;
+}
+
+[contenteditable] img:active {
+  cursor: grab;
+}
+
+/* Redimensionnement natif pour les images */
+[contenteditable] img.resizable {
+  resize: both;
+  overflow: auto;
+  position: relative;
+}
+
+/* Amélioration visuelle du redimensionnement */
+[contenteditable] img.resizable::-webkit-resizer {
+  background: linear-gradient(135deg, transparent 40%, #007bff 40%, #007bff 60%, transparent 60%);
+  border-radius: 4px;
+}
+
+/* Styles pour les images sélectionnées */
+[contenteditable] img.selected {
+  border-color: #28a745;
+  box-shadow: 0 0 16px rgba(40, 167, 69, 0.5);
+}
+
+/* Style de feedback visuel pour le redimensionnement */
+[contenteditable] img.resizable:hover {
+  box-shadow: 0 0 16px rgba(0, 123, 255, 0.4);
+}
+
+/* Amélioration de l'affordance de redimensionnement */
+[contenteditable] img.resizable::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: 
+    linear-gradient(135deg, transparent 50%, rgba(0, 123, 255, 0.8) 50%),
+    linear-gradient(45deg, transparent 50%, rgba(0, 123, 255, 0.8) 50%);
+  background-size: 6px 6px;
+  background-position: bottom right;
+  background-repeat: no-repeat;
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+[contenteditable] img.resizable:hover::after {
+  opacity: 1;
 } 

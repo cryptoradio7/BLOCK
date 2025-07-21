@@ -112,7 +112,7 @@ export const EditableBlock = ({
     });
   };
 
-  // Fonction pour gérer le paste d'images
+  // Fonction pour gérer le paste d'images dans le titre (vers attachments)
   const handlePaste = async (e: React.ClipboardEvent) => {
     const items = e.clipboardData.items;
     const imageFiles: File[] = [];
@@ -135,13 +135,47 @@ export const EditableBlock = ({
       e.preventDefault(); // Empêcher le paste normal du texte
       
       try {
-        console.log(`📷 Upload de ${imageFiles.length} image(s) en cours...`);
+        console.log(`📷 Upload de ${imageFiles.length} image(s) en cours vers attachments...`);
         
         // Créer un FileList à partir des fichiers
         const dataTransfer = new DataTransfer();
         imageFiles.forEach(file => dataTransfer.items.add(file));
         
-        // Ajouter un indicateur visuel temporaire
+        await handleFileUpload(dataTransfer.files);
+        
+        console.log(`✅ ${imageFiles.length} image(s) ajoutée(s) aux attachments !`);
+      } catch (error) {
+        console.error('❌ Erreur lors du collage d\'image:', error);
+      }
+    }
+  };
+
+  // Fonction pour gérer le paste d'images dans le contenu (affichage direct)
+  const handlePasteInContent = async (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = e.clipboardData.items;
+    const imageFiles: File[] = [];
+
+    // Parcourir tous les éléments du presse-papier
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Vérifier si c'est un fichier image
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    // Si on a trouvé des images, les uploader et les insérer dans le contenu
+    if (imageFiles.length > 0) {
+      e.preventDefault(); // Empêcher le paste normal
+      
+      try {
+        console.log(`📷 Upload de ${imageFiles.length} image(s) en cours vers contenu...`);
+        
+        // Notification
         const tempDiv = document.createElement('div');
         tempDiv.style.cssText = `
           position: fixed;
@@ -157,19 +191,54 @@ export const EditableBlock = ({
         `;
         tempDiv.textContent = `📷 Upload de ${imageFiles.length} image(s)...`;
         document.body.appendChild(tempDiv);
+
+        // Upload des images
+        const uploadPromises = imageFiles.map(async (file) => {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('blockId', block.id.toString());
+          
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!response.ok) {
+            throw new Error('Upload failed');
+          }
+          
+          return await response.json();
+        });
+
+        const uploadedFiles = await Promise.all(uploadPromises);
+
+        // Référence vers l'élément de contenu
+        const contentElement = e.currentTarget;
         
-        await handleFileUpload(dataTransfer.files);
-        
+        // Insérer les images dans le contenu
+        let newContent = contentElement.innerHTML;
+        uploadedFiles.forEach((file) => {
+          const imageHtml = `<img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block; margin: 8px 0;" />`;
+          newContent += imageHtml;
+        });
+
+        // Mettre à jour le contenu
+        contentElement.innerHTML = newContent;
+        setLocalContent(newContent);
+        debouncedSave({ content: newContent });
+
         // Mettre à jour la notification
-        tempDiv.textContent = `✅ ${imageFiles.length} image(s) ajoutée(s) !`;
+        tempDiv.textContent = `✅ ${imageFiles.length} image(s) insérée(s) !`;
         tempDiv.style.background = '#28a745';
         
         // Supprimer la notification après 2 secondes
         setTimeout(() => {
-          document.body.removeChild(tempDiv);
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
         }, 2000);
         
-        console.log(`✅ ${imageFiles.length} image(s) collée(s) avec succès !`);
+        console.log(`✅ ${imageFiles.length} image(s) insérée(s) dans le contenu !`);
       } catch (error) {
         console.error('❌ Erreur lors du collage d\'image:', error);
         
@@ -191,12 +260,12 @@ export const EditableBlock = ({
         document.body.appendChild(tempDiv);
         
         setTimeout(() => {
-          document.body.removeChild(tempDiv);
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
         }, 3000);
       }
     }
-    
-    // Si pas d'images, laisser le paste normal se faire
   };
 
   // Redimensionnement en temps réel (pendant le drag)
@@ -220,10 +289,25 @@ export const EditableBlock = ({
 
   // Fonction de titre supprimée car non utilisée
 
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value;
+  const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
+    const newContent = e.currentTarget.innerHTML;
     setLocalContent(newContent);
     debouncedSave({ content: newContent });
+  };
+
+  // Gérer les clics sur les images pour améliorer l'UX
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'IMG') {
+      // Retirer la classe selected de toutes les autres images
+      const allImages = e.currentTarget.querySelectorAll('img');
+      allImages.forEach(img => img.classList.remove('selected'));
+      
+      // Ajouter la classe selected à l'image cliquée
+      target.classList.add('selected');
+      
+      console.log('🖼️ Image sélectionnée pour redimensionnement');
+    }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -396,21 +480,21 @@ export const EditableBlock = ({
           )}
         </div>
         
-        {/* Content area */}
-        <textarea
-          value={localContent}
-          onChange={handleContentChange}
-          placeholder=""
+        {/* Content area - Rich text editor */}
+        <div
+          contentEditable
+          dangerouslySetInnerHTML={{ __html: localContent }}
+          onInput={handleContentChange}
+          onClick={handleContentClick} // Gérer les clics sur les images
           onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-          onPaste={handlePaste} // Gérer le paste d'images
-
+          onPaste={handlePasteInContent} // Gérer le paste d'images dans le contenu
+          suppressContentEditableWarning={true}
           style={{
             width: '100%',
             flex: 1,
             minHeight: '60px',
             maxHeight: block.attachments.length > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)',
             border: 'none',
-            resize: 'none',
             outline: 'none',
             fontSize: '14px',
             lineHeight: '1.5',
@@ -418,6 +502,7 @@ export const EditableBlock = ({
             fontFamily: 'inherit',
             cursor: 'text',
             overflow: 'auto',
+            padding: '4px',
           }}
         />
         
