@@ -35,7 +35,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
             title: block.title || '', // Récupérer le titre depuis la base de données
             type: block.type || 'text',
             page_id: block.page_id,
-            attachments: [], // Pour l'instant, pas d'attachments
+            attachments: block.attachments || [], // Récupérer les attachments depuis l'API
           }));
         setBlocks(transformedBlocks);
       }

@@ -21,9 +21,24 @@ export async function GET() {
       FROM blocks 
       ORDER BY created_at DESC
     `);
+
+    // Récupérer les attachments pour chaque bloc
+    const blocksWithAttachments = await Promise.all(
+      result.rows.map(async (block) => {
+        const attachmentsResult = await pool.query(
+          'SELECT id, name, url, type FROM block_attachments WHERE block_id = $1',
+          [block.id]
+        );
+        
+        return {
+          ...block,
+          attachments: attachmentsResult.rows
+        };
+      })
+    );
     
-    console.log('✅ Blocs récupérés:', result.rows.length);
-    return NextResponse.json(result.rows);
+    console.log('✅ Blocs avec attachments récupérés:', blocksWithAttachments.length);
+    return NextResponse.json(blocksWithAttachments);
   } catch (error) {
     console.error('❌ Erreur lors de la récupération des blocs:', error);
     return NextResponse.json(

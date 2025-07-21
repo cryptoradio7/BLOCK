@@ -199,6 +199,25 @@ a {
 [contenteditable] img.selected {
   border-color: #28a745;
   box-shadow: 0 0 16px rgba(40, 167, 69, 0.5);
+  position: relative;
+}
+
+/* Indication de suppression pour les images sélectionnées */
+[contenteditable] img.selected::before {
+  content: "Double-clic ou Delete pour supprimer";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* Style de feedback visuel pour le redimensionnement */
