@@ -266,8 +266,11 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
       {/* Bouton flottant pour ajouter un bloc */}
       <button
-        onClick={(e) => {
+        onClick={async (e) => {
+          e.preventDefault();
           e.stopPropagation();
+          console.log('🔘 Clic sur bouton d\'ajout de bloc');
+          
           const canvasElement = document.getElementById('block-canvas');
           if (canvasElement) {
             const rect = canvasElement.getBoundingClientRect();
@@ -277,7 +280,12 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
             const centerX = Math.max(50, (rect.width - 300) / 2);
             const centerY = Math.max(50, scrollTop + (window.innerHeight - 200) / 2);
             
-            createNewBlock(centerX, centerY);
+            console.log('📍 Position calculée:', { centerX, centerY, scrollTop });
+            
+            await createNewBlock(centerX, centerY);
+            console.log('✅ Bloc créé !');
+          } else {
+            console.log('❌ Canvas non trouvé');
           }
         }}
         style={{
@@ -288,9 +296,10 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           height: '60px',
           borderRadius: '50%',
           border: 'none',
-          backgroundColor: 'var(--agile-green, #2ECC71)',
+          backgroundColor: '#2ECC71',
           color: 'white',
           fontSize: '24px',
+          fontWeight: 'bold',
           cursor: 'pointer',
           boxShadow: '0 4px 12px rgba(46, 204, 113, 0.4)',
           transition: 'all 0.3s ease',
@@ -300,12 +309,12 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           justifyContent: 'center',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--agile-green-dark, #27AE60)';
+          e.currentTarget.style.backgroundColor = '#27AE60';
           e.currentTarget.style.transform = 'scale(1.1)';
           e.currentTarget.style.boxShadow = '0 6px 16px rgba(46, 204, 113, 0.6)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'var(--agile-green, #2ECC71)';
+          e.currentTarget.style.backgroundColor = '#2ECC71';
           e.currentTarget.style.transform = 'scale(1)';
           e.currentTarget.style.boxShadow = '0 4px 12px rgba(46, 204, 113, 0.4)';
         }}
