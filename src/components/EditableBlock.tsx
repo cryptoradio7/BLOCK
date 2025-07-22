@@ -52,7 +52,13 @@ export const EditableBlock = ({
   const [localTitle, setLocalTitle] = useState(block.title || '');
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // ← État pour gérer l'affichage du bouton de suppression
 
+
+  // CRUCIAL: Synchroniser block.content vers localContent quand les props changent
+  useEffect(() => {
+    setLocalContent(block.content);
+  }, [block.content, block.id]);
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -66,21 +72,33 @@ export const EditableBlock = ({
     const timer = setTimeout(() => {
       const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
       if (contentDiv) {
+        // Forcer la direction LTR sur le conteneur principal
         contentDiv.dir = 'ltr';
         contentDiv.style.direction = 'ltr';
         contentDiv.style.textAlign = 'left';
         
-        // Nettoyer le HTML de tout attribut de direction RTL
-        const cleanContent = contentDiv.innerHTML.replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"');
-        if (cleanContent !== contentDiv.innerHTML) {
-          contentDiv.innerHTML = cleanContent;
-          setLocalContent(cleanContent);
-        }
+        // ⚠️ NE PLUS JAMAIS MODIFIER innerHTML !
+        // Seulement nettoyer les attributs RTL existants
+        const allElements = contentDiv.querySelectorAll('*');
+        allElements.forEach((element) => {
+          if (element.getAttribute('dir') === 'rtl') {
+            element.setAttribute('dir', 'ltr');
+          }
+          if (element instanceof HTMLElement) {
+            if (element.style.direction === 'rtl') {
+              element.style.direction = 'ltr';
+            }
+            if (element.style.textAlign === 'right') {
+              element.style.textAlign = 'left';
+            }
+          }
+        });
+        
       }
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [block.id, localContent]);
+  }, [block.id]); // ← RETIRÉ localContent des dépendances pour éviter les boucles
 
 
 
@@ -111,13 +129,15 @@ export const EditableBlock = ({
               deleteButton.onclick = (e) => {
                 e.stopPropagation();
                 if (confirm('Supprimer cette image ?')) {
+                  // Suppression simple et propre
                   imageContainer.remove();
-                  // FORCER la direction LTR après modification pour bouton image
+                  
+                  // Forcer la direction LTR
                   contentDiv.dir = 'ltr';
                   contentDiv.style.direction = 'ltr';
                   contentDiv.style.textAlign = 'left';
                   
-                  // Sauvegarder le contenu mis à jour
+                  // Synchroniser le nouveau contenu
                   const newContent = contentDiv.innerHTML;
                   setLocalContent(newContent);
                   onUpdate({ ...block, content: newContent });
@@ -140,7 +160,7 @@ export const EditableBlock = ({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [block.content, block.id]);
+  }, [block.id]); // ← RETIRÉ block.content des dépendances pour éviter la recréation d'images supprimées
 
   // Debounced save function avec nettoyage du contenu
   const debouncedSave = useCallback(
@@ -167,7 +187,6 @@ export const EditableBlock = ({
     }),
     canDrag: () => !isResizing, // Seule protection : pas de drag pendant resize
     end: (item, monitor) => {
-      console.log('🏁 Fin du drag pour bloc:', block.id, 'dropped:', monitor.didDrop());
     },
   }));
 
@@ -265,7 +284,6 @@ export const EditableBlock = ({
       const currentContent = contentElement?.innerHTML || localContent;
       
       try {
-        console.log(`📷 Upload de ${imageFiles.length} image(s) en cours vers contenu...`);
         
         // Notification
         const tempDiv = document.createElement('div');
@@ -310,7 +328,26 @@ export const EditableBlock = ({
           const imageHtml = `
             <div class="image-container" style="display: inline-block; position: relative; margin: 8px 0;">
               <img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block;" />
-              <button class="image-delete-button" onclick="this.parentElement.remove(); arguments[0].stopPropagation();" title="Supprimer cette image">×</button>
+              <button class="image-delete-button" 
+                onclick="
+                  event.stopPropagation();
+                  if (confirm('Supprimer cette image ?')) {
+                    const container = this.parentElement;
+                    const contentDiv = container.closest('[contenteditable]');
+                    container.remove();
+                    
+                    // Force direction LTR
+                    contentDiv.dir = 'ltr';
+                    contentDiv.style.direction = 'ltr';
+                    contentDiv.style.textAlign = 'left';
+                    
+                    // Déclencher manuellement l'événement input pour synchroniser
+                    const inputEvent = new Event('input', { bubbles: true });
+                    contentDiv.dispatchEvent(inputEvent);
+                    
+                  }
+                " 
+                title="Supprimer cette image">×</button>
             </div>
           `;
           newContent += imageHtml;
@@ -325,7 +362,7 @@ export const EditableBlock = ({
           contentElement.style.textAlign = 'left';
         }
         setLocalContent(newContent);
-        debouncedSave({ content: newContent });
+        onUpdate({ ...block, content: newContent }); // ← SAUVEGARDE IMMÉDIATE des images collées
 
         // Mettre à jour la notification
         tempDiv.textContent = `✅ ${imageFiles.length} image(s) insérée(s) !`;
@@ -338,7 +375,7 @@ export const EditableBlock = ({
           }
         }, 2000);
         
-        console.log(`✅ ${imageFiles.length} image(s) insérée(s) dans le contenu !`);
+
       } catch (error) {
         console.error('❌ Erreur lors du collage d\'image:', error);
         
@@ -475,10 +512,13 @@ export const EditableBlock = ({
   // Fonction pour supprimer une image du contenu
   const handleDeleteImageFromContent = (imgElement: HTMLImageElement) => {
     if (confirm('Supprimer cette image du contenu ?')) {
-      imgElement.remove();
+      // ÉTAPE 1: Supprimer l'image du DOM
+      const container = imgElement.closest('.image-container');
+      const elementToRemove = container || imgElement;
+      elementToRemove.remove();
       
-      // Sauvegarder le nouveau contenu sans l'image
-      const contentDiv = imgElement.closest('[contenteditable]') as HTMLDivElement;
+      // ÉTAPE 2: Récupérer le nouveau contenu depuis le DOM
+      const contentDiv = elementToRemove.closest('[contenteditable]') as HTMLDivElement;
       if (contentDiv) {
         // FORCER la direction LTR après suppression d'image
         contentDiv.dir = 'ltr';
@@ -487,12 +527,10 @@ export const EditableBlock = ({
         
         const newContent = contentDiv.innerHTML;
         setLocalContent(newContent);
-        debouncedSave({ content: newContent });
+        onUpdate({ ...block, content: newContent });
       }
 
-      console.log('🗑️ Image supprimée du contenu');
-      
-      // Notification
+      // Notification simple
       const tempDiv = document.createElement('div');
       tempDiv.style.cssText = `
         position: fixed;
@@ -531,7 +569,6 @@ export const EditableBlock = ({
       // Ajouter la classe selected à l'image cliquée
       target.classList.add('selected');
       
-      console.log('🖼️ Image sélectionnée pour redimensionnement');
     }
   };
 
@@ -559,6 +596,13 @@ export const EditableBlock = ({
     const newTitle = e.target.value;
     setLocalTitle(newTitle);
     debouncedSave({ title: newTitle });
+  };
+
+  // Fonction pour supprimer le bloc entier
+  const handleDeleteBlock = () => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce bloc ?')) {
+      onDelete(block.id);
+    }
   };
 
   return (
@@ -611,11 +655,13 @@ export const EditableBlock = ({
         onMouseEnter={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            setIsHovered(true); // ← Afficher le bouton de suppression
           }
         }}
         onMouseLeave={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            setIsHovered(false); // ← Masquer le bouton de suppression
           }
         }}
         onDragOver={(e) => {
@@ -649,6 +695,22 @@ export const EditableBlock = ({
         }}
         onPaste={handlePaste} // Ajouter l'écouteur de paste
       >
+        {/* Bouton de suppression du bloc - visible au survol */}
+        {isHovered && !isDragging && !isResizing && (
+          <button
+            className="block-delete-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleDeleteBlock();
+            }}
+            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+            title="Supprimer ce bloc"
+          >
+            ×
+          </button>
+        )}
+
         {/* Header avec titre éditable */}
         <div style={{ 
           marginBottom: '12px', 
@@ -692,24 +754,41 @@ export const EditableBlock = ({
               el.style.textAlign = 'left';
               el.style.unicodeBidi = 'embed';
               
-              // Nettoyer le contenu de tout attribut RTL
-              const cleanContent = localContent
-                .replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"')
-                .replace(/direction\s*:\s*rtl/gi, 'direction: ltr')
-                .replace(/text-align\s*:\s*right/gi, 'text-align: left');
-              
-              if (el.innerHTML !== cleanContent) {
-                el.innerHTML = cleanContent;
+              // ⚠️ NE PLUS JAMAIS RESTAURER LE CONTENU COMPLET !
+              // Seulement nettoyer les attributs RTL directement sur les éléments existants
+              const allElements = el.querySelectorAll('*');
+              allElements.forEach((element) => {
+                if (element.getAttribute('dir') === 'rtl') {
+                  element.setAttribute('dir', 'ltr');
+                }
+                if (element instanceof HTMLElement) {
+                  if (element.style.direction === 'rtl') {
+                    element.style.direction = 'ltr';
+                  }
+                  if (element.style.textAlign === 'right') {
+                    element.style.textAlign = 'left';
+                  }
+                }
+                              });
               }
-            }
-          }}
+            }}
           contentEditable
           dir="ltr"
           onInput={handleContentChange}
           onClick={handleContentClick}
           onDoubleClick={handleContentDoubleClick}
           onKeyDown={handleContentKeyDown}
-          onMouseDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            // Ne bloquer la propagation QUE si on clique sur du texte ou des éléments de contenu
+            // LAISSER PASSER les événements de drag and drop de fichiers
+            const target = e.target as HTMLElement;
+            if (target.tagName !== 'IMG' && 
+                !target.classList.contains('image-delete-button') &&
+                !target.closest('.image-container')) {
+              // Seulement pour empêcher le drag du bloc lors de la sélection de texte
+              e.stopPropagation();
+            }
+          }}
           onPaste={handlePasteInContent}
           suppressContentEditableWarning={true}
           style={{
