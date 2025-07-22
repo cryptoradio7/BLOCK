@@ -194,41 +194,7 @@ export default function Home() {
             onExportPDF={handleExportPDF}
           />
           
-          {/* Bouton d'urgence pour voir les blocs */}
-          {currentPageId !== '2' && (
-            <div style={{
-              position: 'fixed',
-              top: '80px',
-              right: '20px',
-              zIndex: 1000,
-              backgroundColor: '#ff6b6b',
-              color: 'white',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(255,107,107,0.4)',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              <button
-                onClick={() => {
-                  console.log('🚨 Bouton urgence : navigation vers page PROJECT MANAGEMENT')
-                  setCurrentPageId('2')
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                🚨 Voir mes blocs (PROJECT MANAGEMENT)
-              </button>
-            </div>
-          )}
+
           
           {currentPage && (
             <BlockCanvas pageId={parseInt(currentPageId)} />

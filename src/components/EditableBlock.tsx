@@ -852,20 +852,7 @@ export const EditableBlock = ({
 
         </div>
 
-        {/* Guide d'utilisation pour les images */}
-        {isHovered && (
-          <div style={{
-            fontSize: '10px',
-            color: '#666',
-            marginBottom: '8px',
-            padding: '4px 8px',
-            backgroundColor: 'rgba(0,123,255,0.1)',
-            borderRadius: '4px',
-            border: '1px dashed rgba(0,123,255,0.3)'
-          }}>
-            💡 <strong>Images :</strong> Ctrl+V dans le contenu = affichage direct | Drag & Drop = pièce jointe
-          </div>
-        )}
+
         
                 {/* Content area - Rich text editor */}
         <div
