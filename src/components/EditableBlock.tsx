@@ -57,7 +57,7 @@ export const EditableBlock = ({
 
   // Synchroniser le contenu SEULEMENT au montage initial pour éviter les conflits
   useEffect(() => {
-    setLocalContent(block.content);
+      setLocalContent(block.content);
   }, [block.id]); // Seulement quand l'ID change (nouveau bloc)
 
   // Appliquer LTR seulement au montage initial
@@ -497,8 +497,8 @@ export const EditableBlock = ({
 
   // Fonction de titre supprimée car non utilisée
 
-
-
+    
+    
   const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
     const newContent = e.currentTarget.innerHTML;
     setLocalContent(newContent);
@@ -722,7 +722,7 @@ export const EditableBlock = ({
         onMouseEnter={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            setIsHovered(true);
+              setIsHovered(true);
           }
         }}
         onMouseLeave={(e) => {
@@ -764,15 +764,15 @@ export const EditableBlock = ({
       >
         {/* Bouton de suppression du bloc - visible au survol */}
         {isHovered && !isDragging && !isResizing && (
-        <button
-          className="block-delete-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            handleDeleteBlock();
-          }}
-          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-          title="Supprimer ce bloc"
+          <button
+            className="block-delete-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleDeleteBlock();
+            }}
+            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+            title="Supprimer ce bloc"
           style={{
             position: 'absolute',
             top: '8px',
@@ -804,15 +804,15 @@ export const EditableBlock = ({
             e.currentTarget.style.transform = 'scale(1)';
             e.currentTarget.style.backgroundColor = '#dc3545';
           }}
-        >
-                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
-             <polyline points="3,6 5,6 21,6"></polyline>
-             <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-             <line x1="10" y1="11" x2="10" y2="17"></line>
-             <line x1="14" y1="11" x2="14" y2="17"></line>
-           </svg>
-         </button>
-         )}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+              <polyline points="3,6 5,6 21,6"></polyline>
+              <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </button>
+        )}
 
         {/* Header avec titre éditable */}
         <div style={{ 
