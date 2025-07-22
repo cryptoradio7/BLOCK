@@ -56,7 +56,6 @@ export default function Sidebar({
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/plain', page.id)
     setDraggedPage(page)
-    console.log('🚀 Drag started:', page.title, 'ID:', page.id)
   }
 
   const handleDragOver = (e: React.DragEvent, pageId: string) => {
@@ -64,28 +63,23 @@ export default function Sidebar({
     e.dataTransfer.dropEffect = 'move'
     
     if (!draggedPage) {
-      console.log('⚠️ No dragged page in dragOver')
       return
     }
     
     if (draggedPage.id === pageId) {
-      console.log('⚠️ Cannot drop on self:', pageId)
       return
     }
     
-    console.log('✅ Drag over:', pageId)
     setDragOverPageId(pageId)
   }
 
   const handleDragEnter = (e: React.DragEvent, pageId: string) => {
     e.preventDefault()
-    console.log('🔍 Drag enter:', pageId)
   }
 
   const handleDragLeave = (e: React.DragEvent) => {
     // Ne pas réinitialiser si on survole un enfant
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      console.log('👋 Drag leave')
       setDragOverPageId(null)
     }
   }
@@ -94,29 +88,18 @@ export default function Sidebar({
     e.preventDefault()
     e.stopPropagation()
     
-    console.log('📍 Drop triggered on:', targetPageId)
-    
     if (!draggedPage) {
-      console.log('❌ No dragged page in drop')
       return
     }
     
     if (draggedPage.id === targetPageId) {
-      console.log('❌ Cannot drop on self:', targetPageId)
       return
     }
-
-    console.log('📍 Valid drop on:', targetPageId)
     
     const draggedIndex = pages.findIndex(p => p.id === draggedPage.id)
     const targetIndex = pages.findIndex(p => p.id === targetPageId)
 
-    console.log(`📊 Moving from index ${draggedIndex} to ${targetIndex}`)
-    console.log('📊 Dragged page:', draggedPage.title)
-    console.log('📊 Target page:', pages.find(p => p.id === targetPageId)?.title)
-
     if (draggedIndex === -1 || targetIndex === -1) {
-      console.log('❌ Invalid indices:', draggedIndex, targetIndex)
       return
     }
 
@@ -124,15 +107,12 @@ export default function Sidebar({
     const [movedPage] = reorderedPages.splice(draggedIndex, 1)
     reorderedPages.splice(targetIndex, 0, movedPage)
 
-    console.log('🎯 New order:', reorderedPages.map(p => p.title))
-
     onPagesReorder(reorderedPages)
     setDraggedPage(null)
     setDragOverPageId(null)
   }
 
   const handleDragEnd = () => {
-    console.log('🏁 Drag ended - cleaning up')
     setDraggedPage(null)
     setDragOverPageId(null)
   }
@@ -152,7 +132,6 @@ export default function Sidebar({
 
   const handleSaveEdit = () => {
     if (editingPageId && editingTitle.trim()) {
-      console.log('📝 Sauvegarde du titre de page depuis Sidebar:', { editingPageId, editingTitle })
       onUpdatePageTitle(editingPageId, editingTitle.trim())
       setEditingPageId(null)
       setEditingTitle('')

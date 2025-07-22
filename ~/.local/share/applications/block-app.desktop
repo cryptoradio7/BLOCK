@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=BLOCK - Gestionnaire de Pages
+Comment=Application moderne de gestion de pages et blocs par Agile Vision
+GenericName=Gestionnaire de Blocs
+Keywords=block;pages;notes;gestionnaire;agile;vision;
+Icon=/home/egx/Bureau/APPS/BLOCK/blocks-icon.png
+Exec=/home/egx/Bureau/APPS/BLOCK/launch-block.sh
+Path=/home/egx/Bureau/APPS/BLOCK
+Terminal=false
+StartupNotify=true
+Categories=Office;
+MimeType=text/plain;text/html;
+StartupWMClass=block-app 

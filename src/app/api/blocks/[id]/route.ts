@@ -36,11 +36,33 @@ export async function PUT(
     const body = await request.json();
     const { title, content, x, y, width, height } = body;
 
+    // ⚠️ PROTECTION ANTI-SUPPRESSION : Vérifier le contenu existant
+    if (content !== undefined) {
+      const currentBlock = await pool.query(
+        'SELECT content FROM blocks WHERE id = $1',
+        [parseInt(params.id)]
+      );
+      
+      if (currentBlock.rows.length > 0) {
+        const existingContent = currentBlock.rows[0].content || '';
+        // Si on essaie de remplacer du contenu existant par du vide, ignorer
+        if (existingContent.trim() && !content.trim()) {
+          console.warn(`⚠️ API Bloc ${params.id}: Tentative de suppression de contenu ignorée`);
+          return NextResponse.json(
+            { error: 'Suppression de contenu existant non autorisée' },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     // Arrondir les coordonnées pour PostgreSQL
     const roundedX = Math.round(x);
     const roundedY = Math.round(y);
     const roundedWidth = Math.round(width);
     const roundedHeight = Math.round(height);
+
+    console.log(`💾 API Bloc ${params.id}: Mise à jour (contenu: ${content?.length || 0} chars)`);
 
     const result = await pool.query(
       `UPDATE blocks 

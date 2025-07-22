@@ -57,8 +57,30 @@ export const EditableBlock = ({
 
   // CRUCIAL: Synchroniser block.content vers localContent quand les props changent
   useEffect(() => {
-    setLocalContent(block.content);
+    // ⚠️ PROTECTION ANTI-SUPPRESSION : Ne jamais accepter un contenu vide si on en avait un
+    if (block.content || !localContent) {
+      setLocalContent(block.content);
+      console.log(`🔄 Bloc ${block.id}: Contenu synchronisé (${block.content.length} chars)`);
+    } else {
+      console.warn(`⚠️ Bloc ${block.id}: Tentative de remplacement par contenu vide ignorée`);
+    }
   }, [block.content, block.id]);
+
+  // ⚠️ FORCER L'AFFICHAGE DU CONTENU AU MONTAGE
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
+      if (contentDiv && localContent) {
+        console.log(`🚨 FORCE CONTENU pour bloc ${block.id}:`, localContent.substring(0, 100));
+        contentDiv.innerHTML = localContent;
+        contentDiv.dir = 'ltr';
+        contentDiv.style.direction = 'ltr';
+        contentDiv.style.textAlign = 'left';
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [block.id, localContent]);
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -165,13 +187,22 @@ export const EditableBlock = ({
   // Debounced save function avec nettoyage du contenu
   const debouncedSave = useCallback(
     debounce((updatedBlock: Partial<BlockType>) => {
-      // Nettoyer le contenu avant sauvegarde
-      if (updatedBlock.content) {
+      // ⚠️ PROTECTION ANTI-SUPPRESSION : Ne jamais sauvegarder un contenu complètement vide
+      if (updatedBlock.content !== undefined) {
+        // Si le nouveau contenu est vide mais qu'on avait du contenu avant, ignorer
+        if (!updatedBlock.content.trim() && block.content.trim()) {
+          console.warn(`⚠️ Bloc ${block.id}: Sauvegarde de contenu vide ignorée (contenu existant préservé)`);
+          return;
+        }
+        
+        // Nettoyer le contenu avant sauvegarde
         const cleanContent = updatedBlock.content
           .replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"')
           .replace(/style\s*=\s*["'][^"']*direction\s*:\s*rtl[^"']*["']/gi, '')
           .replace(/unicode-bidi\s*:\s*bidi-override/gi, '');
         updatedBlock.content = cleanContent;
+        
+        console.log(`💾 Bloc ${block.id}: Sauvegarde contenu (${cleanContent.length} chars)`);
       }
       onUpdate({ ...block, ...updatedBlock });
     }, 1000),
@@ -754,8 +785,13 @@ export const EditableBlock = ({
               el.style.textAlign = 'left';
               el.style.unicodeBidi = 'embed';
               
-              // ⚠️ NE PLUS JAMAIS RESTAURER LE CONTENU COMPLET !
-              // Seulement nettoyer les attributs RTL directement sur les éléments existants
+              // ⚠️ FORCER LE CONTENU HTML si différent
+              if (el.innerHTML !== localContent && localContent) {
+                console.log(`🔄 Force innerHTML pour bloc ${block.id}:`, localContent.substring(0, 100));
+                el.innerHTML = localContent;
+              }
+              
+              // Nettoyer les attributs RTL directement sur les éléments existants
               const allElements = el.querySelectorAll('*');
               allElements.forEach((element) => {
                 if (element.getAttribute('dir') === 'rtl') {
@@ -769,9 +805,9 @@ export const EditableBlock = ({
                     element.style.textAlign = 'left';
                   }
                 }
-                              });
-              }
-            }}
+              });
+            }
+          }}
           contentEditable
           dir="ltr"
           onInput={handleContentChange}

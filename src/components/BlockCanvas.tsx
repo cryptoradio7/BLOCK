@@ -19,24 +19,32 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
   const fetchBlocks = async () => {
     try {
+      console.log('🔍 BlockCanvas - Chargement blocs pour page:', pageId);
       const response = await fetch('/api/blocks');
       if (response.ok) {
         const data = await response.json();
+        console.log('📦 Tous les blocs récupérés:', data.length);
+        console.log('📋 Détails des blocs:', data.map((b: any) => ({ id: b.id, title: b.title, page_id: b.page_id, content_length: b.content?.length || 0 })));
+        
         // Transformer les données pour correspondre au type BlockType et filtrer par page
-        const transformedBlocks = data
-          .filter((block: any) => block.page_id === pageId)
-          .map((block: any) => ({
-            id: block.id,
-            x: block.x || 0,
-            y: block.y || 0,
-            width: block.width || 300,
-            height: block.height || 200,
-            content: block.content || '',
-            title: block.title || '', // Récupérer le titre depuis la base de données
-            type: block.type || 'text',
-            page_id: block.page_id,
-            attachments: block.attachments || [], // Récupérer les attachments depuis l'API
-          }));
+        const allTransformedBlocks = data.map((block: any) => ({
+          id: block.id,
+          x: block.x || 0,
+          y: block.y || 0,
+          width: block.width || 300,
+          height: block.height || 200,
+          content: block.content || '',
+          title: block.title || '', // Récupérer le titre depuis la base de données
+          type: block.type || 'text',
+          page_id: block.page_id,
+          attachments: block.attachments || [], // Récupérer les attachments depuis l'API
+        }));
+        
+        const transformedBlocks = allTransformedBlocks.filter((block: any) => block.page_id === pageId);
+        
+        console.log('🎯 Blocs filtrés pour page', pageId, ':', transformedBlocks.length);
+        console.log('📝 Blocs affichés:', transformedBlocks.map((b: any) => ({ id: b.id, title: b.title, content_preview: b.content.substring(0, 50) })));
+        
         setBlocks(transformedBlocks);
       }
     } catch (error) {
@@ -273,6 +281,50 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         paddingBottom: '100px', // Espace en bas pour faciliter le placement
       }}
     >
+      {blocks.length === 0 && !loading && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          textAlign: 'center',
+          padding: '40px',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          border: '2px dashed #ddd',
+          maxWidth: '400px'
+        }}>
+          <h3 style={{ color: '#666', marginBottom: '16px' }}>📋 Page vide</h3>
+          <p style={{ color: '#888', marginBottom: '20px', lineHeight: '1.5' }}>
+            Cette page ne contient aucun bloc. 
+            <br />
+            Utilisez le bouton <strong>+</strong> pour créer votre premier bloc
+            <br />
+            ou vérifiez les autres pages dans la sidebar.
+          </p>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              createNewBlock(200, 200)
+            }}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#2ECC71',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}
+          >
+            ➕ Créer le premier bloc
+          </button>
+        </div>
+      )}
+
       {blocks.map((block) => (
         <EditableBlock
           key={block.id}

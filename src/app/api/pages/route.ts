@@ -8,10 +8,11 @@ export async function GET() {
       SELECT 
         p.id,
         p.title,
+        p.order_index,
         p.created_at as "createdAt",
         p.updated_at as "updatedAt"
       FROM pages p
-      ORDER BY p.updated_at DESC
+      ORDER BY p.order_index ASC, p.id ASC
     `)
     
     const pages: Page[] = result.rows.map(row => ({
@@ -43,9 +44,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Obtenir le prochain order_index (max + 1)
+    const maxOrderResult = await pool.query('SELECT MAX(order_index) as max_order FROM pages')
+    const nextOrder = (maxOrderResult.rows[0].max_order || 0) + 1
+
     const result = await pool.query(
-      'INSERT INTO pages (title) VALUES ($1) RETURNING *',
-      [title]
+      'INSERT INTO pages (title, order_index) VALUES ($1, $2) RETURNING *',
+      [title, nextOrder]
     )
 
     const newPage: Page = {
