@@ -52,8 +52,7 @@ export const EditableBlock = ({
   const [localTitle, setLocalTitle] = useState(block.title || '');
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
-  const [isHovered, setIsHovered] = useState(false); // ← État pour gérer l'affichage du bouton de suppression
-  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
 
   // CRUCIAL: Synchroniser block.content vers localContent quand les props changent
@@ -83,14 +82,7 @@ export const EditableBlock = ({
     return () => clearTimeout(timer);
   }, [block.id, localContent]);
 
-  // Nettoyer le timeout de survol au démontage
-  useEffect(() => {
-    return () => {
-      if (hoverTimeout) {
-        clearTimeout(hoverTimeout);
-      }
-    };
-  }, [hoverTimeout]);
+
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -742,28 +734,12 @@ export const EditableBlock = ({
         onMouseEnter={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            
-            // Nettoyer le timeout précédent s'il existe
-            if (hoverTimeout) {
-              clearTimeout(hoverTimeout);
-            }
-            
-            // Afficher le bouton avec un petit délai pour éviter le clignotement
-            const timeout = setTimeout(() => {
-              setIsHovered(true);
-            }, 100);
-            setHoverTimeout(timeout);
+            setIsHovered(true);
           }
         }}
         onMouseLeave={(e) => {
           if (!isDragging) {
             e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-            
-            // Nettoyer le timeout et masquer immédiatement
-            if (hoverTimeout) {
-              clearTimeout(hoverTimeout);
-              setHoverTimeout(null);
-            }
             setIsHovered(false);
           }
         }}
@@ -800,24 +776,55 @@ export const EditableBlock = ({
       >
         {/* Bouton de suppression du bloc - visible au survol */}
         {isHovered && !isDragging && !isResizing && (
-          <button
-            className="block-delete-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              handleDeleteBlock();
-            }}
-            onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
-            title="Supprimer ce bloc"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
-              <polyline points="3,6 5,6 21,6"></polyline>
-              <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-              <line x1="10" y1="11" x2="10" y2="17"></line>
-              <line x1="14" y1="11" x2="14" y2="17"></line>
-            </svg>
-          </button>
-        )}
+        <button
+          className="block-delete-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            handleDeleteBlock();
+          }}
+          onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
+          title="Supprimer ce bloc"
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            border: 'none',
+            backgroundColor: '#dc3545',
+            color: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            zIndex: 10,
+            opacity: isDragging ? 0.3 : 0.8,
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.backgroundColor = '#c82333';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = isDragging ? '0.3' : '0.8';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.backgroundColor = '#dc3545';
+          }}
+        >
+                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+             <polyline points="3,6 5,6 21,6"></polyline>
+             <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+             <line x1="10" y1="11" x2="10" y2="17"></line>
+             <line x1="14" y1="11" x2="14" y2="17"></line>
+           </svg>
+         </button>
+         )}
 
         {/* Header avec titre éditable */}
         <div style={{ 
