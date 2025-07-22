@@ -649,3 +649,22 @@ a {
     color-adjust: exact !important;
   }
 }
+
+/* STYLES SIMPLES POUR DIRECTION LTR */
+[contenteditable] {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+
+/* Prévenir RTL sur les blocs */
+.draggable-block [contenteditable] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Style par défaut pour les nouveaux éléments */
+.draggable-block p, .draggable-block div {
+  direction: ltr;
+  text-align: left;
+}

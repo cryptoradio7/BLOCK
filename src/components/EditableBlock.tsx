@@ -55,24 +55,16 @@ export const EditableBlock = ({
   const [isHovered, setIsHovered] = useState(false);
 
 
-  // CRUCIAL: Synchroniser block.content vers localContent quand les props changent
+  // Synchroniser le contenu SEULEMENT au montage initial pour éviter les conflits
   useEffect(() => {
-    // ⚠️ PROTECTION ANTI-SUPPRESSION : Ne jamais accepter un contenu vide si on en avait un
-    if (block.content || !localContent) {
-      setLocalContent(block.content);
-      console.log(`🔄 Bloc ${block.id}: Contenu synchronisé (${block.content.length} chars)`);
-    } else {
-      console.warn(`⚠️ Bloc ${block.id}: Tentative de remplacement par contenu vide ignorée`);
-    }
-  }, [block.content, block.id]);
+    setLocalContent(block.content);
+  }, [block.id]); // Seulement quand l'ID change (nouveau bloc)
 
-  // ⚠️ FORCER L'AFFICHAGE DU CONTENU AU MONTAGE
+  // Appliquer LTR seulement au montage initial
   useEffect(() => {
     const timer = setTimeout(() => {
       const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
-      if (contentDiv && localContent) {
-        console.log(`🚨 FORCE CONTENU pour bloc ${block.id}:`, localContent.substring(0, 100));
-        contentDiv.innerHTML = localContent;
+      if (contentDiv) {
         contentDiv.dir = 'ltr';
         contentDiv.style.direction = 'ltr';
         contentDiv.style.textAlign = 'left';
@@ -80,7 +72,7 @@ export const EditableBlock = ({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [block.id, localContent]);
+  }, [block.id]); // Seulement au montage du bloc
 
 
 
@@ -505,14 +497,10 @@ export const EditableBlock = ({
 
   // Fonction de titre supprimée car non utilisée
 
+
+
   const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
     const newContent = e.currentTarget.innerHTML;
-    
-    // Force la direction LTR à chaque modification
-    e.currentTarget.dir = 'ltr';
-    e.currentTarget.style.direction = 'ltr';
-    e.currentTarget.style.textAlign = 'left';
-    
     setLocalContent(newContent);
     debouncedSave({ content: newContent });
   };
@@ -864,34 +852,11 @@ export const EditableBlock = ({
                 {/* Content area - Rich text editor */}
         <div
           ref={(el) => {
-            if (el) {
-              // Force LTR à chaque rendu
-              el.dir = 'ltr';
-              el.style.direction = 'ltr';
-              el.style.textAlign = 'left';
-              el.style.unicodeBidi = 'embed';
-              
-              // ⚠️ FORCER LE CONTENU HTML si différent
-              if (el.innerHTML !== localContent && localContent) {
-                console.log(`🔄 Force innerHTML pour bloc ${block.id}:`, localContent.substring(0, 100));
+            if (el && el.innerHTML !== localContent) {
+              // Synchroniser seulement si le contenu est vraiment différent et l'élément n'a pas le focus
+              if (document.activeElement !== el) {
                 el.innerHTML = localContent;
               }
-              
-              // Nettoyer les attributs RTL directement sur les éléments existants
-              const allElements = el.querySelectorAll('*');
-              allElements.forEach((element) => {
-                if (element.getAttribute('dir') === 'rtl') {
-                  element.setAttribute('dir', 'ltr');
-                }
-                if (element instanceof HTMLElement) {
-                  if (element.style.direction === 'rtl') {
-                    element.style.direction = 'ltr';
-                  }
-                  if (element.style.textAlign === 'right') {
-                    element.style.textAlign = 'left';
-                  }
-                }
-              });
             }
           }}
           contentEditable
