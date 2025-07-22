@@ -258,6 +258,29 @@ export const EditableBlock = ({
       ...block,
       attachments: [...block.attachments, ...newAttachments],
     });
+
+    // Notification pour drag & drop
+    const tempDiv = document.createElement('div');
+    tempDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #007bff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 9999;
+      box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+    `;
+    tempDiv.textContent = `📎 ${newAttachments.length} fichier(s) ajouté(s) aux PIÈCES JOINTES !`;
+    document.body.appendChild(tempDiv);
+    
+    setTimeout(() => {
+      if (document.body.contains(tempDiv)) {
+        document.body.removeChild(tempDiv);
+      }
+    }, 3000);
   };
 
   // Fonction pour gérer le paste d'images dans le titre (vers attachments)
@@ -290,6 +313,29 @@ export const EditableBlock = ({
         imageFiles.forEach(file => dataTransfer.items.add(file));
         
         await handleFileUpload(dataTransfer.files);
+        
+        // Notification pour pièces jointes
+        const tempDiv = document.createElement('div');
+        tempDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #007bff;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+        `;
+        tempDiv.textContent = `📎 ${imageFiles.length} image(s) ajoutée(s) aux PIÈCES JOINTES !`;
+        document.body.appendChild(tempDiv);
+        
+        setTimeout(() => {
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
+        }, 3000);
         
         console.log(`✅ ${imageFiles.length} image(s) ajoutée(s) aux attachments !`);
       } catch (error) {
@@ -340,7 +386,7 @@ export const EditableBlock = ({
           z-index: 9999;
           box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         `;
-        tempDiv.textContent = `📷 Upload de ${imageFiles.length} image(s)...`;
+        tempDiv.textContent = `📷 Ajout de ${imageFiles.length} image(s) dans le CONTENU...`;
         document.body.appendChild(tempDiv);
 
         // Upload des images
@@ -406,7 +452,7 @@ export const EditableBlock = ({
         onUpdate({ ...block, content: newContent }); // ← SAUVEGARDE IMMÉDIATE des images collées
 
         // Mettre à jour la notification
-        tempDiv.textContent = `✅ ${imageFiles.length} image(s) insérée(s) !`;
+        tempDiv.textContent = `✅ ${imageFiles.length} image(s) insérée(s) dans le CONTENU !`;
         tempDiv.style.background = '#28a745';
         
         // Supprimer la notification après 2 secondes
@@ -705,7 +751,7 @@ export const EditableBlock = ({
             // Afficher le bouton avec un petit délai pour éviter le clignotement
             const timeout = setTimeout(() => {
               setIsHovered(true);
-            }, 150);
+            }, 100);
             setHoverTimeout(timeout);
           }
         }}
@@ -750,7 +796,7 @@ export const EditableBlock = ({
             handleFileUpload(e.dataTransfer.files);
           }
         }}
-        onPaste={handlePaste} // Ajouter l'écouteur de paste
+        // Pas de paste au niveau du bloc principal pour éviter les conflits
       >
         {/* Bouton de suppression du bloc - visible au survol */}
         {isHovered && !isDragging && !isResizing && (
@@ -764,7 +810,7 @@ export const EditableBlock = ({
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             title="Supprimer ce bloc"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
               <polyline points="3,6 5,6 21,6"></polyline>
               <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
               <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -788,7 +834,7 @@ export const EditableBlock = ({
             placeholder=""
             onMouseDown={(e) => e.stopPropagation()} // Empêcher le drag
             onDragStart={(e) => e.preventDefault()} // Empêcher le drag natif
-            onPaste={handlePaste} // Gérer aussi le paste d'images dans le titre
+            onPaste={handlePaste} // Images dans le titre -> ajoutées aux pièces jointes
 
             style={{
               flex: 1,
@@ -805,6 +851,21 @@ export const EditableBlock = ({
           />
 
         </div>
+
+        {/* Guide d'utilisation pour les images */}
+        {isHovered && (
+          <div style={{
+            fontSize: '10px',
+            color: '#666',
+            marginBottom: '8px',
+            padding: '4px 8px',
+            backgroundColor: 'rgba(0,123,255,0.1)',
+            borderRadius: '4px',
+            border: '1px dashed rgba(0,123,255,0.3)'
+          }}>
+            💡 <strong>Images :</strong> Ctrl+V dans le contenu = affichage direct | Drag & Drop = pièce jointe
+          </div>
+        )}
         
                 {/* Content area - Rich text editor */}
         <div
@@ -856,7 +917,7 @@ export const EditableBlock = ({
               e.stopPropagation();
             }
           }}
-          onPaste={handlePasteInContent}
+          onPaste={handlePasteInContent} // Images dans le contenu -> affichées directement
           suppressContentEditableWarning={true}
           style={{
             width: '100%',
