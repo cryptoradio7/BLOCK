@@ -650,6 +650,85 @@ a {
   }
 }
 
+/* ===== STYLES DE PRÉVISUALISATION PRINT (classe .printing) ===== */
+.printing [class*="sidebar"],
+.printing [class*="toolbar"],
+.printing .floating-actions,
+.printing button:not(.add-block-button),
+.printing [data-testid="toolbar"],
+.printing nav,
+.printing header,
+.printing .show-sidebar-button {
+  display: none !important;
+}
+
+.printing .add-block-button {
+  display: none !important;
+}
+
+.printing .app {
+  display: block !important;
+  height: auto !important;
+}
+
+.printing .main-content {
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  background: white !important;
+  position: static !important;
+  display: block !important;
+  flex: none !important;
+}
+
+.printing #block-canvas {
+  position: static !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 20pt !important;
+  margin: 0 !important;
+  display: block !important;
+  min-height: auto !important;
+}
+
+.printing .draggable-block,
+.printing .print-block {
+  position: static !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0 0 15pt 0 !important;
+  padding: 10pt !important;
+  border: 1pt solid #ddd !important;
+  border-radius: 4pt !important;
+  background: white !important;
+  box-shadow: none !important;
+  page-break-inside: avoid;
+  display: block !important;
+  transform: none !important;
+  left: auto !important;
+  top: auto !important;
+}
+
+/* Conteneur temporaire pour impression */
+#print-only-container {
+  position: static !important;
+  width: 100% !important;
+  padding: 20pt !important;
+  margin: 0 !important;
+  background: white !important;
+}
+
+.printing #print-only-container {
+  display: block !important;
+}
+
+/* Masquer le canvas original pendant impression */
+.printing #block-canvas {
+  display: none !important;
+}
+
 /* STYLES SIMPLES POUR DIRECTION LTR */
 [contenteditable] {
   direction: ltr;

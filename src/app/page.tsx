@@ -165,10 +165,123 @@ export default function Home() {
     }
   }
 
-  // Fonction d'export PDF simplifiée
+  // Fonction d'export PDF avec diagnostic complet des page_id
   const handleExportPDF = async () => {
-    console.log('📄 Export PDF en cours...')
-    window.print()
+    console.log('📄 Export PDF - DIAGNOSTIC COMPLET...')
+    
+    try {
+      // 🔍 ÉTAPE 1: Récupérer les données des blocs depuis l'API
+      const response = await fetch('/api/blocks')
+      const allBlocksData = await response.json()
+      
+      console.log(`📄 Page courante: ID="${currentPageId}" (type: ${typeof currentPageId}), Titre="${currentPage?.title}"`)
+      console.log(`📦 Blocs API total: ${allBlocksData.length}`)
+      
+      // 🔍 DIAGNOSTIC: Analyser TOUS les blocs avec leurs page_id
+      console.log('\n🔍 DIAGNOSTIC COMPLET DE TOUS LES BLOCS:')
+      allBlocksData.forEach((block: any, index: number) => {
+        const preview = block.content ? block.content.substring(0, 50).replace(/<[^>]*>/g, '') : 'vide'
+        const isCurrentPage = block.page_id === parseInt(currentPageId)
+        const pageIdType = typeof block.page_id
+        console.log(`${isCurrentPage ? '✅' : '❌'} BLOC ${index + 1}: page_id=${block.page_id} (${pageIdType}) | "${preview}..."`)
+      })
+      
+      // 🔍 PROBLÈME POTENTIEL: Vérifier le bloc "git add., commit, push"
+      const gitAddBlock = allBlocksData.find((block: any) => 
+        block.content && block.content.includes('git add')
+      )
+      
+      if (gitAddBlock) {
+        console.log('\n🚨 BLOC PROBLÉMATIQUE TROUVÉ:')
+        console.log(`  - ID: ${gitAddBlock.id}`)
+        console.log(`  - page_id: ${gitAddBlock.page_id} (type: ${typeof gitAddBlock.page_id})`)
+        console.log(`  - currentPageId: ${currentPageId} (type: ${typeof currentPageId})`)
+        console.log(`  - Égalité stricte: ${gitAddBlock.page_id === parseInt(currentPageId)}`)
+        console.log(`  - Contenu: "${gitAddBlock.content.substring(0, 100)}..."`)
+      }
+      
+      // 🔍 ÉTAPE 2: Filtrer avec diagnostic
+      const currentPageBlocksData = allBlocksData.filter((block: any) => {
+        const isMatch = block.page_id === parseInt(currentPageId)
+        if (!isMatch) {
+          console.log(`🚫 EXCLU: Bloc page_id=${block.page_id}, contenu="${block.content?.substring(0, 30)}..."`)
+        }
+        return isMatch
+      })
+      
+      console.log(`\n📋 Blocs APRÈS FILTRAGE: ${currentPageBlocksData.length}/${allBlocksData.length}`)
+      
+      if (currentPageBlocksData.length === 0) {
+        alert(`❌ Aucun bloc sur la page "${currentPage?.title}" après filtrage !`)
+        return
+      }
+      
+      console.log('\n✅ BLOCS GARDÉS POUR IMPRESSION:')
+      currentPageBlocksData.forEach((block: any, index: number) => {
+        const preview = block.content ? block.content.substring(0, 50).replace(/<[^>]*>/g, '') : 'vide'
+        console.log(`  ${index + 1}. "${preview}..." (page_id: ${block.page_id})`)
+      })
+      
+      // 🔍 ÉTAPE 3: Masquer TOUS les blocs existants
+      const allDOMBlocks = document.querySelectorAll('.draggable-block')
+      allDOMBlocks.forEach((block: Element) => {
+        const element = block as HTMLElement
+        element.style.display = 'none'
+      })
+      console.log(`🙈 ${allDOMBlocks.length} blocs DOM masqués`)
+      
+      // 🔍 ÉTAPE 4: Créer un conteneur temporaire avec SEULEMENT les blocs de la page courante
+      const printContainer = document.createElement('div')
+      printContainer.id = 'print-only-container'
+      printContainer.className = 'printing-active'
+      
+      // 🔍 ÉTAPE 5: Générer le HTML des blocs de la page courante
+      currentPageBlocksData.forEach((block: any, index: number) => {
+        const blockDiv = document.createElement('div')
+        blockDiv.className = 'draggable-block print-block'
+        blockDiv.innerHTML = `
+          <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+            ${block.title || `Bloc ${index + 1}`}
+          </div>
+          <div style="min-height: 40px; line-height: 1.4;">
+            ${block.content || 'Contenu vide'}
+          </div>
+        `
+        printContainer.appendChild(blockDiv)
+      })
+      
+      // 🔍 ÉTAPE 6: Injecter dans le body
+      document.body.appendChild(printContainer)
+      
+      // 🔍 ÉTAPE 7: Appliquer les styles print
+      document.body.classList.add('printing')
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      console.log(`🖨️ IMPRESSION: ${currentPageBlocksData.length} blocs propres prêts !`)
+      window.print()
+      
+      // 🔍 ÉTAPE 8: Nettoyer après impression
+      setTimeout(() => {
+        // Supprimer le conteneur temporaire
+        const container = document.getElementById('print-only-container')
+        if (container) {
+          container.remove()
+        }
+        
+        // Restaurer les blocs originaux
+        allDOMBlocks.forEach((block: Element) => {
+          const element = block as HTMLElement
+          element.style.display = ''
+        })
+        
+        document.body.classList.remove('printing')
+        console.log('✅ Impression terminée, DOM restauré')
+      }, 1000)
+      
+    } catch (error) {
+      console.error('❌ Erreur export PDF:', error)
+      alert('❌ Erreur lors de l\'export PDF. Consultez la console.')
+    }
   }
 
   if (loading) {
