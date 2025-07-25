@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=🎨 BLOCK App
+Comment=Lance l'application BLOCK sur le port 3001 - Interface de création de blocs
+Exec=/home/egx/Bureau/APPS/BLOCK/launch-block.sh
+Icon=/home/egx/Bureau/APPS/BLOCK/blocks-icon.png
+Terminal=true
+Categories=Development;WebDevelopment;
+Keywords=Block;App;Web;Development;Next.js;Port 3001;
+StartupNotify=true 
