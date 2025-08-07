@@ -34,17 +34,9 @@ export default function Home() {
         setPages(pagesData)
         
         if (pagesData.length > 0 && !currentPageId) {
-          // Récupérer la dernière page visitée depuis localStorage
-          const lastVisitedPageId = localStorage.getItem('lastVisitedPageId')
-          
-          if (lastVisitedPageId && pagesData.find((p: Page) => p.id === lastVisitedPageId)) {
-            console.log('🔄 Restauration de la dernière page visitée:', lastVisitedPageId)
-            setCurrentPageId(lastVisitedPageId)
-          } else {
-            // Sinon, sélectionner la première page disponible
-            console.log('🔄 Sélection de la première page disponible:', pagesData[0].id)
-            setCurrentPageId(pagesData[0].id)
-          }
+          // ⚠️ FORCER LA PAGE PROJECT MANAGEMENT (id=2) où sont vos blocs
+          console.log('🚨 Force navigation vers page PROJECT MANAGEMENT (id=2)')
+          setCurrentPageId('2')
         }
       }
     } catch (error) {
@@ -60,8 +52,10 @@ export default function Home() {
   useEffect(() => {
     if (currentPageId && currentPage) {
       console.log('📄 Page active:', { id: currentPageId, title: currentPage.title });
+    } else {
+      console.log('⚠️ Page non trouvée:', { currentPageId, pagesCount: pages.length });
     }
-  }, [currentPageId, currentPage]);
+  }, [currentPageId, currentPage, pages]);
 
   const addPage = async (title?: string) => {
     try {
@@ -396,6 +390,12 @@ export default function Home() {
           
           {currentPage && (
             <BlockCanvas pageId={parseInt(currentPageId)} />
+          )}
+          {!currentPage && (
+            <div style={{ padding: '20px', textAlign: 'center' }}>
+              <p>Page non trouvée: {currentPageId}</p>
+              <p>Pages disponibles: {pages.map(p => p.id).join(', ')}</p>
+            </div>
           )}
           {!sidebarVisible && (
             <button 
