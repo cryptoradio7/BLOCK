@@ -671,6 +671,28 @@ a {
     bottom: auto !important;
   }
 
+  /* Titre REPORTING et date */
+  #print-only-container > div:first-child {
+    text-align: center !important;
+    margin-bottom: 20pt !important;
+    padding-bottom: 10pt !important;
+    border-bottom: 2pt solid #333 !important;
+    font-family: 'Arial Black', 'Arial', sans-serif !important;
+  }
+
+  #print-only-container > div:first-child > div:first-child {
+    font-size: 24pt !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    margin-bottom: 8pt !important;
+  }
+
+  #print-only-container > div:first-child > div:last-child {
+    font-size: 12pt !important;
+    color: #666 !important;
+    font-style: italic !important;
+  }
+
   /* ÉVITER LES PAGES BLANCHES */
   @page {
     margin: 0.5in !important;

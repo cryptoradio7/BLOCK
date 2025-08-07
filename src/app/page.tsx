@@ -264,8 +264,69 @@ export default function Home() {
       printContainer.id = 'print-only-container'
       printContainer.className = 'printing-active'
       
-      // 🔍 ÉTAPE 5: Générer le HTML des blocs de la page courante
-      currentPageBlocksData.forEach((block: any, index: number) => {
+      // Ajouter le titre REPORTING et la date
+      const currentDate = new Date().toLocaleDateString('fr-FR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      
+      const headerDiv = document.createElement('div')
+      headerDiv.style.cssText = `
+        text-align: center;
+        margin-bottom: 20pt;
+        padding-bottom: 10pt;
+        border-bottom: 2pt solid #333;
+        font-family: 'Arial Black', 'Arial', sans-serif;
+      `
+      headerDiv.innerHTML = `
+        <div style="font-size: 24pt; font-weight: bold; color: #333; margin-bottom: 8pt;">
+          REPORTING
+        </div>
+        <div style="font-size: 12pt; color: #666; font-style: italic;">
+          ${currentDate}
+        </div>
+      `
+      printContainer.appendChild(headerDiv)
+      
+      // 🔍 ÉTAPE 5: Trier les blocs dans l'ordre spécifique pour l'impression
+      const orderKeywords = [
+        'SYNTHESE ECHANGE FABRICE MICHEAU',
+        'REPONSE AUX QUESTIONS DE FABRICE', 
+        'ACTIONS',
+        'VIDEOS A VOIR'
+      ]
+      
+      // Fonction pour déterminer l'ordre d'un bloc
+      const getBlockOrder = (block: any) => {
+        const title = (block.title || '').toUpperCase()
+        const content = (block.content || '').toUpperCase()
+        const fullText = title + ' ' + content
+        
+        for (let i = 0; i < orderKeywords.length; i++) {
+          if (fullText.includes(orderKeywords[i])) {
+            return i
+          }
+        }
+        return orderKeywords.length // Les autres blocs à la fin
+      }
+      
+      // Trier les blocs selon l'ordre spécifique
+      const sortedBlocks = [...currentPageBlocksData].sort((a, b) => {
+        const orderA = getBlockOrder(a)
+        const orderB = getBlockOrder(b)
+        return orderA - orderB
+      })
+      
+      console.log('\n📋 BLOCS TRIÉS POUR IMPRESSION:')
+      sortedBlocks.forEach((block: any, index: number) => {
+        const order = getBlockOrder(block)
+        const preview = block.title || block.content?.substring(0, 30) || 'vide'
+        console.log(`  ${index + 1}. [Ordre ${order}] "${preview}..."`)
+      })
+      
+      // Générer le HTML des blocs triés
+      sortedBlocks.forEach((block: any, index: number) => {
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
         blockDiv.innerHTML = `
