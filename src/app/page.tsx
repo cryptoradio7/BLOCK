@@ -282,14 +282,14 @@ export default function Home() {
         box-shadow: 0 4pt 12pt rgba(30, 58, 138, 0.3);
         font-family: 'Arial Black', 'Arial', sans-serif;
       `
-      headerDiv.innerHTML = `
-        <div style="font-size: 28pt; font-weight: bold; margin-bottom: 8pt; text-shadow: 0 2pt 4pt rgba(0,0,0,0.3);">
-          📊 REPORTING
-        </div>
-        <div style="font-size: 14pt; opacity: 0.9; font-weight: 300;">
-          ${currentDate}
-        </div>
-      `
+                headerDiv.innerHTML = `
+            <div style="font-size: 28pt; font-weight: 700; margin-bottom: 8pt; text-shadow: 0 2pt 4pt rgba(0,0,0,0.3); letter-spacing: 1pt; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">
+              📊 REPORTING
+            </div>
+            <div style="font-size: 14pt; opacity: 0.9; font-weight: 400; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">
+              ${currentDate}
+            </div>
+          `
       printContainer.appendChild(headerDiv)
       
       // 🔍 ÉTAPE 5: Trier les blocs dans l'ordre spécifique pour l'impression
@@ -376,35 +376,40 @@ export default function Home() {
           margin-bottom: 12pt;
           border-radius: 6pt;
           overflow: hidden;
-          box-shadow: 0 2pt 8pt rgba(0,0,0,0.1);
-          border: 1pt solid #e5e7eb;
+          box-shadow: 0 4pt 12pt rgba(0,0,0,0.08);
+          border: 1pt solid #e2e8f0;
+          background: white;
         `
         blockDiv.innerHTML = `
           <div style="
             background-color: #1e3a8a;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             padding: 8pt 12pt;
             font-size: 12pt;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             display: flex;
             align-items: center;
             gap: 8pt;
             border-radius: 6pt;
             box-shadow: 0 2pt 4pt rgba(0,0,0,0.2);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
           ">
             <span style="font-size: 14pt;">📋</span>
-            <span>${block.title || `Bloc ${index + 1}`}</span>
+            <span style="font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">${block.title || `Bloc ${index + 1}`}</span>
           </div>
-          <div style="
-            min-height: auto;
-            line-height: 1.4;
-            font-size: 10pt;
-            padding: 12pt;
-            background: white;
-            color: #374151;
-          ">
+                         <div style="
+                 min-height: auto;
+                 line-height: 1.5;
+                 font-size: 10pt;
+                 padding: 12pt;
+                 background: white;
+                 color: #374151;
+                 font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+                 font-weight: 400;
+                 border-radius: 0 0 6pt 6pt;
+               ">
             ${block.content || 'Contenu vide'}
           </div>
         `
@@ -423,6 +428,12 @@ export default function Home() {
       printContainer.style.padding = '10pt'
       printContainer.style.height = 'auto'
       printContainer.style.minHeight = 'auto'
+      printContainer.style.background = '#e2e8f0' // Fond gris plus foncé
+      printContainer.style.backgroundColor = '#e2e8f0' // Forcer la couleur de fond
+      
+      // Forcer aussi le fond sur le body et html
+      document.body.style.background = '#e2e8f0'
+      document.documentElement.style.background = '#e2e8f0'
       document.body.insertBefore(printContainer, document.body.firstChild)
       
       // 🔍 ÉTAPE 7: Appliquer les styles print
