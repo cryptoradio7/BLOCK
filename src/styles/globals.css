@@ -607,6 +607,51 @@ a {
     outline: none !important;
   }
 
+  /* Blocs en impression - Design professionnel avec couleurs */
+  .print-block {
+    margin-bottom: 12pt !important;
+    border-radius: 6pt !important;
+    overflow: hidden !important;
+    box-shadow: 0 2pt 8pt rgba(0,0,0,0.1) !important;
+    border: 1pt solid #e5e7eb !important;
+  }
+
+  /* Titres des blocs avec design bleu fixe */
+  .print-block > div:first-child {
+    background-color: #1e3a8a !important;
+    color: white !important;
+    font-weight: bold !important;
+    padding: 8pt 12pt !important;
+    font-size: 12pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8pt !important;
+    border-radius: 6pt !important;
+    box-shadow: 0 2pt 4pt rgba(0,0,0,0.2) !important;
+  }
+
+  /* Forcer l'affichage des éléments dans les blocs d'impression */
+  .print-block > div:first-child > span {
+    color: white !important;
+    font-weight: bold !important;
+  }
+
+  .print-block > div:first-child > span:first-child {
+    font-size: 14pt !important;
+  }
+
+  /* Contenu des blocs */
+  .print-block > div:last-child {
+    min-height: auto !important;
+    line-height: 1.4 !important;
+    font-size: 10pt !important;
+    padding: 12pt !important;
+    background: white !important;
+    color: #374151 !important;
+  }
+
   /* Images dans le contenu */
   .draggable-block img {
     max-width: 100% !important;
@@ -671,27 +716,32 @@ a {
     bottom: auto !important;
   }
 
-  /* Titre REPORTING et date */
+  /* Titre REPORTING et date - Design professionnel */
   #print-only-container > div:first-child {
     text-align: center !important;
-    margin-bottom: 20pt !important;
-    padding-bottom: 10pt !important;
-    border-bottom: 2pt solid #333 !important;
+    margin-bottom: 25pt !important;
+    padding: 15pt 10pt !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+    color: white !important;
+    border-radius: 8pt !important;
+    box-shadow: 0 4pt 12pt rgba(30, 58, 138, 0.3) !important;
     font-family: 'Arial Black', 'Arial', sans-serif !important;
   }
 
   #print-only-container > div:first-child > div:first-child {
-    font-size: 24pt !important;
+    font-size: 28pt !important;
     font-weight: bold !important;
-    color: #333 !important;
     margin-bottom: 8pt !important;
+    text-shadow: 0 2pt 4pt rgba(0,0,0,0.3) !important;
   }
 
-  #print-only-container > div:first-child > div:last-child {
-    font-size: 12pt !important;
-    color: #666 !important;
-    font-style: italic !important;
+  #print-only-container > div:first-child > div:nth-child(2) {
+    font-size: 14pt !important;
+    opacity: 0.9 !important;
+    font-weight: 300 !important;
   }
+
+  /* Supprimé la ligne pour BLOCK Professional Suite */
 
   /* ÉVITER LES PAGES BLANCHES */
   @page {

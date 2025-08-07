@@ -264,7 +264,7 @@ export default function Home() {
       printContainer.id = 'print-only-container'
       printContainer.className = 'printing-active'
       
-      // Ajouter le titre REPORTING et la date
+      // Ajouter le titre REPORTING et la date avec design professionnel
       const currentDate = new Date().toLocaleDateString('fr-FR', {
         year: 'numeric',
         month: 'long',
@@ -274,16 +274,19 @@ export default function Home() {
       const headerDiv = document.createElement('div')
       headerDiv.style.cssText = `
         text-align: center;
-        margin-bottom: 20pt;
-        padding-bottom: 10pt;
-        border-bottom: 2pt solid #333;
+        margin-bottom: 25pt;
+        padding: 15pt 10pt;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        border-radius: 8pt;
+        box-shadow: 0 4pt 12pt rgba(30, 58, 138, 0.3);
         font-family: 'Arial Black', 'Arial', sans-serif;
       `
       headerDiv.innerHTML = `
-        <div style="font-size: 24pt; font-weight: bold; color: #333; margin-bottom: 8pt;">
-          REPORTING
+        <div style="font-size: 28pt; font-weight: bold; margin-bottom: 8pt; text-shadow: 0 2pt 4pt rgba(0,0,0,0.3);">
+          📊 REPORTING
         </div>
-        <div style="font-size: 12pt; color: #666; font-style: italic;">
+        <div style="font-size: 14pt; opacity: 0.9; font-weight: 300;">
           ${currentDate}
         </div>
       `
@@ -297,7 +300,7 @@ export default function Home() {
         'VIDEOS A VOIR'
       ]
       
-      // Fonction pour déterminer l'ordre d'un bloc
+      // Fonction pour déterminer l'ordre et le style d'un bloc
       const getBlockOrder = (block: any) => {
         const title = (block.title || '').toUpperCase()
         const content = (block.content || '').toUpperCase()
@@ -309,6 +312,45 @@ export default function Home() {
           }
         }
         return orderKeywords.length // Les autres blocs à la fin
+      }
+      
+      // Fonction pour obtenir le style et l'icône selon le type de bloc
+      const getBlockStyle = (block: any) => {
+        const title = (block.title || '').toUpperCase()
+        const content = (block.content || '').toUpperCase()
+        const fullText = title + ' ' + content
+        
+        if (fullText.includes('SYNTHESE ECHANGE FABRICE MICHEAU')) {
+          return {
+            bgColor: '#1e3a8a',
+            icon: '📋',
+            label: 'SYNTHÈSE'
+          }
+        } else if (fullText.includes('REPONSE AUX QUESTIONS DE FABRICE')) {
+          return {
+            bgColor: '#059669',
+            icon: '❓',
+            label: 'QUESTIONS'
+          }
+        } else if (fullText.includes('ACTIONS')) {
+          return {
+            bgColor: '#ea580c',
+            icon: '⚡',
+            label: 'ACTIONS'
+          }
+        } else if (fullText.includes('VIDEOS A VOIR')) {
+          return {
+            bgColor: '#7c3aed',
+            icon: '🎥',
+            label: 'VIDÉOS'
+          }
+        } else {
+          return {
+            bgColor: '#374151',
+            icon: '📝',
+            label: 'AUTRE'
+          }
+        }
       }
       
       // Trier les blocs selon l'ordre spécifique
@@ -325,15 +367,44 @@ export default function Home() {
         console.log(`  ${index + 1}. [Ordre ${order}] "${preview}..."`)
       })
       
-      // Générer le HTML des blocs triés
+      // Générer le HTML des blocs triés avec couleurs et icônes
       sortedBlocks.forEach((block: any, index: number) => {
+        const blockStyle = getBlockStyle(block)
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
+        blockDiv.style.cssText = `
+          margin-bottom: 12pt;
+          border-radius: 6pt;
+          overflow: hidden;
+          box-shadow: 0 2pt 8pt rgba(0,0,0,0.1);
+          border: 1pt solid #e5e7eb;
+        `
         blockDiv.innerHTML = `
-          <div style="font-weight: bold; margin-bottom: 4px; border-bottom: 0.5px solid #ddd; padding-bottom: 2px; font-size: 12pt;">
-            ${block.title || `Bloc ${index + 1}`}
+          <div style="
+            background-color: #1e3a8a;
+            color: white;
+            font-weight: bold;
+            padding: 8pt 12pt;
+            font-size: 12pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8pt;
+            border-radius: 6pt;
+            box-shadow: 0 2pt 4pt rgba(0,0,0,0.2);
+          ">
+            <span style="font-size: 14pt;">📋</span>
+            <span>${block.title || `Bloc ${index + 1}`}</span>
           </div>
-          <div style="min-height: auto; line-height: 1.2; font-size: 10pt; padding: 2px;">
+          <div style="
+            min-height: auto;
+            line-height: 1.4;
+            font-size: 10pt;
+            padding: 12pt;
+            background: white;
+            color: #374151;
+          ">
             ${block.content || 'Contenu vide'}
           </div>
         `
