@@ -34,9 +34,17 @@ export default function Home() {
         setPages(pagesData)
         
         if (pagesData.length > 0 && !currentPageId) {
-          // ⚠️ FORCER LA PAGE PROJECT MANAGEMENT (id=2) où sont vos blocs
-          console.log('🚨 Force navigation vers page PROJECT MANAGEMENT (id=2)')
-          setCurrentPageId('2')
+          // Récupérer la dernière page visitée depuis localStorage
+          const lastVisitedPageId = localStorage.getItem('lastVisitedPageId')
+          
+          if (lastVisitedPageId && pagesData.find((p: Page) => p.id === lastVisitedPageId)) {
+            console.log('🔄 Restauration de la dernière page visitée:', lastVisitedPageId)
+            setCurrentPageId(lastVisitedPageId)
+          } else {
+            // Sinon, sélectionner la première page disponible
+            console.log('🔄 Sélection de la première page disponible:', pagesData[0].id)
+            setCurrentPageId(pagesData[0].id)
+          }
         }
       }
     } catch (error) {
@@ -170,12 +178,27 @@ export default function Home() {
     console.log('📄 Export PDF - DIAGNOSTIC COMPLET...')
     
     try {
+      // Vérifier que currentPageId est défini
+      if (!currentPageId) {
+        alert('❌ Aucune page sélectionnée !')
+        return
+      }
+
       // 🔍 ÉTAPE 1: Récupérer les données des blocs depuis l'API
       const response = await fetch('/api/blocks')
+      if (!response.ok) {
+        throw new Error(`Erreur API: ${response.status} ${response.statusText}`)
+      }
+      
       const allBlocksData = await response.json()
       
       console.log(`📄 Page courante: ID="${currentPageId}" (type: ${typeof currentPageId}), Titre="${currentPage?.title}"`)
       console.log(`📦 Blocs API total: ${allBlocksData.length}`)
+      
+      // Vérifier que allBlocksData est un tableau
+      if (!Array.isArray(allBlocksData)) {
+        throw new Error('Les données reçues ne sont pas un tableau')
+      }
       
       // 🔍 DIAGNOSTIC: Analyser TOUS les blocs avec leurs page_id
       console.log('\n🔍 DIAGNOSTIC COMPLET DE TOUS LES BLOCS:')
@@ -202,6 +225,12 @@ export default function Home() {
       
       // 🔍 ÉTAPE 2: Filtrer avec diagnostic
       const currentPageBlocksData = allBlocksData.filter((block: any) => {
+        // Vérifier que block.page_id existe et est valide
+        if (block.page_id === null || block.page_id === undefined) {
+          console.log(`🚫 EXCLU: Bloc sans page_id, contenu="${block.content?.substring(0, 30)}..."`)
+          return false
+        }
+        
         const isMatch = block.page_id === parseInt(currentPageId)
         if (!isMatch) {
           console.log(`🚫 EXCLU: Bloc page_id=${block.page_id}, contenu="${block.content?.substring(0, 30)}..."`)
@@ -230,6 +259,12 @@ export default function Home() {
       })
       console.log(`🙈 ${allDOMBlocks.length} blocs DOM masqués`)
       
+      // Masquer aussi le canvas original
+      const blockCanvas = document.getElementById('block-canvas')
+      if (blockCanvas) {
+        (blockCanvas as HTMLElement).style.display = 'none'
+      }
+      
       // 🔍 ÉTAPE 4: Créer un conteneur temporaire avec SEULEMENT les blocs de la page courante
       const printContainer = document.createElement('div')
       printContainer.id = 'print-only-container'
@@ -240,18 +275,29 @@ export default function Home() {
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
         blockDiv.innerHTML = `
-          <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">
+          <div style="font-weight: bold; margin-bottom: 4px; border-bottom: 0.5px solid #ddd; padding-bottom: 2px; font-size: 12pt;">
             ${block.title || `Bloc ${index + 1}`}
           </div>
-          <div style="min-height: 40px; line-height: 1.4;">
+          <div style="min-height: auto; line-height: 1.2; font-size: 10pt; padding: 2px;">
             ${block.content || 'Contenu vide'}
           </div>
         `
         printContainer.appendChild(blockDiv)
       })
       
-      // 🔍 ÉTAPE 6: Injecter dans le body
-      document.body.appendChild(printContainer)
+      // Nettoyer les espaces vides dans le conteneur
+      const emptyElements = printContainer.querySelectorAll('div:empty')
+      emptyElements.forEach(el => el.remove())
+      
+      // 🔍 ÉTAPE 6: Injecter dans le body en haut
+      printContainer.style.position = 'static'
+      printContainer.style.top = '0'
+      printContainer.style.left = '0'
+      printContainer.style.margin = '0'
+      printContainer.style.padding = '10pt'
+      printContainer.style.height = 'auto'
+      printContainer.style.minHeight = 'auto'
+      document.body.insertBefore(printContainer, document.body.firstChild)
       
       // 🔍 ÉTAPE 7: Appliquer les styles print
       document.body.classList.add('printing')
@@ -268,11 +314,20 @@ export default function Home() {
           container.remove()
         }
         
+        // Nettoyer tous les éléments temporaires d'impression
+        const printElements = document.querySelectorAll('.print-block, .printing-active')
+        printElements.forEach(el => el.remove())
+        
         // Restaurer les blocs originaux
         allDOMBlocks.forEach((block: Element) => {
           const element = block as HTMLElement
           element.style.display = ''
         })
+        
+        // Restaurer le canvas original
+        if (blockCanvas) {
+          (blockCanvas as HTMLElement).style.display = ''
+        }
         
         document.body.classList.remove('printing')
         console.log('✅ Impression terminée, DOM restauré')
@@ -280,7 +335,37 @@ export default function Home() {
       
     } catch (error) {
       console.error('❌ Erreur export PDF:', error)
-      alert('❌ Erreur lors de l\'export PDF. Consultez la console.')
+      
+      // Afficher un message d'erreur plus détaillé
+      let errorMessage = '❌ Erreur lors de l\'export PDF.'
+      if (error instanceof Error) {
+        errorMessage += ` Détails: ${error.message}`
+      }
+      
+      alert(errorMessage)
+      
+      // Nettoyer en cas d'erreur
+      try {
+        const container = document.getElementById('print-only-container')
+        if (container) {
+          container.remove()
+        }
+        
+        const allDOMBlocks = document.querySelectorAll('.draggable-block')
+        allDOMBlocks.forEach((block: Element) => {
+          const element = block as HTMLElement
+          element.style.display = ''
+        })
+        
+        const blockCanvas = document.getElementById('block-canvas')
+        if (blockCanvas) {
+          (blockCanvas as HTMLElement).style.display = ''
+        }
+        
+        document.body.classList.remove('printing')
+      } catch (cleanupError) {
+        console.error('❌ Erreur lors du nettoyage:', cleanupError)
+      }
     }
   }
 

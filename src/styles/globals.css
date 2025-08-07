@@ -509,31 +509,39 @@ a {
     display: none !important;
   }
 
-  /* Configuration générale de la page */
+  /* Configuration générale de la page - FORCER LE DÉBUT EN HAUT */
   html, body {
-    margin: 0;
-    padding: 0;
-    font-size: 12pt;
-    line-height: 1.4;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.2 !important;
     background: white !important;
     -webkit-print-color-adjust: exact;
     color-adjust: exact;
+    height: auto !important;
+    min-height: auto !important;
   }
 
   /* Conteneur principal - pleine largeur */
   .app {
     display: block !important;
     height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    top: 0 !important;
   }
 
   .main-content {
-    margin-left: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     width: 100% !important;
     max-width: none !important;
     background: white !important;
     position: static !important;
     display: block !important;
     flex: none !important;
+    top: 0 !important;
   }
 
   /* Canvas des blocs - affichage en cascade */
@@ -542,10 +550,11 @@ a {
     width: 100% !important;
     height: auto !important;
     overflow: visible !important;
-    padding: 20pt !important;
+    padding: 10pt !important;
     margin: 0 !important;
     display: block !important;
     min-height: auto !important;
+    top: 0 !important;
   }
 
   /* Blocs individuels - affichage en cascade */
@@ -554,13 +563,13 @@ a {
     width: 100% !important;
     max-width: none !important;
     height: auto !important;
-    margin: 0 0 15pt 0 !important;
-    padding: 10pt !important;
-    border: 1pt solid #ddd !important;
-    border-radius: 4pt !important;
+    margin: 0 0 8pt 0 !important;
+    padding: 5pt !important;
+    border: 0.5pt solid #ddd !important;
+    border-radius: 2pt !important;
     background: white !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
+    page-break-inside: auto !important;
     display: block !important;
     transform: none !important;
     left: auto !important;
@@ -572,13 +581,13 @@ a {
   .draggable-block [contenteditable] {
     width: 100% !important;
     height: auto !important;
-    min-height: 60pt !important;
+    min-height: auto !important;
     border: none !important;
     background: transparent !important;
     resize: none !important;
-    font-size: 11pt !important;
-    line-height: 1.3 !important;
-    padding: 5pt !important;
+    font-size: 10pt !important;
+    line-height: 1.2 !important;
+    padding: 2pt !important;
     margin: 0 !important;
     box-shadow: none !important;
     outline: none !important;
@@ -588,13 +597,13 @@ a {
   .draggable-block input[type="text"] {
     width: 100% !important;
     height: auto !important;
-    font-size: 14pt !important;
+    font-size: 12pt !important;
     font-weight: bold !important;
     border: none !important;
-    border-bottom: 1pt solid #ddd !important;
+    border-bottom: 0.5pt solid #ddd !important;
     background: transparent !important;
-    padding: 5pt 0 !important;
-    margin-bottom: 8pt !important;
+    padding: 2pt 0 !important;
+    margin-bottom: 4pt !important;
     outline: none !important;
   }
 
@@ -603,21 +612,21 @@ a {
     max-width: 100% !important;
     height: auto !important;
     display: block !important;
-    margin: 8pt auto !important;
-    border: 1pt solid #ddd !important;
-    border-radius: 2pt !important;
-    page-break-inside: avoid;
+    margin: 4pt auto !important;
+    border: 0.5pt solid #ddd !important;
+    border-radius: 1pt !important;
+    page-break-inside: auto !important;
   }
 
   /* Attachements et fichiers */
   .attachment,
   .file-item {
     display: block !important;
-    margin: 5pt 0 !important;
-    padding: 5pt !important;
-    border: 1pt solid #ddd !important;
-    border-radius: 2pt !important;
-    font-size: 10pt !important;
+    margin: 2pt 0 !important;
+    padding: 2pt !important;
+    border: 0.5pt solid #ddd !important;
+    border-radius: 1pt !important;
+    font-size: 9pt !important;
   }
 
   /* Masquer les contrôles de redimensionnement */
@@ -630,23 +639,65 @@ a {
     display: none !important;
   }
 
-  /* Saut de page entre les blocs si nécessaire */
+  /* SUPPRIMER les sauts de page automatiques */
   .draggable-block:nth-child(6n) {
-    page-break-after: auto;
+    page-break-after: auto !important;
   }
 
-  /* Éviter les sauts de page à l'intérieur des blocs */
+  /* Permettre les sauts de page à l'intérieur des blocs si nécessaire */
   .draggable-block,
   .draggable-block * {
-    page-break-inside: avoid;
-    orphans: 3;
-    widows: 3;
+    page-break-inside: auto !important;
+    orphans: 1 !important;
+    widows: 1 !important;
   }
 
   /* Optimisation pour l'impression couleur */
   * {
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
+  }
+
+  /* FORCER LE DÉBUT EN HAUT - Conteneur d'impression */
+  #print-only-container {
+    position: static !important;
+    width: 100% !important;
+    padding: 10pt !important;
+    margin: 0 !important;
+    background: white !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: auto !important;
+  }
+
+  /* ÉVITER LES PAGES BLANCHES */
+  @page {
+    margin: 0.5in !important;
+    size: auto !important;
+  }
+
+  /* Supprimer les espaces vides */
+  body::after {
+    display: none !important;
+  }
+
+  /* Forcer la fin du contenu */
+  #print-only-container::after {
+    content: "" !important;
+    display: none !important;
+  }
+
+  /* Optimiser l'espace - réduire les marges si nécessaire */
+  @media print and (max-height: 11in) {
+    #print-only-container {
+      padding: 5pt !important;
+    }
+    
+    .draggable-block {
+      margin: 0 0 4pt 0 !important;
+      padding: 3pt !important;
+    }
   }
 }
 
@@ -669,16 +720,22 @@ a {
 .printing .app {
   display: block !important;
   height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+  top: 0 !important;
 }
 
 .printing .main-content {
-  margin-left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   width: 100% !important;
   max-width: none !important;
   background: white !important;
   position: static !important;
   display: block !important;
   flex: none !important;
+  top: 0 !important;
 }
 
 .printing #block-canvas {
@@ -686,10 +743,11 @@ a {
   width: 100% !important;
   height: auto !important;
   overflow: visible !important;
-  padding: 20pt !important;
+  padding: 10pt !important;
   margin: 0 !important;
   display: block !important;
   min-height: auto !important;
+  top: 0 !important;
 }
 
 .printing .draggable-block,
@@ -698,26 +756,30 @@ a {
   width: 100% !important;
   max-width: none !important;
   height: auto !important;
-  margin: 0 0 15pt 0 !important;
-  padding: 10pt !important;
-  border: 1pt solid #ddd !important;
-  border-radius: 4pt !important;
+  margin: 0 0 8pt 0 !important;
+  padding: 5pt !important;
+  border: 0.5pt solid #ddd !important;
+  border-radius: 2pt !important;
   background: white !important;
   box-shadow: none !important;
-  page-break-inside: avoid;
+  page-break-inside: auto !important;
   display: block !important;
   transform: none !important;
   left: auto !important;
   top: auto !important;
 }
 
-/* Conteneur temporaire pour impression */
+/* Conteneur temporaire pour impression - FORCER LE DÉBUT EN HAUT */
 #print-only-container {
   position: static !important;
   width: 100% !important;
-  padding: 20pt !important;
+  padding: 10pt !important;
   margin: 0 !important;
   background: white !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: auto !important;
 }
 
 .printing #print-only-container {
@@ -726,6 +788,16 @@ a {
 
 /* Masquer le canvas original pendant impression */
 .printing #block-canvas {
+  display: none !important;
+}
+
+/* ÉVITER LES PAGES BLANCHES - Styles de prévisualisation */
+.printing body::after {
+  display: none !important;
+}
+
+.printing #print-only-container::after {
+  content: "" !important;
   display: none !important;
 }
 
@@ -746,4 +818,57 @@ a {
 .draggable-block p, .draggable-block div {
   direction: ltr;
   text-align: left;
+}
+
+/* ===== STYLES RESPONSIVES POUR MOBILE ===== */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    min-height: calc(100vh - 60px);
+  }
+  
+  .main-content.sidebar-hidden {
+    margin-left: 0;
+  }
+  
+  .show-sidebar-button {
+    top: 15px;
+    left: 15px;
+    width: 45px;
+    height: 45px;
+  }
+  
+  .add-block-button {
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 55px !important;
+    height: 55px !important;
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    min-height: calc(100vh - 50px);
+  }
+  
+  .show-sidebar-button {
+    top: 10px;
+    left: 10px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .add-block-button {
+    bottom: 15px !important;
+    right: 15px !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 20px !important;
+  }
 }

@@ -2,12 +2,17 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  flex: 1;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
 }
 
 .circle {
@@ -20,6 +25,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  flex-shrink: 0;
 }
 
 .letterA {
@@ -47,18 +53,26 @@
   display: flex;
   flex-direction: column;
   line-height: 1;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+  flex: 1;
 }
 
 .agile {
   font-size: 18px;
   font-weight: bold;
   color: #2ECC71;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .vizion {
   font-size: 18px;
   font-weight: bold;
   color: #2ECC71;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .block {
@@ -66,4 +80,64 @@
   font-weight: bold;
   color: #000000;
   margin-top: 2px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Styles pour mobile - forcer l'alignement à gauche */
+@media (max-width: 768px) {
+  .logoContainer {
+    justify-content: flex-start;
+    width: 100%;
+    padding-left: 0;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .logo {
+    justify-content: flex-start;
+    flex-shrink: 0;
+  }
+  
+  .text {
+    align-items: flex-start;
+    text-align: left;
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .agile,
+  .vizion,
+  .block {
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+/* Styles pour très petits écrans */
+@media (max-width: 480px) {
+  .logoContainer {
+    gap: 8px;
+    justify-content: flex-start;
+    flex: 1;
+  }
+  
+  .circle {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+  
+  .letterA {
+    font-size: 16px;
+  }
+  
+  .agile,
+  .vizion {
+    font-size: 16px;
+  }
+  
+  .block {
+    font-size: 12px;
+  }
 } 

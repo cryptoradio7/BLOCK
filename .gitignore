@@ -12,13 +12,6 @@ out/
 build/
 dist/
 
-# Runtime data
-*.pid
-*.seed
-*.pid.lock
-recording.pid
-recording.status
-
 # Environment variables
 .env
 .env.local
@@ -26,26 +19,28 @@ recording.status
 .env.test.local
 .env.production.local
 
+# Logs
+*.log
+recording.log
+recording.status
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+videos/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
 # Temporary files
-tmp/
-temp/
-
-# Enregistrements vidéo - Stockés dans videos/ (non versionnés)
-videos/
-*.mp4
-*.avi
-*.mov
-screen-*.mp4 
+*.tmp
+*.temp 
