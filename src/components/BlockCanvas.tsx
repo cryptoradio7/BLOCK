@@ -299,7 +299,38 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         <style>
           @media print {
             body { margin: 20px; font-family: Arial, sans-serif; }
-            .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+            .print-header { margin-bottom: 30px; }
+            .header-banner { 
+              background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+              color: white;
+              padding: 25px 30px;
+              border-radius: 12px;
+              margin-bottom: 20px;
+              box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+              display: flex;
+              align-items: center;
+              gap: 20px;
+            }
+            .header-icon { flex-shrink: 0; }
+            .header-text h1 { 
+              margin: 0; 
+              font-size: 28px; 
+              font-weight: bold; 
+              letter-spacing: 2px;
+            }
+            .header-text p { 
+              margin: 5px 0 0 0; 
+              font-size: 14px; 
+              opacity: 0.9;
+            }
+            .header-info { 
+              text-align: center; 
+              padding: 15px; 
+              background: #f8f9fa; 
+              border-radius: 8px; 
+              border-left: 4px solid #2196F3;
+            }
+            .header-info p { margin: 5px 0; color: #555; }
             .print-block { 
               margin-bottom: 30px; 
               page-break-inside: avoid; 
@@ -347,7 +378,41 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           }
           @media screen {
             body { margin: 40px; font-family: Arial, sans-serif; background: #f5f5f5; }
-            .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; background: white; padding: 20px; border-radius: 8px; }
+            .print-header { margin-bottom: 30px; }
+            .header-banner { 
+              background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+              color: white;
+              padding: 25px 30px;
+              border-radius: 12px;
+              margin-bottom: 20px;
+              box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+              display: flex;
+              align-items: center;
+              gap: 20px;
+              transition: transform 0.2s ease;
+            }
+            .header-banner:hover { transform: translateY(-2px); }
+            .header-icon { flex-shrink: 0; }
+            .header-text h1 { 
+              margin: 0; 
+              font-size: 28px; 
+              font-weight: bold; 
+              letter-spacing: 2px;
+            }
+            .header-text p { 
+              margin: 5px 0 0 0; 
+              font-size: 14px; 
+              opacity: 0.9;
+            }
+            .header-info { 
+              text-align: center; 
+              padding: 15px; 
+              background: white; 
+              border-radius: 8px; 
+              border-left: 4px solid #2196F3;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .header-info p { margin: 5px 0; color: #555; }
             .print-block { 
               margin-bottom: 30px; 
               border: 1px solid #ddd; 
@@ -415,9 +480,31 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       </head>
       <body>
         <div class="print-header">
-          <h1>📄 Page ${pageId} - Ordre de Lecture</h1>
-          <p>Impression générée le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
-          <p><strong>${blocks.length} blocs</strong> dans l'ordre de lecture naturel</p>
+          <div class="header-banner">
+            <div class="header-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <!-- Document de base -->
+                <rect x="8" y="4" width="24" height="32" rx="2" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+                <!-- Lignes de grille -->
+                <line x1="12" y1="12" x2="28" y2="12" stroke="#e0e0e0" stroke-width="1"/>
+                <line x1="12" y1="16" x2="28" y2="16" stroke="#e0e0e0" stroke-width="1"/>
+                <line x1="12" y1="20" x2="28" y2="20" stroke="#e0e0e0" stroke-width="1"/>
+                <line x1="12" y1="24" x2="28" y2="24" stroke="#e0e0e0" stroke-width="1"/>
+                <!-- Graphique en barres -->
+                <rect x="14" y="28" width="2" height="6" fill="#4CAF50"/>
+                <rect x="18" y="26" width="2" height="8" fill="#F44336"/>
+                <rect x="22" y="24" width="2" height="10" fill="#2196F3"/>
+              </svg>
+            </div>
+            <div class="header-text">
+              <h1>BLOCS</h1>
+              <p>${new Date().toLocaleDateString('fr-FR')}</p>
+            </div>
+          </div>
+          <div class="header-info">
+            <p><strong>Page ${pageId}</strong> • <strong>${blocks.length} blocs</strong> dans l'ordre de lecture naturel</p>
+            <p>Impression générée le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          </div>
         </div>
 
         ${blocks.map((block, index) => `
