@@ -42,10 +42,26 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         
         const transformedBlocks = allTransformedBlocks.filter((block: any) => block.page_id === pageId);
         
-        console.log('🎯 Blocs filtrés pour page', pageId, ':', transformedBlocks.length);
-        console.log('📝 Blocs affichés:', transformedBlocks.map((b: any) => ({ id: b.id, title: b.title, content_preview: b.content.substring(0, 50) })));
+        // 🔄 TRI POUR LECTURE NATURELLE : haut à gauche vers bas à droite
+        const sortedBlocks = transformedBlocks.sort((a: any, b: any) => {
+          // D'abord par Y (ligne), puis par X (colonne)
+          if (Math.abs(a.y - b.y) < 50) {
+            // Si les blocs sont sur la même ligne (différence Y < 50px), trier par X
+            return a.x - b.x;
+          }
+          // Sinon, trier par Y (ligne)
+          return a.y - b.y;
+        });
         
-        setBlocks(transformedBlocks);
+        console.log('🎯 Blocs filtrés pour page', pageId, ':', sortedBlocks.length);
+        console.log('📝 Blocs triés pour lecture:', sortedBlocks.map((b: any) => ({ 
+          id: b.id, 
+          title: b.title, 
+          position: `(${b.x}, ${b.y})`,
+          content_preview: b.content.substring(0, 50) 
+        })));
+        
+        setBlocks(sortedBlocks);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des blocs:', error);
@@ -325,10 +341,11 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         </div>
       )}
 
-      {blocks.map((block) => (
+      {blocks.map((block, index) => (
         <EditableBlock
           key={block.id}
           block={block}
+          readingOrder={index + 1}
           onUpdate={updateBlock}
           onMove={updateBlockPosition}
           onDelete={deleteBlock}

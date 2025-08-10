@@ -25,6 +25,7 @@ export type BlockType = {
 
 interface EditableBlockProps {
   block: BlockType;
+  readingOrder?: number;
   onUpdate: (updatedBlock: BlockType) => void;
   onMove: (id: number, x: number, y: number) => void;
   onDelete: (id: number) => void;
@@ -44,6 +45,7 @@ const debounce = <T extends (...args: any[]) => any>(
 
 export const EditableBlock = ({
   block,
+  readingOrder,
   onUpdate,
   onMove,
   onDelete,
@@ -762,6 +764,33 @@ export const EditableBlock = ({
         }}
         // Pas de paste au niveau du bloc principal pour éviter les conflits
       >
+        {/* Indicateur d'ordre de lecture - toujours visible */}
+        {readingOrder && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '8px',
+              left: '8px',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: '#007bff',
+              color: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              zIndex: 10,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid white',
+            }}
+            title={`Ordre de lecture: ${readingOrder}`}
+          >
+            {readingOrder}
+          </div>
+        )}
+
         {/* Bouton de suppression du bloc - visible au survol */}
         {isHovered && !isDragging && !isResizing && (
           <button
