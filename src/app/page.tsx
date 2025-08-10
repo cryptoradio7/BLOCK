@@ -274,19 +274,23 @@ export default function Home() {
       const headerDiv = document.createElement('div')
       headerDiv.style.cssText = `
         text-align: center;
-        margin-bottom: 25pt;
-        padding: 15pt 10pt;
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        margin-bottom: 12pt;
+        margin-left: -10pt;
+        margin-right: -10pt;
+        padding: 12pt 0;
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
         color: white;
-        border-radius: 8pt;
-        box-shadow: 0 4pt 12pt rgba(30, 58, 138, 0.3);
-        font-family: 'Arial Black', 'Arial', sans-serif;
+        border-radius: 0;
+        box-shadow: 0 6pt 20pt rgba(30, 58, 138, 0.4);
+        font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+        position: relative;
+        overflow: hidden;
       `
                 headerDiv.innerHTML = `
-            <div style="font-size: 28pt; font-weight: 700; margin-bottom: 8pt; text-shadow: 0 2pt 4pt rgba(0,0,0,0.3); letter-spacing: 1pt; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">
+            <div style="font-size: 28pt; font-weight: 800; margin-bottom: 8pt; text-shadow: 0 3pt 6pt rgba(0,0,0,0.4); letter-spacing: 1.5pt; text-transform: uppercase; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif; position: relative; z-index: 2;">
               📊 REPORTING
             </div>
-            <div style="font-size: 14pt; opacity: 0.9; font-weight: 400; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">
+            <div style="font-size: 14pt; opacity: 0.95; font-weight: 500; text-shadow: 0 1pt 3pt rgba(0,0,0,0.3); letter-spacing: 0.5pt; font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif; position: relative; z-index: 2;">
               ${currentDate}
             </div>
           `
@@ -373,47 +377,58 @@ export default function Home() {
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
         blockDiv.style.cssText = `
-          margin-bottom: 12pt;
-          border-radius: 6pt;
+          margin-bottom: 20pt;
+          margin-left: 0;
+          margin-right: 0;
+          border-radius: 0;
           overflow: hidden;
           box-shadow: 0 4pt 12pt rgba(0,0,0,0.08);
           border: 1pt solid #e2e8f0;
           background: white;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          width: 100%;
+          page-break-after: auto;
         `
         blockDiv.innerHTML = `
           <div style="
             background-color: #1e3a8a;
             color: white;
             font-weight: 600;
-            padding: 8pt 12pt;
-            font-size: 12pt;
+            padding: 6pt 0;
+            font-size: 11pt;
             text-transform: uppercase;
             letter-spacing: 0.8px;
             display: flex;
             align-items: center;
             gap: 8pt;
-            border-radius: 6pt;
+            border-radius: 0;
             box-shadow: 0 2pt 4pt rgba(0,0,0,0.2);
             font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
           ">
             <span style="font-size: 14pt;">📋</span>
             <span style="font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">${block.title || `Bloc ${index + 1}`}</span>
           </div>
-                         <div style="
-                 min-height: auto;
-                 line-height: 1.5;
-                 font-size: 10pt;
-                 padding: 12pt;
-                 background: white;
-                 color: #374151;
-                 font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
-                 font-weight: 400;
-                 border-radius: 0 0 6pt 6pt;
-               ">
+                                   <div style="
+            min-height: auto;
+            line-height: 1.4;
+            font-size: 9pt;
+            padding: 8pt 0;
+            background: white;
+            color: #374151;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
+            font-weight: 400;
+            border-radius: 0;
+          ">
             ${block.content || 'Contenu vide'}
           </div>
         `
         printContainer.appendChild(blockDiv)
+        
+        // Si c'est le dernier bloc, ne pas forcer le saut de page
+        if (index === sortedBlocks.length - 1) {
+          blockDiv.style.pageBreakAfter = 'auto'
+        }
       })
       
       // Nettoyer les espaces vides dans le conteneur
@@ -425,9 +440,10 @@ export default function Home() {
       printContainer.style.top = '0'
       printContainer.style.left = '0'
       printContainer.style.margin = '0'
-      printContainer.style.padding = '10pt'
+      printContainer.style.padding = '0' // ZÉRO padding pour largeur 100%
       printContainer.style.height = 'auto'
       printContainer.style.minHeight = 'auto'
+      printContainer.style.width = '100%' // Forcer la largeur maximale
       printContainer.style.background = '#e2e8f0' // Fond gris plus foncé
       printContainer.style.backgroundColor = '#e2e8f0' // Forcer la couleur de fond
       
