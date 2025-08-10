@@ -275,6 +275,188 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
     }
   };
 
+  // 🖨️ Fonction d'impression des blocs dans l'ordre de lecture
+  const printBlocksInOrder = () => {
+    if (blocks.length === 0) {
+      alert('Aucun bloc à imprimer !');
+      return;
+    }
+
+    // Créer une nouvelle fenêtre pour l'impression
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Veuillez autoriser les popups pour l\'impression');
+      return;
+    }
+
+    // Préparer le contenu HTML pour l'impression
+    const printContent = `
+      <!DOCTYPE html>
+      <html lang="fr">
+      <head>
+        <meta charset="utf-8">
+        <title>Impression - Page ${pageId}</title>
+        <style>
+          @media print {
+            body { margin: 20px; font-family: Arial, sans-serif; }
+            .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; }
+            .print-block { 
+              margin-bottom: 30px; 
+              page-break-inside: avoid; 
+              border: 1px solid #ddd; 
+              padding: 20px; 
+              border-radius: 8px;
+            }
+            .block-number { 
+              display: inline-block; 
+              background: #007bff; 
+              color: white; 
+              width: 30px; 
+              height: 30px; 
+              border-radius: 50%; 
+              text-align: center; 
+              line-height: 30px; 
+              font-weight: bold; 
+              margin-right: 15px; 
+              vertical-align: top;
+            }
+            .block-title { 
+              font-size: 18px; 
+              font-weight: bold; 
+              margin-bottom: 15px; 
+              color: #333;
+              display: inline-block;
+              vertical-align: top;
+              margin-top: 5px;
+            }
+            .block-content { 
+              line-height: 1.6; 
+              color: #555; 
+              margin-left: 45px;
+            }
+            .block-content img { max-width: 100%; height: auto; margin: 10px 0; }
+            .print-footer { 
+              margin-top: 40px; 
+              text-align: center; 
+              color: #666; 
+              font-size: 12px; 
+              border-top: 1px solid #ddd; 
+              padding-top: 20px;
+            }
+            @page { margin: 2cm; }
+          }
+          @media screen {
+            body { margin: 40px; font-family: Arial, sans-serif; background: #f5f5f5; }
+            .print-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px; background: white; padding: 20px; border-radius: 8px; }
+            .print-block { 
+              margin-bottom: 30px; 
+              border: 1px solid #ddd; 
+              padding: 20px; 
+              border-radius: 8px; 
+              background: white; 
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .block-number { 
+              display: inline-block; 
+              background: #007bff; 
+              color: white; 
+              width: 30px; 
+              height: 30px; 
+              border-radius: 50%; 
+              text-align: center; 
+              line-height: 30px; 
+              font-weight: bold; 
+              margin-right: 15px; 
+              vertical-align: top;
+            }
+            .block-title { 
+              font-size: 18px; 
+              font-weight: bold; 
+              margin-bottom: 15px; 
+              color: #333;
+              display: inline-block;
+              vertical-align: top;
+              margin-top: 5px;
+            }
+            .block-content { 
+              line-height: 1.6; 
+              color: #555; 
+              margin-left: 45px;
+            }
+            .block-content img { max-width: 100%; height: auto; margin: 10px 0; }
+            .print-footer { 
+              margin-top: 40px; 
+              text-align: center; 
+              color: #666; 
+              font-size: 12px; 
+              border-top: 1px solid #ddd; 
+              padding-top: 20px; 
+              background: white; 
+              padding: 20px; 
+              border-radius: 8px;
+            }
+            .print-button { 
+              position: fixed; 
+              top: 20px; 
+              right: 20px; 
+              padding: 15px 25px; 
+              background: #28a745; 
+              color: white; 
+              border: none; 
+              border-radius: 8px; 
+              cursor: pointer; 
+              font-size: 16px; 
+              font-weight: bold;
+              box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            }
+            .print-button:hover { background: #218838; transform: translateY(-2px); }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="print-header">
+          <h1>📄 Page ${pageId} - Ordre de Lecture</h1>
+          <p>Impression générée le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          <p><strong>${blocks.length} blocs</strong> dans l'ordre de lecture naturel</p>
+        </div>
+
+        ${blocks.map((block, index) => `
+          <div class="print-block">
+            <div class="block-number">${index + 1}</div>
+            <div class="block-title">${block.title || `Bloc ${block.id}`}</div>
+            <div class="block-content">
+              ${block.content || '<em>Aucun contenu</em>'}
+              ${block.attachments && block.attachments.length > 0 ? `
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                  <strong>📎 Pièces jointes :</strong>
+                  ${block.attachments.map(att => `
+                    <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                      ${att.type === 'image' ? '🖼️' : '📄'} ${att.name}
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `).join('')}
+
+        <div class="print-footer">
+          <p>📋 Document généré par Agile Vision BLOCK</p>
+          <p>Ordre de lecture respecté : haut à gauche → bas à droite</p>
+        </div>
+
+        <button class="print-button" onclick="window.print()">🖨️ Imprimer</button>
+      </body>
+      </html>
+    `;
+
+    // Écrire le contenu et lancer l'impression
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    console.log('🖨️ Fenêtre d\'impression ouverte avec', blocks.length, 'blocs dans l\'ordre');
+  };
+
   if (loading) {
     return <div>Chargement des blocs...</div>;
   }
@@ -387,9 +569,63 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           e.currentTarget.style.boxShadow = '0 4px 12px rgba(46, 204, 113, 0.4)';
         }}
         title="Ajouter un nouveau bloc"
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          backgroundColor: '#2ECC71',
+          color: 'white',
+          border: 'none',
+          cursor: 'pointer',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 12px rgba(46, 204, 113, 0.4)',
+          zIndex: 1000,
+          transition: 'all 0.2s ease',
+        }}
       >
         +
       </button>
+
+      {/* Bouton d'impression - visible seulement s'il y a des blocs */}
+      {blocks.length > 0 && (
+        <button
+          onClick={printBlocksInOrder}
+          title="Imprimer les blocs dans l'ordre de lecture"
+          style={{
+            position: 'fixed',
+            bottom: '30px',
+            right: '110px',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '20px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 12px rgba(0, 123, 255, 0.4)',
+            zIndex: 1000,
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#0056b3';
+            e.currentTarget.style.transform = 'scale(1.1)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 123, 255, 0.6)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#007bff';
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.4)';
+          }}
+        >
+          🖨️
+        </button>
+      )}
 
       {/* Indicateur de scroll en bas */}
       <div style={{
