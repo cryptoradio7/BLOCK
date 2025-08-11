@@ -27,7 +27,7 @@ export type BlockType = {
 interface EditableBlockProps {
   block: BlockType;
   readingOrder?: number;
-  onUpdate: (updatedBlock: BlockType) => void;
+  onUpdate: (updatedBlock: Partial<BlockType>) => void;
   onMove: (id: number, x: number, y: number) => void;
   onDelete: (id: number) => void;
 }
@@ -69,27 +69,10 @@ export const EditableBlock = ({
   // Référence pour le contenu editable
   const contentRef = useRef<HTMLDivElement>(null);
 
-
   // Synchroniser le contenu SEULEMENT au montage initial pour éviter les conflits
   useEffect(() => {
       setLocalContent(block.content);
   }, [block.id]); // Seulement quand l'ID change (nouveau bloc)
-
-  // Appliquer LTR seulement au montage initial
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
-      if (contentDiv) {
-        contentDiv.dir = 'ltr';
-        contentDiv.style.direction = 'ltr';
-        contentDiv.style.textAlign = 'left';
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [block.id]); // Seulement au montage du bloc
-
-
 
   // Synchroniser la taille locale quand le bloc change de l'extérieur
   useEffect(() => {
@@ -143,41 +126,6 @@ export const EditableBlock = ({
     }
   }, [imageDimensions, applySavedImageDimensions]);
 
-  // Forcer la direction LTR au montage et quand le contenu change
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const contentDiv = document.querySelector(`[data-block-id="${block.id}"] [contenteditable]`) as HTMLDivElement;
-      if (contentDiv) {
-        // Forcer la direction LTR sur le conteneur principal
-        contentDiv.dir = 'ltr';
-        contentDiv.style.direction = 'ltr';
-        contentDiv.style.textAlign = 'left';
-        
-        // ⚠️ NE PLUS JAMAIS MODIFIER innerHTML !
-        // Seulement nettoyer les attributs RTL existants
-        const allElements = contentDiv.querySelectorAll('*');
-        allElements.forEach((element) => {
-          if (element.getAttribute('dir') === 'rtl') {
-            element.setAttribute('dir', 'ltr');
-          }
-          if (element instanceof HTMLElement) {
-            if (element.style.direction === 'rtl') {
-              element.style.direction = 'ltr';
-            }
-            if (element.style.textAlign === 'right') {
-              element.style.textAlign = 'left';
-            }
-          }
-        });
-        
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [block.id]); // ← RETIRÉ localContent des dépendances pour éviter les boucles
-
-
-
   // Ajouter des boutons de suppression aux images existantes au montage
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -207,11 +155,6 @@ export const EditableBlock = ({
                 if (confirm('Supprimer cette image ?')) {
                   // Suppression simple et propre
                   imageContainer.remove();
-                  
-                  // Forcer la direction LTR
-                  contentDiv.dir = 'ltr';
-                  contentDiv.style.direction = 'ltr';
-                  contentDiv.style.textAlign = 'left';
                   
                   // Synchroniser le nouveau contenu
                   const newContent = contentDiv.innerHTML;
@@ -262,8 +205,6 @@ export const EditableBlock = ({
     }, 1000),
     [block, onUpdate]
   );
-
-
 
   // Drag for repositioning - simplifié
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -381,7 +322,7 @@ export const EditableBlock = ({
           border-radius: 4px;
           font-size: 12px;
           z-index: 9999;
-          box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         `;
         tempDiv.textContent = `📎 ${imageFiles.length} image(s) ajoutée(s) aux PIÈCES JOINTES !`;
         document.body.appendChild(tempDiv);
@@ -503,11 +444,6 @@ export const EditableBlock = ({
                     
                     container.remove();
                     
-                    // Force direction LTR
-                    contentDiv.dir = 'ltr';
-                    contentDiv.style.direction = 'ltr';
-                    contentDiv.style.textAlign = 'left';
-                    
                     // Déclencher manuellement l'événement input pour synchroniser
                     const inputEvent = new Event('input', { bubbles: true });
                     contentDiv.dispatchEvent(inputEvent);
@@ -520,13 +456,9 @@ export const EditableBlock = ({
           newContent += imageHtml;
         });
 
-        // Mettre à jour le contenu en toute sécurité AVEC préservation de la direction
+        // Mettre à jour le contenu en toute sécurité
         if (contentElement) {
           contentElement.innerHTML = newContent;
-          // FORCER la direction LTR après modification innerHTML
-          contentElement.dir = 'ltr';
-          contentElement.style.direction = 'ltr';
-          contentElement.style.textAlign = 'left';
         }
         setLocalContent(newContent);
         onUpdate({ ...block, content: newContent }); // ← SAUVEGARDE IMMÉDIATE des images collées
@@ -683,11 +615,6 @@ export const EditableBlock = ({
       // ÉTAPE 2: Récupérer le nouveau contenu depuis le DOM
       const contentDiv = elementToRemove.closest('[contenteditable]') as HTMLDivElement;
       if (contentDiv) {
-        // FORCER la direction LTR après suppression d'image
-        contentDiv.dir = 'ltr';
-        contentDiv.style.direction = 'ltr';
-        contentDiv.style.textAlign = 'left';
-        
         const newContent = contentDiv.innerHTML;
         setLocalContent(newContent);
         onUpdate({ ...block, content: newContent });
