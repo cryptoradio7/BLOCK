@@ -310,19 +310,7 @@ export default function Home() {
         'VIDEOS A VOIR'
       ]
       
-      // Fonction pour déterminer l'ordre et le style d'un bloc
-      const getBlockOrder = (block: any) => {
-        const title = (block.title || '').toUpperCase()
-        const content = (block.content || '').toUpperCase()
-        const fullText = title + ' ' + content
-        
-        for (let i = 0; i < orderKeywords.length; i++) {
-          if (fullText.includes(orderKeywords[i])) {
-            return i
-          }
-        }
-        return orderKeywords.length // Les autres blocs à la fin
-      }
+      // ✅ Fonction getBlockOrder supprimée - Plus besoin de logique spécifique
       
       // Fonction pour obtenir le style et l'icône selon le type de bloc
       const getBlockStyle = (block: any) => {
@@ -363,51 +351,42 @@ export default function Home() {
         }
       }
       
-      // 🔄 ORDRE D'IMPRESSION UNIVERSEL POUR TOUTES LES PAGES
+      // 🔄 ORDRE D'IMPRESSION RESPECTANT EXACTEMENT LES NUMÉROS DES CERCLES BLEUS
+      // Utilise EXACTEMENT la même logique que BlockCanvas pour générer readingOrder
       const sortedBlocks = [...currentPageBlocksData].sort((a, b) => {
-        // 1️⃣ ESSAIER L'ORDRE SPÉCIFIQUE (ACTIONS, PROGRESS, RISKS, BUDGET)
-        const specificOrderMap: { [key: string]: number } = {
-          'ACTIONS': 1,
-          'PROGRESS': 2, 
-          'RISKS': 3,
-          'BUDGET': 4
-        }
+        // 🎯 CALCULER L'ORDRE DE LECTURE COMME DANS BlockCanvas (index + 1)
+        // Tri par position Y d'abord (haut vers bas), puis par position X (gauche vers droite)
+        // C'est exactement la même logique que dans BlockCanvas pour générer readingOrder
         
-        const titleA = (a.title || '').toUpperCase()
-        const titleB = (b.title || '').toUpperCase()
+        console.log(`🔄 Tri des blocs: ${a.title} (x=${a.x}, y=${a.y}) vs ${b.title} (x=${b.x}, y=${b.y})`)
         
-        const specificOrderA = specificOrderMap[titleA]
-        const specificOrderB = specificOrderMap[titleB]
-        
-        // Si les deux blocs ont un ordre spécifique, les trier par cet ordre
-        if (specificOrderA !== undefined && specificOrderB !== undefined) {
-          console.log(`🔄 Tri spécifique: ${titleA} (ordre ${specificOrderA}) vs ${titleB} (ordre ${specificOrderB})`)
-          return specificOrderA - specificOrderB
-        }
-        
-        // 2️⃣ SINON, TRIER PAR POSITION (gauche vers droite, haut vers bas)
         if (a.y !== b.y) {
-          // D'abord par position Y (haut vers bas)
-          console.log(`🔄 Tri par position Y: ${titleA} (y=${a.y}) vs ${titleB} (y=${b.y})`)
+          // D'abord par position Y (haut vers bas) - comme une page qu'on lit
+          console.log(`  → Tri par Y: ${a.title} (y=${a.y}) vs ${b.title} (y=${b.y})`)
           return a.y - b.y
         } else {
-          // Puis par position X (gauche vers droite)
-          console.log(`🔄 Tri par position X: ${titleA} (x=${a.x}) vs ${titleB} (x=${b.x})`)
+          // Puis par position X (gauche vers droite) - comme une ligne qu'on lit
+          console.log(`  → Tri par X: ${a.title} (x=${a.x}) vs ${b.title} (x=${b.x})`)
           return a.x - b.x
         }
       })
       
-      console.log('\n📋 BLOCS TRIÉS POUR IMPRESSION:')
+      // 🔍 AFFICHER L'ORDRE FINAL CALCULÉ PAR POSITION (comme BlockCanvas)
+      console.log('\n📋 BLOCS TRIÉS POUR IMPRESSION (ordre calculé par position comme BlockCanvas):')
       sortedBlocks.forEach((block: any, index: number) => {
-        const order = getBlockOrder(block)
+        const readingOrder = index + 1 // Exactement comme dans BlockCanvas
         const preview = block.title || block.content?.substring(0, 30) || 'vide'
-        console.log(`  ${index + 1}. [Ordre ${order}] "${preview}..."`)
+        console.log(`  ${readingOrder}. [Cercle ${readingOrder}] "${preview}" (x=${block.x}, y=${block.y})`)
       })
+      
+      // ✅ ORDRE D'IMPRESSION FINAL CONFIRMÉ
+      console.log(`\n✅ ORDRE D'IMPRESSION FINAL: ${sortedBlocks.length} blocs triés par position (même logique que BlockCanvas)`)
       
       // Générer le HTML des blocs triés avec couleurs et icônes (AFFICHER TOUS LES BLOCS)
       sortedBlocks.forEach((block: any, index: number) => {
         // Afficher TOUS les blocs, même ceux sans contenu
-        console.log(`🖨️ Impression bloc ${block.id} (${block.title}): contenu=${block.content?.length || 0} caractères`);
+        const readingOrder = index + 1 // Numéro du cercle bleu (exactement comme dans BlockCanvas)
+        console.log(`🖨️ Impression bloc ${block.id} (${block.title}): cercle ${readingOrder}, contenu=${block.content?.length || 0} caractères`);
         const blockStyle = getBlockStyle(block)
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
@@ -442,7 +421,7 @@ export default function Home() {
             font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
           ">
             <span style="font-size: 14pt;">${blockStyle.icon}</span>
-            <span style="font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">${block.title || `Bloc ${index + 1}`}</span>
+            <span style="font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">${readingOrder}. ${block.title || `Bloc ${readingOrder}`}</span>
           </div>
           <div style="
             min-height: auto;
