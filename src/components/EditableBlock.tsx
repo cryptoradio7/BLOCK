@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
+import { useImageDimensions } from '@/hooks/useImageDimensions';
 
 export type BlockType = {
   id: number;
@@ -55,6 +56,18 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Hook pour gérer les dimensions des images
+  const { 
+    dimensions: imageDimensions, 
+    loadImageDimensions, 
+    saveImageDimensions, 
+    deleteImageDimensions,
+    getImageDimensions 
+  } = useImageDimensions(block.id);
+  
+  // Référence pour le contenu editable
+  const contentRef = useRef<HTMLDivElement>(null);
 
 
   // Synchroniser le contenu SEULEMENT au montage initial pour éviter les conflits
@@ -84,6 +97,51 @@ export const EditableBlock = ({
       setLocalSize({ width: block.width, height: block.height });
     }
   }, [block.width, block.height, isResizing]);
+
+  // Appliquer les dimensions sauvegardées aux images dans le contenu
+  const applySavedImageDimensions = useCallback(() => {
+    if (!contentRef.current || imageDimensions.length === 0) return;
+
+    const images = contentRef.current.querySelectorAll('img[data-image-url]');
+    images.forEach((img) => {
+      const imageUrl = img.getAttribute('data-image-url');
+      if (!imageUrl) return;
+
+      const savedDimensions = getImageDimensions(imageUrl);
+      if (savedDimensions && savedDimensions.width > 0 && savedDimensions.height > 0) {
+        // Appliquer les dimensions sauvegardées
+        (img as HTMLImageElement).style.width = `${savedDimensions.width}px`;
+        (img as HTMLImageElement).style.height = `${savedDimensions.height}px`;
+        
+        // Appliquer les positions si disponibles
+        if (savedDimensions.position_x !== undefined) {
+          (img as HTMLImageElement).style.marginLeft = `${savedDimensions.position_x}px`;
+        }
+        if (savedDimensions.position_y !== undefined) {
+          (img as HTMLImageElement).style.marginTop = `${savedDimensions.position_y}px`;
+        }
+        
+        console.log(`📏 Dimensions appliquées à ${imageUrl}: ${savedDimensions.width}x${savedDimensions.height}`);
+      }
+    });
+  }, [imageDimensions, getImageDimensions]);
+
+  // Charger les dimensions des images au montage du composant
+  useEffect(() => {
+    loadImageDimensions();
+  }, [loadImageDimensions]);
+
+  // Appliquer les dimensions sauvegardées quand elles sont chargées
+  useEffect(() => {
+    if (imageDimensions.length > 0) {
+      // Attendre que le DOM soit prêt
+      const timer = setTimeout(() => {
+        applySavedImageDimensions();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [imageDimensions, applySavedImageDimensions]);
 
   // Forcer la direction LTR au montage et quand le contenu change
   useEffect(() => {
@@ -195,7 +253,7 @@ export const EditableBlock = ({
         const cleanContent = updatedBlock.content
           .replace(/dir\s*=\s*["']rtl["']/gi, 'dir="ltr"')
           .replace(/style\s*=\s*["'][^"']*direction\s*:\s*rtl[^"']*["']/gi, '')
-          .replace(/unicode-bidi\s*:\s*bidi-override/gi, '');
+          .replace(/unicode-bidi\s*=\s*bidi-override/gi, '');
         updatedBlock.content = cleanContent;
         
         console.log(`💾 Bloc ${block.id}: Sauvegarde contenu (${cleanContent.length} chars)`);
@@ -204,6 +262,8 @@ export const EditableBlock = ({
     }, 1000),
     [block, onUpdate]
   );
+
+
 
   // Drag for repositioning - simplifié
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -398,15 +458,40 @@ export const EditableBlock = ({
         // Insérer les images dans le contenu avec bouton de suppression
         let newContent = currentContent;
         uploadedFiles.forEach((file) => {
+          // Sauvegarder les dimensions de l'image
+          saveImageDimensions({
+            image_url: file.url,
+            image_name: file.name,
+            width: 300, // Largeur par défaut
+            height: 200, // Hauteur par défaut
+            attachment_id: file.id
+          });
+
           const imageHtml = `
             <div class="image-container" style="display: inline-block; position: relative; margin: 8px 0;">
-              <img src="${file.url}" alt="${file.name}" class="resizable" draggable="false" title="Image redimensionnable - utilisez les poignées pour redimensionner" style="max-width: 100%; height: auto; display: block;" />
+              <img src="${file.url}" 
+                   alt="${file.name}" 
+                   class="resizable" 
+                   draggable="false" 
+                   data-image-url="${file.url}"
+                   data-image-name="${file.name}"
+                   title="Image redimensionnable - utilisez les poignées pour redimensionner" 
+                   style="max-width: 100%; height: auto; display: block;" />
               <button class="image-delete-button" 
                 onclick="
                   event.stopPropagation();
                   if (confirm('Supprimer cette image ?')) {
                     const container = this.parentElement;
                     const contentDiv = container.closest('[contenteditable]');
+                    const img = container.querySelector('img');
+                    
+                    // Supprimer les dimensions de la base de données
+                    if (img && img.dataset.imageUrl) {
+                      fetch('/api/image-dimensions?blockId=${block.id}&imageUrl=' + encodeURIComponent(img.dataset.imageUrl), {
+                        method: 'DELETE'
+                      }).catch(console.error);
+                    }
+                    
                     container.remove();
                     
                     // Force direction LTR
@@ -640,6 +725,34 @@ export const EditableBlock = ({
       
     }
   };
+
+  // Gérer le redimensionnement des images dans le contenu
+  const handleImageResize = useCallback((imageElement: HTMLImageElement) => {
+    const imageUrl = imageElement.dataset.imageUrl;
+    if (!imageUrl) return;
+
+    // Créer un ResizeObserver pour détecter les changements de taille
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        
+        // Sauvegarder les nouvelles dimensions
+        saveImageDimensions({
+          image_url: imageUrl,
+          image_name: imageElement.dataset.imageName || 'Image',
+          width: Math.round(width),
+          height: Math.round(height)
+        });
+        
+        console.log(`📏 Image ${imageUrl} redimensionnée: ${Math.round(width)}x${Math.round(height)}`);
+      }
+    });
+
+    resizeObserver.observe(imageElement);
+    
+    // Retourner la fonction de nettoyage
+    return () => resizeObserver.disconnect();
+  }, [saveImageDimensions]);
 
   // Gérer les double-clics sur les images pour les supprimer
   const handleContentDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -880,14 +993,7 @@ export const EditableBlock = ({
         
                 {/* Content area - Rich text editor */}
         <div
-          ref={(el) => {
-            if (el && el.innerHTML !== localContent) {
-              // Synchroniser seulement si le contenu est vraiment différent et l'élément n'a pas le focus
-              if (document.activeElement !== el) {
-                el.innerHTML = localContent;
-              }
-            }
-          }}
+          ref={contentRef}
           contentEditable
           dir="ltr"
           onInput={handleContentChange}
@@ -925,6 +1031,7 @@ export const EditableBlock = ({
             textAlign: 'left',
             unicodeBidi: 'embed',
           }}
+          dangerouslySetInnerHTML={{ __html: localContent }}
         />
         
         {/* Attachments */}

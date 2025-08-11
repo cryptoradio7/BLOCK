@@ -44,6 +44,44 @@ export async function POST(request: NextRequest) {
       [blockId, file.name, `/uploads/${fileName}`, fileType]
     );
 
+    // Si c'est une image, créer automatiquement les dimensions par défaut
+    if (fileType === 'image') {
+      try {
+        // Lire les dimensions originales de l'image
+        const sharp = require('sharp');
+        const imageBuffer = Buffer.from(bytes);
+        const metadata = await sharp(imageBuffer).metadata();
+        
+        // Créer les dimensions par défaut
+        await pool.query(
+          `INSERT INTO image_dimensions 
+           (block_id, attachment_id, image_url, image_name, width, height, original_width, original_height)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            blockId, 
+            result.rows[0].id, 
+            `/uploads/${fileName}`, 
+            file.name,
+            metadata.width || 300,
+            metadata.height || 200,
+            metadata.width || 300,
+            metadata.height || 200
+          ]
+        );
+        
+        console.log(`✅ Dimensions d'image créées pour ${file.name}: ${metadata.width}x${metadata.height}`);
+      } catch (error) {
+        console.warn(`⚠️ Impossible de lire les dimensions de l'image ${file.name}:`, error);
+        // Créer des dimensions par défaut si sharp échoue
+        await pool.query(
+          `INSERT INTO image_dimensions 
+           (block_id, attachment_id, image_url, image_name, width, height, original_width, original_height)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [blockId, result.rows[0].id, `/uploads/${fileName}`, file.name, 300, 200, 300, 200]
+        );
+      }
+    }
+
     return NextResponse.json({
       id: result.rows[0].id,
       name: file.name,
