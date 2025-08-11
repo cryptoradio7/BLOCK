@@ -330,7 +330,16 @@ export const EditableBlock = ({
   };
 
   // Fonction pour gérer le paste d'images dans le titre (vers attachments)
+  // DÉSACTIVÉE pour éviter le double traitement avec handlePasteInContent
   const handlePaste = async (e: React.ClipboardEvent) => {
+    // Ne traiter que si on n'est PAS dans le contenu editable
+    const target = e.target as HTMLElement;
+    if (target.contentEditable === 'true') {
+      // Si on est dans le contenu editable, ne rien faire
+      // handlePasteInContent s'en occupe
+      return;
+    }
+
     const items = e.clipboardData.items;
     const imageFiles: File[] = [];
 
@@ -435,13 +444,13 @@ export const EditableBlock = ({
         tempDiv.textContent = `📷 Ajout de ${imageFiles.length} image(s) dans le CONTENU...`;
         document.body.appendChild(tempDiv);
 
-        // Upload des images
+        // Upload des images (sans créer d'attachments)
         const uploadPromises = imageFiles.map(async (file) => {
           const formData = new FormData();
           formData.append('file', file);
           formData.append('blockId', block.id.toString());
           
-          const response = await fetch('/api/upload', {
+          const response = await fetch('/api/upload-content-image', {
             method: 'POST',
             body: formData,
           });
@@ -458,13 +467,13 @@ export const EditableBlock = ({
         // Insérer les images dans le contenu avec bouton de suppression
         let newContent = currentContent;
         uploadedFiles.forEach((file) => {
-          // Sauvegarder les dimensions de l'image
+          // Sauvegarder les dimensions de l'image (sans attachment_id)
           saveImageDimensions({
             image_url: file.url,
             image_name: file.name,
             width: 300, // Largeur par défaut
             height: 200, // Hauteur par défaut
-            attachment_id: file.id
+            // Pas d'attachment_id car c'est une image du contenu
           });
 
           const imageHtml = `
