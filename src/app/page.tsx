@@ -363,11 +363,38 @@ export default function Home() {
         }
       }
       
-      // Trier les blocs selon l'ordre spécifique
+      // 🔄 ORDRE D'IMPRESSION UNIVERSEL POUR TOUTES LES PAGES
       const sortedBlocks = [...currentPageBlocksData].sort((a, b) => {
-        const orderA = getBlockOrder(a)
-        const orderB = getBlockOrder(b)
-        return orderA - orderB
+        // 1️⃣ ESSAIER L'ORDRE SPÉCIFIQUE (ACTIONS, PROGRESS, RISKS, BUDGET)
+        const specificOrderMap: { [key: string]: number } = {
+          'ACTIONS': 1,
+          'PROGRESS': 2, 
+          'RISKS': 3,
+          'BUDGET': 4
+        }
+        
+        const titleA = (a.title || '').toUpperCase()
+        const titleB = (b.title || '').toUpperCase()
+        
+        const specificOrderA = specificOrderMap[titleA]
+        const specificOrderB = specificOrderMap[titleB]
+        
+        // Si les deux blocs ont un ordre spécifique, les trier par cet ordre
+        if (specificOrderA !== undefined && specificOrderB !== undefined) {
+          console.log(`🔄 Tri spécifique: ${titleA} (ordre ${specificOrderA}) vs ${titleB} (ordre ${specificOrderB})`)
+          return specificOrderA - specificOrderB
+        }
+        
+        // 2️⃣ SINON, TRIER PAR POSITION (gauche vers droite, haut vers bas)
+        if (a.y !== b.y) {
+          // D'abord par position Y (haut vers bas)
+          console.log(`🔄 Tri par position Y: ${titleA} (y=${a.y}) vs ${titleB} (y=${b.y})`)
+          return a.y - b.y
+        } else {
+          // Puis par position X (gauche vers droite)
+          console.log(`🔄 Tri par position X: ${titleA} (x=${a.x}) vs ${titleB} (x=${b.x})`)
+          return a.x - b.x
+        }
       })
       
       console.log('\n📋 BLOCS TRIÉS POUR IMPRESSION:')
