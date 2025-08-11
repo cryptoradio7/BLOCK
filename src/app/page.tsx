@@ -392,7 +392,7 @@ export default function Home() {
         `
         blockDiv.innerHTML = `
           <div style="
-            background-color: #1e3a8a;
+            background-color: ${blockStyle.bgColor};
             color: white;
             font-weight: 600;
             padding: 6pt 0;
@@ -406,10 +406,10 @@ export default function Home() {
             box-shadow: 0 2pt 4pt rgba(0,0,0,0.2);
             font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
           ">
-            <span style="font-size: 14pt;">📋</span>
+            <span style="font-size: 14pt;">${blockStyle.icon}</span>
             <span style="font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;">${block.title || `Bloc ${index + 1}`}</span>
           </div>
-                                   <div style="
+          <div style="
             min-height: auto;
             line-height: 1.4;
             font-size: 9pt;
