@@ -40,7 +40,22 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           attachments: block.attachments || [], // Récupérer les attachments depuis l'API
         }));
         
-        const transformedBlocks = allTransformedBlocks.filter((block: any) => block.page_id === pageId);
+        console.log('🔍 DEBUG FILTRAGE - pageId reçu:', pageId, 'type:', typeof pageId);
+        console.log('🔍 DEBUG FILTRAGE - Exemples de page_id dans les blocs:', allTransformedBlocks.slice(0, 3).map((b: any) => ({ id: b.id, page_id: b.page_id, type: typeof b.page_id })));
+        
+        const transformedBlocks = allTransformedBlocks.filter((block: any) => {
+          const isMatch = block.page_id === pageId;
+          console.log(`🔍 Bloc ${block.id} (${block.title}): page_id=${block.page_id} (${typeof block.page_id}) === ${pageId} (${typeof pageId}) = ${isMatch}`);
+          return isMatch;
+        });
+        
+        // 🔍 DEBUG: Vérifier le contenu de chaque bloc
+        console.log('🔍 DEBUG CONTENU - Blocs filtrés:', transformedBlocks.map((b: any) => ({
+          id: b.id,
+          title: b.title,
+          content_length: b.content?.length || 0,
+          has_content: !!(b.content && b.content.trim())
+        })));
         
         // 🔄 TRI POUR LECTURE NATURELLE : haut à gauche vers bas à droite
         const sortedBlocks = transformedBlocks.sort((a: any, b: any) => {

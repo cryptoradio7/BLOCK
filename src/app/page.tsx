@@ -34,9 +34,15 @@ export default function Home() {
         setPages(pagesData)
         
         if (pagesData.length > 0 && !currentPageId) {
-          // ⚠️ FORCER LA PAGE PROJECT MANAGEMENT (id=2) où sont vos blocs
-          console.log('🚨 Force navigation vers page PROJECT MANAGEMENT (id=2)')
-          setCurrentPageId('2')
+          // 🔄 Charger la dernière page visitée ou la première page
+          const lastVisitedPageId = localStorage.getItem('lastVisitedPageId')
+          if (lastVisitedPageId && pagesData.find((p: Page) => p.id === lastVisitedPageId)) {
+            console.log('🔄 Restauration de la dernière page visitée:', lastVisitedPageId)
+            setCurrentPageId(lastVisitedPageId)
+          } else {
+            console.log('🆕 Première visite, sélection de la première page:', pagesData[0].id)
+            setCurrentPageId(pagesData[0].id)
+          }
         }
       }
     } catch (error) {
@@ -552,7 +558,10 @@ export default function Home() {
 
           
           {currentPage && (
-            <BlockCanvas pageId={parseInt(currentPageId)} />
+            <>
+              {console.log('🔍 DEBUG - Page courante:', { id: currentPageId, title: currentPage.title, type: typeof currentPageId })}
+              <BlockCanvas pageId={parseInt(currentPageId)} />
+            </>
           )}
           {!currentPage && (
             <div style={{ padding: '20px', textAlign: 'center' }}>
