@@ -371,8 +371,12 @@ export default function Home() {
         console.log(`  ${index + 1}. [Ordre ${order}] "${preview}..."`)
       })
       
-      // Générer le HTML des blocs triés avec couleurs et icônes
+      // Générer le HTML des blocs triés avec couleurs et icônes (ignorer les blocs vides)
       sortedBlocks.forEach((block: any, index: number) => {
+        // Ignorer les blocs sans contenu
+        if (!block.content || block.content.trim() === '') {
+          return;
+        }
         const blockStyle = getBlockStyle(block)
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
@@ -420,7 +424,7 @@ export default function Home() {
             font-weight: 400;
             border-radius: 0;
           ">
-            ${block.content || 'Contenu vide'}
+            ${block.content || ''}
           </div>
         `
         printContainer.appendChild(blockDiv)
@@ -444,12 +448,12 @@ export default function Home() {
       printContainer.style.height = 'auto'
       printContainer.style.minHeight = 'auto'
       printContainer.style.width = '100%' // Forcer la largeur maximale
-      printContainer.style.background = '#e2e8f0' // Fond gris plus foncé
-      printContainer.style.backgroundColor = '#e2e8f0' // Forcer la couleur de fond
+      printContainer.style.background = 'white' // Fond blanc pour plus de propreté
+      printContainer.style.backgroundColor = 'white' // Forcer la couleur de fond
       
       // Forcer aussi le fond sur le body et html
-      document.body.style.background = '#e2e8f0'
-      document.documentElement.style.background = '#e2e8f0'
+      document.body.style.background = 'white'
+      document.documentElement.style.background = 'white'
       document.body.insertBefore(printContainer, document.body.firstChild)
       
       // 🔍 ÉTAPE 7: Appliquer les styles print
