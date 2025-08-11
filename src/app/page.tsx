@@ -377,12 +377,10 @@ export default function Home() {
         console.log(`  ${index + 1}. [Ordre ${order}] "${preview}..."`)
       })
       
-      // Générer le HTML des blocs triés avec couleurs et icônes (ignorer les blocs vides)
+      // Générer le HTML des blocs triés avec couleurs et icônes (AFFICHER TOUS LES BLOCS)
       sortedBlocks.forEach((block: any, index: number) => {
-        // Ignorer les blocs sans contenu
-        if (!block.content || block.content.trim() === '') {
-          return;
-        }
+        // Afficher TOUS les blocs, même ceux sans contenu
+        console.log(`🖨️ Impression bloc ${block.id} (${block.title}): contenu=${block.content?.length || 0} caractères`);
         const blockStyle = getBlockStyle(block)
         const blockDiv = document.createElement('div')
         blockDiv.className = 'draggable-block print-block'
@@ -430,7 +428,7 @@ export default function Home() {
             font-weight: 400;
             border-radius: 0;
           ">
-            ${block.content || ''}
+            ${block.content && block.content.trim() ? block.content : '<em style="color: #9CA3AF; font-style: italic;">📝 Bloc vide - Cliquez pour ajouter du contenu</em>'}
           </div>
         `
         printContainer.appendChild(blockDiv)

@@ -425,23 +425,26 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
 
 
-      {/* Indicateur de scroll en bas */}
-      <div style={{
-        position: 'absolute',
-        bottom: '20px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        padding: '8px 16px',
-        backgroundColor: 'rgba(0, 123, 255, 0.8)',
-        color: 'white',
-        borderRadius: '20px',
-        fontSize: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-        zIndex: 500,
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
+      {/* Indicateur de scroll en bas - Masqué lors de l'impression */}
+      <div 
+        className="scroll-indicator"
+        style={{
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '8px 16px',
+          backgroundColor: 'rgba(0, 123, 255, 0.8)',
+          color: 'white',
+          borderRadius: '20px',
+          fontSize: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          zIndex: 500,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+      >
         <span>📜</span>
         <span>Zone de travail étendue - Scrollez pour voir plus !</span>
         <span>⬇️</span>

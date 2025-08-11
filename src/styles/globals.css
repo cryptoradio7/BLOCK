@@ -510,6 +510,30 @@ a {
   .add-block-button {
     display: none !important;
   }
+  
+  /* Masquer la bannière de scroll lors de l'impression */
+  .scroll-indicator {
+    display: none !important;
+  }
+  
+  /* Style d'impression pour les headers de blocs - Background bleu uniforme */
+  .draggable-block input[type="text"],
+  .draggable-block .block-header,
+  .draggable-block > div:first-child {
+    background-color: #1e3a8a !important;
+    color: white !important;
+    border-color: #1e3a8a !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 12px !important;
+  }
+  
+  /* Masquer les icônes colorées lors de l'impression pour un style uniforme */
+  .draggable-block .block-header img,
+  .draggable-block .block-header svg,
+  .draggable-block .block-header span:first-child {
+    display: none !important;
+  }
 
   /* Configuration générale de la page - FORCER LE DÉBUT EN HAUT */
   html, body {
