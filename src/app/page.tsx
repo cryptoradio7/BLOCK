@@ -338,7 +338,7 @@ export default function Home() {
           }
         } else if (fullText.includes('ACTIONS')) {
           return {
-            bgColor: '#ea580c',
+            bgColor: '#374151',
             icon: '⚡',
             label: 'ACTIONS'
           }
