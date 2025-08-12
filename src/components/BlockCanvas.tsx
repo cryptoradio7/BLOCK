@@ -257,8 +257,8 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
     }
   };
 
-  const updateBlock = async (updatedBlock: BlockType) => {
-    setBlocks(prev => prev.map(b => b.id === updatedBlock.id ? updatedBlock : b));
+  const updateBlock = async (updatedBlock: Partial<BlockType>) => {
+    setBlocks(prev => prev.map(b => b.id === updatedBlock.id ? { ...b, ...updatedBlock } : b));
     
     try {
       await fetch(`/api/blocks/${updatedBlock.id}`, {

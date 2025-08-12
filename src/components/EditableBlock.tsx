@@ -56,6 +56,7 @@ export const EditableBlock = ({
   const [localSize, setLocalSize] = useState({ width: block.width, height: block.height });
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [selectedAttachmentId, setSelectedAttachmentId] = useState<number | null>(null);
   
   // Hook pour gérer les dimensions des images
   const { 
@@ -80,6 +81,8 @@ export const EditableBlock = ({
       setLocalSize({ width: block.width, height: block.height });
     }
   }, [block.width, block.height, isResizing]);
+
+
 
   // Appliquer les dimensions sauvegardées aux images dans le contenu
   const applySavedImageDimensions = useCallback(() => {
@@ -133,6 +136,7 @@ export const EditableBlock = ({
       if (contentDiv) {
         const images = contentDiv.querySelectorAll('img:not(.processed)');
         if (images.length > 0) {
+          console.log(`🔧 Ajout de boutons de suppression à ${images.length} image(s) dans le bloc ${block.id}`);
           images.forEach((element) => {
             const img = element as HTMLImageElement;
             // Marquer comme traité
@@ -152,7 +156,9 @@ export const EditableBlock = ({
               deleteButton.title = 'Supprimer cette image';
               deleteButton.onclick = (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 if (confirm('Supprimer cette image ?')) {
+                  console.log('🗑️ Suppression d\'image via bouton');
                   // Suppression simple et propre
                   imageContainer.remove();
                   
@@ -160,6 +166,29 @@ export const EditableBlock = ({
                   const newContent = contentDiv.innerHTML;
                   setLocalContent(newContent);
                   onUpdate({ ...block, content: newContent });
+                  
+                  // Notification
+                  const tempDiv = document.createElement('div');
+                  tempDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #dc3545;
+                    color: white;
+                    padding: 8px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 9999;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                  `;
+                  tempDiv.textContent = '🗑️ Image supprimée';
+                  document.body.appendChild(tempDiv);
+                  
+                  setTimeout(() => {
+                    if (document.body.contains(tempDiv)) {
+                      document.body.removeChild(tempDiv);
+                    }
+                  }, 2000);
                 }
               };
               
@@ -179,7 +208,7 @@ export const EditableBlock = ({
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [block.id]); // ← RETIRÉ block.content des dépendances pour éviter la recréation d'images supprimées
+  }, [block.id, block.content]); // ← REMIS block.content pour traiter les nouvelles images
 
   // Debounced save function avec nettoyage du contenu
   const debouncedSave = useCallback(
@@ -542,7 +571,7 @@ export const EditableBlock = ({
       .replace(/\s+/g, ' ')
       .trim();
   };
-
+    
   const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
     const newContent = e.currentTarget.innerHTML;
     const cleanedContent = cleanHtmlContent(newContent);
@@ -553,7 +582,7 @@ export const EditableBlock = ({
 
 
   // Fonction pour supprimer une pièce jointe
-  const handleDeleteAttachment = async (attachmentId: number, attachmentName: string) => {
+  const handleDeleteAttachment = useCallback(async (attachmentId: number, attachmentName: string) => {
     try {
       console.log('🗑️ Suppression de la pièce jointe:', { id: attachmentId, name: attachmentName });
       
@@ -621,46 +650,179 @@ export const EditableBlock = ({
         }
       }, 3000);
     }
-  };
+  }, [block.attachments, onUpdate]);
+
+  // Gestionnaire d'événements clavier pour la suppression
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      console.log('🎹 Touche pressée:', event.key, 'selectedAttachmentId:', selectedAttachmentId);
+      if (event.key === 'Delete' && selectedAttachmentId !== null) {
+        console.log('🗑️ Suppression par clavier déclenchée pour:', selectedAttachmentId);
+        event.preventDefault();
+        const attachment = block.attachments.find(a => a.id === selectedAttachmentId);
+        if (attachment) {
+          console.log('✅ Attachment trouvé, suppression...');
+          handleDeleteAttachment(selectedAttachmentId, attachment.name);
+          setSelectedAttachmentId(null);
+        } else {
+          console.log('❌ Attachment non trouvé');
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedAttachmentId, block.attachments, handleDeleteAttachment]);
+
+  // Fonction pour supprimer une image au survol avec confirmation
+  const handleHoverDeleteImage = useCallback((attachmentId: number, fileName: string, event: React.MouseEvent) => {
+    const target = event.currentTarget as HTMLElement;
+    
+    // Ajouter une classe de confirmation visuelle
+    target.style.backgroundColor = 'rgba(220, 53, 69, 0.2)';
+    target.style.border = '2px solid #dc3545';
+    target.style.transform = 'scale(1.05)';
+    
+    // Créer un tooltip de confirmation
+    const tooltip = document.createElement('div');
+    tooltip.textContent = 'Cliquez pour supprimer';
+    tooltip.style.cssText = `
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #dc3545;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 1000;
+      pointer-events: none;
+      animation: fadeIn 0.2s ease;
+    `;
+    
+    // Ajouter l'animation CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateX(-50%) translateY(-5px); }
+        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    target.appendChild(tooltip);
+    
+    // Supprimer après 2 secondes si pas de clic
+    const timeout = setTimeout(() => {
+      target.style.backgroundColor = '';
+      target.style.border = '';
+      target.style.transform = '';
+      if (tooltip.parentNode) {
+        tooltip.parentNode.removeChild(tooltip);
+      }
+    }, 2000);
+    
+    // Gestionnaire de clic pour supprimer
+    const handleClick = () => {
+      clearTimeout(timeout);
+      handleDeleteAttachment(attachmentId, fileName);
+      if (tooltip.parentNode) {
+        tooltip.parentNode.removeChild(tooltip);
+      }
+      target.removeEventListener('click', handleClick);
+    };
+    
+    target.addEventListener('click', handleClick, { once: true });
+  }, [handleDeleteAttachment]);
 
   // Fonction pour supprimer une image du contenu
   const handleDeleteImageFromContent = (imgElement: HTMLImageElement) => {
+    console.log('🗑️ Tentative de suppression d\'image:', imgElement.src);
+    
     if (confirm('Supprimer cette image du contenu ?')) {
-      // ÉTAPE 1: Supprimer l'image du DOM
-      const container = imgElement.closest('.image-container');
-      const elementToRemove = container || imgElement;
-      elementToRemove.remove();
-      
-      // ÉTAPE 2: Récupérer le nouveau contenu depuis le DOM
-      const contentDiv = elementToRemove.closest('[contenteditable]') as HTMLDivElement;
-      if (contentDiv) {
-        const newContent = contentDiv.innerHTML;
-        setLocalContent(newContent);
-        onUpdate({ ...block, content: newContent });
-      }
-
-      // Notification simple
-      const tempDiv = document.createElement('div');
-      tempDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #dc3545;
-        color: white;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      `;
-      tempDiv.textContent = '🗑️ Image supprimée';
-      document.body.appendChild(tempDiv);
-      
-      setTimeout(() => {
-        if (document.body.contains(tempDiv)) {
-          document.body.removeChild(tempDiv);
+      try {
+        // ÉTAPE 1: Supprimer l'image du DOM
+        const container = imgElement.closest('.image-container');
+        const elementToRemove = container || imgElement;
+        
+        if (!elementToRemove) {
+          console.error('❌ Élément à supprimer non trouvé');
+          return;
         }
-      }, 2000);
+        
+        // ÉTAPE 2: Supprimer les dimensions de la base de données si l'image a un data-image-url
+        const imageUrl = imgElement.dataset.imageUrl;
+        if (imageUrl) {
+          console.log('🗑️ Suppression des dimensions pour:', imageUrl);
+          deleteImageDimensions(imageUrl).catch(console.error);
+        }
+        
+        // ÉTAPE 3: Supprimer l'élément du DOM
+        elementToRemove.remove();
+        console.log('✅ Élément supprimé du DOM');
+        
+        // ÉTAPE 4: Récupérer le nouveau contenu depuis le DOM
+        const contentDiv = elementToRemove.closest('[contenteditable]') as HTMLDivElement;
+        if (contentDiv) {
+          const newContent = contentDiv.innerHTML;
+          console.log('📝 Nouveau contenu:', newContent.length, 'caractères');
+          setLocalContent(newContent);
+          onUpdate({ ...block, content: newContent });
+        }
+
+        // Notification de succès
+        const tempDiv = document.createElement('div');
+        tempDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #dc3545;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        tempDiv.textContent = '🗑️ Image supprimée';
+        document.body.appendChild(tempDiv);
+        
+        setTimeout(() => {
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
+        }, 2000);
+        
+      } catch (error) {
+        console.error('❌ Erreur lors de la suppression d\'image:', error);
+        
+        // Notification d'erreur
+        const tempDiv = document.createElement('div');
+        tempDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: #dc3545;
+          color: white;
+          padding: 8px 12px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        tempDiv.textContent = '❌ Erreur lors de la suppression';
+        document.body.appendChild(tempDiv);
+        
+        setTimeout(() => {
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
+        }, 3000);
+      }
     }
   };
 
@@ -960,6 +1122,9 @@ export const EditableBlock = ({
           }}
           contentEditable
           onInput={handleContentChange}
+          onClick={handleContentClick}
+          onDoubleClick={handleContentDoubleClick}
+          onKeyDown={handleContentKeyDown}
           onMouseDown={(e) => {
             // Empêcher le drag du bloc lors de la sélection de texte
             e.stopPropagation();
@@ -1027,7 +1192,7 @@ export const EditableBlock = ({
                       borderRadius: '4px',
                       transition: 'all 0.2s',
                       whiteSpace: 'nowrap',
-                      overflow: 'hidden',
+                      overflow: 'visible',
                       lineHeight: '1.4',
                       position: 'relative',
                       minHeight: '24px',
@@ -1036,17 +1201,34 @@ export const EditableBlock = ({
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
+                      
+                      // Pour les images, supprimer directement
+                      const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(file.name);
+                      if (isImage) {
+                        if (confirm(`Supprimer l'image "${file.name}" ?`)) {
+                          handleDeleteAttachment(file.id, file.name);
+                        }
+                      } else {
+                        // Pour les autres fichiers, ouvrir normalement
                       window.open(file.url, '_blank');
+                      }
                     }}
                     onMouseEnter={(e) => {
+                      if (selectedAttachmentId !== file.id) {
                       e.currentTarget.style.backgroundColor = '#e3f2fd';
                       e.currentTarget.style.borderColor = '#007bff';
+                      }
                     }}
                     onMouseLeave={(e) => {
+                      if (selectedAttachmentId !== file.id) {
                       e.currentTarget.style.backgroundColor = '#f8f9fa';
                       e.currentTarget.style.borderColor = '#e0e0e0';
+                      }
                     }}
-                    title={`${isImage ? 'Image' : 'Fichier'}: ${file.name}`}
+                    title={selectedAttachmentId === file.id 
+                      ? `Appuyez sur Suppr pour supprimer "${file.name}"` 
+                      : `Cliquez pour sélectionner "${file.name}"`
+                    }
                   >
                     <span style={{ flexShrink: 0, fontSize: '10px' }}>{icon}</span>
                     <span style={{ 
@@ -1061,37 +1243,50 @@ export const EditableBlock = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         handleDeleteAttachment(file.id, file.name);
                       }}
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
                       style={{
-                        width: '16px',
-                        height: '16px',
-                        border: 'none',
+                        width: '24px',
+                        height: '24px',
                         borderRadius: '50%',
-                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        backgroundColor: '#dc3545',
                         color: 'white',
-                        fontSize: '10px',
+                        fontSize: '16px',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         lineHeight: '1',
-                        transition: 'all 0.2s',
+                        transition: 'all 0.2s ease',
                         flexShrink: 0,
-                        marginLeft: '6px',
-                        fontWeight: 'bold'
+                        marginLeft: '8px',
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 8px rgba(220, 53, 69, 0.5)',
+                        opacity: '1',
+                        border: '2px solid #fff',
+                        position: 'relative',
+                        zIndex: 100
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 1)';
+                        e.stopPropagation();
+                        e.currentTarget.style.backgroundColor = '#c82333';
                         e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(220, 53, 69, 0.7)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(220, 53, 69, 0.8)';
+                        e.stopPropagation();
+                        e.currentTarget.style.backgroundColor = '#dc3545';
                         e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(220, 53, 69, 0.5)';
                       }}
                       title={`Supprimer ${file.name}`}
                     >
-                      ×
+                      ✕
                     </button>
                   </div>
                 );
