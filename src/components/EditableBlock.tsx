@@ -893,8 +893,8 @@ export const EditableBlock = ({
       }
     }
     
-    // Coloration de texte avec Ctrl + chiffres
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+    // Coloration de texte avec Ctrl + chiffres (UNIQUEMENT les chiffres)
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && /^[0-9]$/.test(e.key)) {
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
         const range = selection.getRangeAt(0);
@@ -905,16 +905,16 @@ export const EditableBlock = ({
           
           // Définir les couleurs pour chaque raccourci
           const colorMap: { [key: string]: string } = {
-            '1': '#ff6b6b', // Rouge
-            '2': '#4ecdc4', // Turquoise
-            '3': '#45b7d1', // Bleu
-            '4': '#96ceb4', // Vert
-            '5': '#feca57', // Jaune
-            '6': '#ff9ff3', // Rose
-            '7': '#54a0ff', // Bleu clair
-            '8': '#5f27cd', // Violet
-            '9': '#00d2d3', // Cyan
-            '0': '#ff9f43', // Orange
+            '1': '#000000', // Noir
+            '2': '#ff0000', // Rouge
+            '3': '#0000ff', // Bleu
+            '4': '#00ff00', // Vert
+            '5': '#ffff00', // Jaune
+            '6': '#ffa500', // Orange
+            '7': '#800080', // Violet
+            '8': '#ff00ff', // Magenta
+            '9': '#00ffff', // Cyan
+            '0': '#808080', // Gris
           };
           
           const color = colorMap[e.key];
@@ -947,6 +947,8 @@ export const EditableBlock = ({
         }
       }
     }
+    
+    // Laisser passer tous les autres raccourcis standards (Ctrl+B, Ctrl+I, etc.)
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
