@@ -884,6 +884,8 @@ export const EditableBlock = ({
 
   // Gérer les touches de clavier pour supprimer les images sélectionnées et colorer le texte
   const handleContentKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    console.log(`🔍 KeyDown: ${e.key}, Ctrl: ${e.ctrlKey}, Shift: ${e.shiftKey}, Alt: ${e.altKey}, Code: ${e.code}`);
+    
     // Suppression d'images
     if (e.key === 'Delete' || e.key === 'Backspace') {
       const selectedImage = e.currentTarget.querySelector('img.selected') as HTMLImageElement;
@@ -894,14 +896,27 @@ export const EditableBlock = ({
     }
     
     // Coloration de texte avec Ctrl + chiffres (UNIQUEMENT les chiffres)
-    if (e.ctrlKey && !e.shiftKey && !e.altKey && /^[0-9]$/.test(e.key)) {
+    console.log(`🔍 Test condition: Ctrl=${e.ctrlKey}, Shift=${e.shiftKey}, Alt=${e.altKey}, Key="${e.key}", Code="${e.code}", Regex test=${/^[0-9]$/.test(e.key)}`);
+    
+    // Accepter les touches normales ET le pavé numérique
+    const isNumberKey = /^[0-9]$/.test(e.key) || e.code.startsWith('Numpad');
+    
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && isNumberKey) {
+      console.log(`🎯 Ctrl+${e.key} détecté - Tentative de coloration`);
+      
       const selection = window.getSelection();
+      console.log(`📝 Selection:`, selection);
+      console.log(`📝 RangeCount:`, selection?.rangeCount);
+      console.log(`📝 IsCollapsed:`, selection?.isCollapsed);
+      
       if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
         const range = selection.getRangeAt(0);
         const selectedText = selection.toString();
+        console.log(`📝 Texte sélectionné: "${selectedText}"`);
         
         if (selectedText.trim()) {
           e.preventDefault();
+          console.log(`✅ Prévention du comportement par défaut`);
           
           // Définir les couleurs pour chaque raccourci
           const colorMap: { [key: string]: string } = {
@@ -917,15 +932,18 @@ export const EditableBlock = ({
             '0': '#808080', // Gris
           };
           
-          const color = colorMap[e.key];
+          // Extraire le chiffre (normal ou pavé numérique)
+          const digit = e.code.startsWith('Numpad') ? e.code.replace('Numpad', '') : e.key;
+          const color = colorMap[digit];
+          console.log(`🎨 Couleur sélectionnée: ${color} pour la touche ${e.key} (digit: ${digit})`);
+          
           if (color) {
-            // Créer un span coloré
+            // Créer un span avec texte coloré
             const span = document.createElement('span');
-            span.style.backgroundColor = color;
-            span.style.color = '#000';
-            span.style.padding = '2px 4px';
-            span.style.borderRadius = '3px';
+            span.style.color = color;
             span.style.fontWeight = 'bold';
+            
+            console.log(`🔧 Span créé avec style:`, span.style.cssText);
             
             // Remplacer le texte sélectionné
             range.deleteContents();
@@ -943,8 +961,13 @@ export const EditableBlock = ({
             onUpdate({ ...block, content: newContent });
             
             console.log(`🎨 Texte coloré avec Ctrl+${e.key} (${color})`);
+            console.log(`💾 Nouveau contenu:`, newContent);
           }
+        } else {
+          console.log(`❌ Texte sélectionné vide ou espaces uniquement`);
         }
+      } else {
+        console.log(`❌ Pas de sélection valide`);
       }
     }
     
