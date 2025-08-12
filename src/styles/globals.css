@@ -238,6 +238,18 @@ a {
   position: relative;
 }
 
+/* Styles pour les textes colorés avec Ctrl+chiffres */
+[contenteditable] span[style*="background-color"] {
+  display: inline-block;
+  margin: 0 1px;
+  transition: all 0.2s ease;
+}
+
+[contenteditable] span[style*="background-color"]:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 /* Indication de suppression pour les images sélectionnées */
 [contenteditable] img.selected::before {
   content: "Double-clic ou Delete pour supprimer";

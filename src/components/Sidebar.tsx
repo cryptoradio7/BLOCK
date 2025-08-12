@@ -34,6 +34,10 @@ export default function Sidebar({
   const [dragOverPageId, setDragOverPageId] = useState<string | null>(null)
   const [editingPageId, setEditingPageId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  
+  // États pour le moteur de recherche
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filteredPages, setFilteredPages] = useState<Page[]>([])
 
   const handleAddPage = () => {
     if (newPageTitle.trim()) {
@@ -151,6 +155,54 @@ export default function Sidebar({
     }
   }
 
+  // Fonction pour le moteur de recherche simplifié
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setSearchQuery(query)
+    
+    if (query.trim() === '') {
+      setFilteredPages([])
+      return
+    }
+    
+    // Filtrer les pages qui contiennent la requête
+    const filtered = pages.filter(page => 
+      page.title.toLowerCase().includes(query.toLowerCase())
+    )
+    
+    setFilteredPages(filtered)
+    
+    // NAVIGATION AUTOMATIQUE : Si une seule page correspond, la sélectionner automatiquement
+    if (filtered.length === 1) {
+      const targetPage = filtered[0]
+      console.log(`🚀 Navigation automatique vers: ${targetPage.title}`)
+      onPageSelect(targetPage.id)
+    }
+  }
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setSearchQuery('')
+      setFilteredPages([])
+    }
+  }
+
+  const handleSearchResultClick = (page: Page) => {
+    onPageSelect(page.id)
+    setSearchQuery('')
+    setFilteredPages([])
+  }
+
+  const handlePageSelect = (pageId: string) => {
+    onPageSelect(pageId)
+    // Si une recherche est active, la fermer après sélection
+    if (searchQuery.trim()) {
+      setSearchQuery('')
+      setFilteredPages([])
+    }
+  }
+
 
 
   return (
@@ -177,6 +229,32 @@ export default function Sidebar({
         </div>
       </div>
 
+            {/* Moteur de recherche simplifié */}
+      <div className={styles.searchContainer}>
+        <div className={styles.searchInputWrapper}>
+          <input
+            type="text"
+            placeholder="🔍 Rechercher une page..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyDown}
+            className={styles.searchInput}
+          />
+          {searchQuery && (
+            <button
+              className={styles.clearSearchButton}
+              onClick={() => {
+                setSearchQuery('')
+                setFilteredPages([])
+              }}
+              title="Effacer la recherche"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
+
       {isAddingPage && (
         <div className={styles.addPageForm}>
           <input
@@ -191,7 +269,8 @@ export default function Sidebar({
       )}
 
       <div className={styles.pageList}>
-        {pages.map((page) => (
+        
+        {(searchQuery.trim() ? filteredPages : pages).map((page) => (
           <div
             key={page.id}
             className={`${styles.pageItem} ${
@@ -199,7 +278,7 @@ export default function Sidebar({
             } ${draggedPage?.id === page.id ? styles.dragging : ''} ${
               dragOverPageId === page.id ? styles.dragOver : ''
             }`}
-            onClick={() => onPageSelect(page.id)}
+            onClick={() => handlePageSelect(page.id)}
             draggable
             onDragStart={(e) => handleDragStart(e, page)}
             onDragOver={(e) => handleDragOver(e, page.id)}

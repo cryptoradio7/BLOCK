@@ -882,13 +882,69 @@ export const EditableBlock = ({
     }
   };
 
-  // Gérer les touches de clavier pour supprimer les images sélectionnées
+  // Gérer les touches de clavier pour supprimer les images sélectionnées et colorer le texte
   const handleContentKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Suppression d'images
     if (e.key === 'Delete' || e.key === 'Backspace') {
       const selectedImage = e.currentTarget.querySelector('img.selected') as HTMLImageElement;
       if (selectedImage) {
         e.preventDefault();
         handleDeleteImageFromContent(selectedImage);
+      }
+    }
+    
+    // Coloration de texte avec Ctrl + chiffres
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+        const range = selection.getRangeAt(0);
+        const selectedText = selection.toString();
+        
+        if (selectedText.trim()) {
+          e.preventDefault();
+          
+          // Définir les couleurs pour chaque raccourci
+          const colorMap: { [key: string]: string } = {
+            '1': '#ff6b6b', // Rouge
+            '2': '#4ecdc4', // Turquoise
+            '3': '#45b7d1', // Bleu
+            '4': '#96ceb4', // Vert
+            '5': '#feca57', // Jaune
+            '6': '#ff9ff3', // Rose
+            '7': '#54a0ff', // Bleu clair
+            '8': '#5f27cd', // Violet
+            '9': '#00d2d3', // Cyan
+            '0': '#ff9f43', // Orange
+          };
+          
+          const color = colorMap[e.key];
+          if (color) {
+            // Créer un span coloré
+            const span = document.createElement('span');
+            span.style.backgroundColor = color;
+            span.style.color = '#000';
+            span.style.padding = '2px 4px';
+            span.style.borderRadius = '3px';
+            span.style.fontWeight = 'bold';
+            
+            // Remplacer le texte sélectionné
+            range.deleteContents();
+            span.appendChild(document.createTextNode(selectedText));
+            range.insertNode(span);
+            
+            // Mettre à jour la sélection
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            // Déclencher la sauvegarde
+            const contentElement = e.currentTarget;
+            const newContent = contentElement.innerHTML;
+            setLocalContent(newContent);
+            onUpdate({ ...block, content: newContent });
+            
+            console.log(`🎨 Texte coloré avec Ctrl+${e.key} (${color})`);
+          }
+        }
       }
     }
   };
