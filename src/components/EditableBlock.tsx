@@ -527,11 +527,30 @@ export const EditableBlock = ({
 
     
     
+  // Fonction pour nettoyer le contenu HTML
+  const cleanHtmlContent = (content: string) => {
+    return content
+      // Supprimer les caractères invisibles
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      // Supprimer les attributs dir cachés
+      .replace(/dir\s*=\s*["'][^"']*["']/gi, '')
+      // Supprimer les styles de direction
+      .replace(/style\s*=\s*["'][^"']*direction\s*:\s*[^"']*[^"']*["']/gi, '')
+      // Nettoyer les balises vides
+      .replace(/<([^>]+)>\s*<\/\1>/g, '')
+      // Normaliser les espaces
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   const handleContentChange = (e: React.FormEvent<HTMLDivElement>) => {
     const newContent = e.currentTarget.innerHTML;
-    setLocalContent(newContent);
-    debouncedSave({ content: newContent });
+    const cleanedContent = cleanHtmlContent(newContent);
+    setLocalContent(cleanedContent);
+    debouncedSave({ content: cleanedContent });
   };
+
+
 
   // Fonction pour supprimer une pièce jointe
   const handleDeleteAttachment = async (attachmentId: number, attachmentName: string) => {
@@ -661,6 +680,8 @@ export const EditableBlock = ({
       
     }
   };
+
+
 
   // Gérer le redimensionnement des images dans le contenu
   const handleImageResize = useCallback((imageElement: HTMLImageElement) => {
@@ -929,26 +950,20 @@ export const EditableBlock = ({
         
                 {/* Content area - Rich text editor */}
         <div
-          ref={contentRef}
-          contentEditable
-          dir="ltr"
-          onInput={handleContentChange}
-          onClick={handleContentClick}
-          onDoubleClick={handleContentDoubleClick}
-          onKeyDown={handleContentKeyDown}
-          onMouseDown={(e) => {
-            // Ne bloquer la propagation QUE si on clique sur du texte ou des éléments de contenu
-            // LAISSER PASSER les événements de drag and drop de fichiers
-            const target = e.target as HTMLElement;
-            if (target.tagName !== 'IMG' && 
-                !target.classList.contains('image-delete-button') &&
-                !target.closest('.image-container')) {
-              // Seulement pour empêcher le drag du bloc lors de la sélection de texte
-              e.stopPropagation();
+          ref={(el) => {
+            if (el && el.innerHTML !== localContent) {
+              // Synchroniser seulement si le contenu est vraiment différent et l'élément n'a pas le focus
+              if (document.activeElement !== el) {
+                el.innerHTML = localContent;
+              }
             }
           }}
-          onPaste={handlePasteInContent} // Images dans le contenu -> affichées directement
-          suppressContentEditableWarning={true}
+          contentEditable
+          onInput={handleContentChange}
+          onMouseDown={(e) => {
+            // Empêcher le drag du bloc lors de la sélection de texte
+            e.stopPropagation();
+          }}
           style={{
             width: '100%',
             flex: 1,
@@ -963,11 +978,7 @@ export const EditableBlock = ({
             cursor: 'text',
             overflow: 'auto',
             padding: '8px',
-            direction: 'ltr',
-            textAlign: 'left',
-            unicodeBidi: 'embed',
           }}
-          dangerouslySetInnerHTML={{ __html: localContent }}
         />
         
         {/* Attachments */}
