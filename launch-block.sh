@@ -58,20 +58,31 @@ done
 
 # Ouvrir le navigateur
 echo "🌐 Ouverture du navigateur..."
-if command -v xdg-open > /dev/null; then
-    xdg-open "$URL"
-elif command -v gnome-open > /dev/null; then
-    gnome-open "$URL"
-elif command -v firefox > /dev/null; then
-    firefox "$URL" &
-elif command -v google-chrome > /dev/null; then
-    google-chrome "$URL" &
+sleep 2  # Attendre un peu plus pour s'assurer que le serveur est prêt
+
+# Essayer plusieurs méthodes pour ouvrir le navigateur
+if command -v google-chrome > /dev/null; then
+    echo "   Tentative avec Google Chrome..."
+    google-chrome "$URL" > /dev/null 2>&1 &
 elif command -v chromium-browser > /dev/null; then
-    chromium-browser "$URL" &
+    echo "   Tentative avec Chromium..."
+    chromium-browser "$URL" > /dev/null 2>&1 &
+elif command -v firefox > /dev/null; then
+    echo "   Tentative avec Firefox..."
+    firefox "$URL" > /dev/null 2>&1 &
+elif command -v xdg-open > /dev/null; then
+    echo "   Tentative avec xdg-open..."
+    xdg-open "$URL" > /dev/null 2>&1 &
+elif command -v gnome-open > /dev/null; then
+    echo "   Tentative avec gnome-open..."
+    gnome-open "$URL" > /dev/null 2>&1 &
 else
     echo "⚠️  Impossible d'ouvrir automatiquement le navigateur"
     echo "🌐 Ouvrez manuellement: $URL"
 fi
+
+# Attendre un peu pour que le navigateur s'ouvre
+sleep 3
 
 echo ""
 echo "🎉 Application BLOCK lancée !"
