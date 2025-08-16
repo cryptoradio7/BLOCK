@@ -36,7 +36,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Construire l'application si nécessaire
-if [ ! -d ".next" ]; then
+if [ ! -d ".next" ] || [ ! -f ".next/BUILD_ID" ]; then
     echo "🔨 Construction de l'application..."
     npm run build
 fi
@@ -56,33 +56,47 @@ for i in {1..30}; do
     sleep 1
 done
 
-# Ouvrir le navigateur
-echo "🌐 Ouverture du navigateur..."
-sleep 2  # Attendre un peu plus pour s'assurer que le serveur est prêt
+# Attendre un peu plus pour s'assurer que le serveur est prêt
+echo "🌐 Ouverture dans Google Chrome..."
+sleep 3
 
-# Essayer plusieurs méthodes pour ouvrir le navigateur
-if command -v google-chrome > /dev/null; then
-    echo "   Tentative avec Google Chrome..."
-    google-chrome "$URL" > /dev/null 2>&1 &
-elif command -v chromium-browser > /dev/null; then
-    echo "   Tentative avec Chromium..."
-    chromium-browser "$URL" > /dev/null 2>&1 &
-elif command -v firefox > /dev/null; then
-    echo "   Tentative avec Firefox..."
-    firefox "$URL" > /dev/null 2>&1 &
-elif command -v xdg-open > /dev/null; then
-    echo "   Tentative avec xdg-open..."
-    xdg-open "$URL" > /dev/null 2>&1 &
-elif command -v gnome-open > /dev/null; then
-    echo "   Tentative avec gnome-open..."
-    gnome-open "$URL" > /dev/null 2>&1 &
-else
-    echo "⚠️  Impossible d'ouvrir automatiquement le navigateur"
-    echo "🌐 Ouvrez manuellement: $URL"
+# Forcer l'ouverture dans Google Chrome
+echo "   Lancement de Google Chrome..."
+
+# Vérifier si Chrome est installé
+if ! command -v google-chrome > /dev/null; then
+    echo "❌ ERREUR: Google Chrome n'est pas installé"
+    echo "📥 Installez Google Chrome depuis: https://www.google.com/chrome/"
+    echo "🌐 Ou ouvrez manuellement: $URL"
+    exit 1
 fi
 
-# Attendre un peu pour que le navigateur s'ouvre
-sleep 3
+# Tuer tous les processus Chrome existants pour éviter les conflits
+echo "   Arrêt des processus Chrome existants..."
+pkill -f "google-chrome" 2>/dev/null
+sleep 2
+
+# Lancer Chrome avec des options sûres et stables
+echo "   Lancement de Chrome avec options optimisées..."
+google-chrome \
+    --disable-dev-shm-usage \
+    --new-window \
+    --window-size=1200,800 \
+    --window-position=100,100 \
+    "$URL" > /dev/null 2>&1 &
+
+# Attendre que Chrome démarre
+echo "   Attente du démarrage de Chrome..."
+sleep 5
+
+# Vérifier que Chrome est bien lancé
+if pgrep chrome > /dev/null; then
+    echo "✅ Google Chrome lancé avec succès !"
+    echo "🌐 L'application s'ouvre dans Chrome"
+else
+    echo "⚠️  Chrome n'a pas pu être lancé automatiquement"
+    echo "🌐 Ouvrez manuellement Chrome et allez sur: $URL"
+fi
 
 echo ""
 echo "🎉 Application BLOCK lancée !"
@@ -90,4 +104,5 @@ echo "🔗 URL: $URL"
 echo "📝 Logs: /tmp/block-app.log"
 echo "🛑 Pour arrêter: pkill -f 'next start.*3001'"
 echo ""
-echo "💡 L'application est maintenant accessible dans votre navigateur"
+echo "💡 L'application est maintenant accessible dans Google Chrome"
+echo "🌐 Si Chrome ne s'est pas ouvert, allez sur: $URL"
