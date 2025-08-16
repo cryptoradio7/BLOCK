@@ -4,8 +4,8 @@
 
 DATE=$(date +%Y%m%d_%H%M%S)
 DB_NAME="block_app"
-BACKUP_DB_DIR="/home/egx/Bureau/backups/BLOCK/databases/daily"
-BACKUP_IMAGES_DIR="/home/egx/Bureau/backups/BLOCK/images/daily"
+BACKUP_DB_DIR="/home/egx/Bureau/backups/BLOCK/databases"
+BACKUP_IMAGES_DIR="/home/egx/Bureau/backups/BLOCK/images"
 IMAGES_SOURCE="/home/egx/Bureau/APPS/BLOCK/public/uploads"
 LOG_FILE="/home/egx/Bureau/backups/BLOCK/backup_daily.log"
 
