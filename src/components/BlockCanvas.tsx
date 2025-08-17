@@ -231,18 +231,9 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   const createNewBlock = async (x: number, y: number) => {
     try {
       
-      // Calculer une position intelligente pour le nouveau bloc
-      let newX = x;
-      let newY = y;
-      
-      if (blocks.length > 0) {
-        // Trouver le bloc le plus bas et placer le nouveau bloc en dessous
-        const maxY = Math.max(...blocks.map(block => block.y + block.height));
-        newY = maxY + 50; // 50px d'espacement
-        
-        // Centrer horizontalement le nouveau bloc
-        newX = Math.max(100, Math.floor((window.innerWidth - 300) / 2));
-      }
+      // Utiliser la position exacte passée en paramètre
+      const newX = Math.max(0, x);
+      const newY = Math.max(0, y);
       
       const requestBody = {
         content: '',
@@ -432,27 +423,33 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           e.stopPropagation();
           console.log('🔘 CLIC BOUTON - Création de bloc en cours...');
           
-          // Position intelligente basée sur le contenu existant
-          let x = 100;
-          let y = 100;
-          
-          if (blocks.length > 0) {
-            // Placer le nouveau bloc en dessous du bloc le plus bas
-            const maxY = Math.max(...blocks.map(block => block.y + block.height));
-            y = maxY + 50;
+          // Position en haut à gauche de la partie visible
+          const canvasElement = document.getElementById('block-canvas');
+          if (canvasElement) {
+            const canvasRect = canvasElement.getBoundingClientRect();
+            const scrollTop = canvasElement.scrollTop;
             
-            // Centrer horizontalement
-            x = Math.max(100, Math.floor((window.innerWidth - 300) / 2));
+            // Position relative au scroll actuel (partie visible)
+            let x = 50; // 50px depuis la gauche
+            let y = scrollTop + 50; // 50px depuis le haut de la partie visible
+            
+            console.log('📍 Position visible (haut-gauche):', { x, y, scrollTop, pageId });
+            
+            // Appel direct de création
+            createNewBlock(x, y).then(() => {
+              console.log('✅ BLOC CRÉÉ avec succès !');
+              
+              // Faire défiler automatiquement vers le nouveau bloc
+              setTimeout(() => {
+                canvasElement.scrollTo({
+                  top: y - 100, // 100px au-dessus du bloc pour le contexte
+                  behavior: 'smooth'
+                });
+              }, 100);
+            }).catch((error) => {
+              console.error('❌ ERREUR création bloc:', error);
+            });
           }
-          
-          console.log('📍 Position intelligente:', { x, y, pageId });
-          
-          // Appel direct de création
-          createNewBlock(x, y).then(() => {
-            console.log('✅ BLOC CRÉÉ avec succès !');
-          }).catch((error) => {
-            console.error('❌ ERREUR création bloc:', error);
-          });
         }}
 
         onMouseEnter={(e) => {
