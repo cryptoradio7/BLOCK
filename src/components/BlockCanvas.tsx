@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import { EditableBlock, BlockType } from './EditableBlock';
 
@@ -11,20 +11,125 @@ interface BlockCanvasProps {
 export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   const [blocks, setBlocks] = useState<BlockType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [canvasHeight, setCanvasHeight] = useState('200vh');
+  const [isExtending, setIsExtending] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Fonction pour étendre dynamiquement le canvas en temps réel
+  const extendCanvas = useCallback(() => {
+    if (isExtending) {
+      console.log('⚠️ Extension déjà en cours, ignorée');
+      return;
+    }
+    
+    console.log('🚀 DÉBUT EXTENSION CANVAS !');
+    setIsExtending(true);
+    
+    // Ajouter de l'espace en temps réel
+    setCanvasHeight(prevHeight => {
+      const currentHeight = parseInt(prevHeight);
+      const newHeight = currentHeight + 300; // +300px à chaque extension
+      console.log('📏 Extension canvas:', { currentHeight, newHeight, added: 300 });
+      return `${newHeight}px`;
+    });
+    
+    // Feedback visuel
+    setTimeout(() => {
+      setIsExtending(false);
+      console.log('✅ Extension terminée');
+    }, 800);
+  }, [isExtending]);
+
+  // Gérer le scroll pour AJOUTER de l'espace en temps réel
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    console.log('🔄 SCROLL EVENT DÉTECTÉ !'); // Test simple
+    
+    const target = e.target as HTMLDivElement;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+    
+    // Logs temporaires pour diagnostiquer
+    console.log('🔄 SCROLL EVENT DÉTECTÉ:', {
+      scrollTop,
+      scrollHeight,
+      clientHeight,
+      distanceFromBottom: scrollHeight - scrollTop - clientHeight,
+      threshold: 150
+    });
+    
+    // Si on est à moins de 150px du bas, AJOUTER de l'espace
+    if (scrollHeight - scrollTop - clientHeight < 150) {
+      console.log('🎯 DÉCLENCHEMENT EXTENSION !');
+      extendCanvas();
+    }
+  }, [extendCanvas]);
+
+  // Détecter aussi la molette de souris pour une meilleure réactivité
+  const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
+    console.log('🖱️ WHEEL EVENT DÉTECTÉ !'); // Test simple
+    
+    // Si on scrolle vers le bas (deltaY positif)
+    if (e.deltaY > 0) {
+      const target = e.currentTarget;
+      const scrollTop = target.scrollTop;
+      const scrollHeight = target.scrollHeight;
+      const clientHeight = target.clientHeight;
+      
+      console.log('🖱️ WHEEL EVENT (vers le bas):', {
+        deltaY: e.deltaY,
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        distanceFromBottom: scrollHeight - scrollTop - clientHeight
+      });
+      
+      // Si on est proche du bas, étendre immédiatement
+      if (scrollHeight - scrollTop - clientHeight < 200) {
+        console.log('🎯 EXTENSION IMMÉDIATE par molette !');
+        extendCanvas();
+      }
+    }
+  }, [extendCanvas]);
+
+  // Détecter les touches clavier pour étendre le canvas
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Flèche bas ou Page Down
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      const target = e.currentTarget;
+      const scrollTop = target.scrollTop;
+      const scrollHeight = target.scrollHeight;
+      const clientHeight = target.clientHeight;
+      
+      // Si on est proche du bas, étendre
+      if (scrollHeight - scrollTop - clientHeight < 300) {
+        extendCanvas();
+      }
+    }
+  }, [extendCanvas]);
+
+  // Calculer la hauteur initiale basée sur les blocs existants
+  useEffect(() => {
+    if (blocks.length === 0) {
+      setCanvasHeight('200vh');
+    } else {
+      const maxY = Math.max(...blocks.map(block => block.y + block.height));
+      const baseHeight = Math.max(maxY + 400, window.innerHeight * 2);
+      setCanvasHeight(`${baseHeight}px`);
+    }
+  }, [blocks]);
 
   // Charger les blocs depuis l'API
   useEffect(() => {
+    console.log('🚀 BlockCanvas monté - Test des événements');
     fetchBlocks();
   }, [pageId]);
 
   const fetchBlocks = async () => {
     try {
-      console.log('🔍 BlockCanvas - Chargement blocs pour page:', pageId);
       const response = await fetch('/api/blocks');
       if (response.ok) {
         const data = await response.json();
-        console.log('📦 Tous les blocs récupérés:', data.length);
-        console.log('📋 Détails des blocs:', data.map((b: any) => ({ id: b.id, title: b.title, page_id: b.page_id, content_length: b.content?.length || 0 })));
         
         // Transformer les données pour correspondre au type BlockType et filtrer par page
         const allTransformedBlocks = data.map((block: any) => ({
@@ -40,22 +145,10 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           attachments: block.attachments || [], // Récupérer les attachments depuis l'API
         }));
         
-        console.log('🔍 DEBUG FILTRAGE - pageId reçu:', pageId, 'type:', typeof pageId);
-        console.log('🔍 DEBUG FILTRAGE - Exemples de page_id dans les blocs:', allTransformedBlocks.slice(0, 3).map((b: any) => ({ id: b.id, page_id: b.page_id, type: typeof b.page_id })));
-        
         const transformedBlocks = allTransformedBlocks.filter((block: any) => {
           const isMatch = block.page_id === pageId;
-          console.log(`🔍 Bloc ${block.id} (${block.title}): page_id=${block.page_id} (${typeof block.page_id}) === ${pageId} (${typeof pageId}) = ${isMatch}`);
           return isMatch;
         });
-        
-        // 🔍 DEBUG: Vérifier le contenu de chaque bloc
-        console.log('🔍 DEBUG CONTENU - Blocs filtrés:', transformedBlocks.map((b: any) => ({
-          id: b.id,
-          title: b.title,
-          content_length: b.content?.length || 0,
-          has_content: !!(b.content && b.content.trim())
-        })));
         
         // 🔄 TRI POUR LECTURE NATURELLE : haut à gauche vers bas à droite
         const sortedBlocks = transformedBlocks.sort((a: any, b: any) => {
@@ -67,14 +160,6 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           // Sinon, trier par Y (ligne)
           return a.y - b.y;
         });
-        
-        console.log('🎯 Blocs filtrés pour page', pageId, ':', sortedBlocks.length);
-        console.log('📝 Blocs triés pour lecture:', sortedBlocks.map((b: any) => ({ 
-          id: b.id, 
-          title: b.title, 
-          position: `(${b.x}, ${b.y})`,
-          content_preview: b.content.substring(0, 50) 
-        })));
         
         setBlocks(sortedBlocks);
       }
@@ -92,13 +177,11 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       // Hover feedback visuel seulement
     },
     drop: (item: any, monitor) => {
-      console.log('📦 Drop event received:', item);
       
       if (item.id && item.blockType === 'existing') {
         // Obtenir la position absolue de la souris
         const clientOffset = monitor.getClientOffset();
         if (!clientOffset) {
-          console.log('❌ No client offset');
           return;
         }
         
@@ -106,26 +189,19 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         const initialClientOffset = monitor.getInitialClientOffset();
         const initialSourceClientOffset = monitor.getInitialSourceClientOffset();
         
-        console.log('📍 Client offset:', clientOffset);
-        console.log('🔵 Initial client offset:', initialClientOffset);
-        console.log('🟡 Initial source offset:', initialSourceClientOffset);
-        
         // Trouver le bloc actuel
         const currentBlock = blocks.find(b => b.id === item.id);
         if (!currentBlock) {
-          console.log('❌ Block not found');
           return;
         }
         
         // Obtenir les dimensions du canvas
         const canvasElement = document.getElementById('block-canvas');
         if (!canvasElement) {
-          console.log('❌ Canvas not found');
           return;
         }
         
         const canvasRect = canvasElement.getBoundingClientRect();
-        console.log('📐 Canvas rect:', canvasRect);
         
         // Calculer l'offset du clic initial dans le bloc
         let clickOffsetX = 0;
@@ -136,23 +212,14 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           clickOffsetY = initialClientOffset.y - initialSourceClientOffset.y;
         }
         
-        console.log('🎯 Click offset in block:', { x: clickOffsetX, y: clickOffsetY });
-        
         // Position finale = position souris - position clic dans le bloc - position canvas
         const newX = Math.max(0, Math.round(clientOffset.x - canvasRect.left - clickOffsetX));
         const newY = Math.max(0, Math.round(clientOffset.y - canvasRect.top - clickOffsetY));
-        
-        console.log('🏁 Final position:', { x: newX, y: newY });
-        console.log('📊 From position:', { x: currentBlock.x, y: currentBlock.y });
         
         updateBlockPosition(item.id, newX, newY);
         
         return { moved: true };
       } else {
-        console.log('❌ Drop conditions not met:', { 
-          id: item.id, 
-          blockType: item.blockType 
-        });
         return undefined;
       }
     },
@@ -163,18 +230,28 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
   const createNewBlock = async (x: number, y: number) => {
     try {
-      console.log('🚀 DÉBUT createNewBlock:', { x, y, pageId });
+      
+      // Calculer une position intelligente pour le nouveau bloc
+      let newX = x;
+      let newY = y;
+      
+      if (blocks.length > 0) {
+        // Trouver le bloc le plus bas et placer le nouveau bloc en dessous
+        const maxY = Math.max(...blocks.map(block => block.y + block.height));
+        newY = maxY + 50; // 50px d'espacement
+        
+        // Centrer horizontalement le nouveau bloc
+        newX = Math.max(100, Math.floor((window.innerWidth - 300) / 2));
+      }
       
       const requestBody = {
         content: '',
-        x,
-        y,
+        x: newX,
+        y: newY,
         width: 300,
         height: 200,
         page_id: pageId,
       };
-      
-      console.log('📤 Envoi requête API:', requestBody);
       
       const response = await fetch('/api/blocks', {
         method: 'POST',
@@ -184,11 +261,8 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📥 Réponse API status:', response.status);
-
       if (response.ok) {
         const newBlock = await response.json();
-        console.log('📦 Nouveau bloc reçu:', newBlock);
         
         const blockForState = {
           id: newBlock.id,
@@ -203,14 +277,11 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           attachments: [],
         };
         
-        console.log('🔄 Ajout au state:', blockForState);
         setBlocks(prev => {
           const newBlocks = [...prev, blockForState];
-          console.log('📊 Nouveaux blocs dans state:', newBlocks.length);
           return newBlocks;
         });
         
-        console.log('✅ BLOC AJOUTÉ AU STATE !');
       } else {
         console.error('❌ Erreur API:', response.status, response.statusText);
       }
@@ -220,17 +291,13 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   };
 
   const updateBlockPosition = async (id: number, x: number, y: number) => {
-    console.log('🔧 updateBlockPosition called with:', { id, x, y });
     const block = blocks.find(b => b.id === id);
-    console.log('🔍 Found block:', block);
     
     if (block) {
       const updatedBlock = { ...block, x, y };
-      console.log('📝 Updated block:', updatedBlock);
       
       setBlocks(prev => {
         const newBlocks = prev.map(b => b.id === id ? updatedBlock : b);
-        console.log('📊 State updated, new positions:', newBlocks.map(b => ({ id: b.id, x: b.x, y: b.y })));
         return newBlocks;
       });
       
@@ -242,12 +309,9 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           },
           body: JSON.stringify(updatedBlock),
         });
-        console.log('📡 API response status:', response.status);
         
         if (!response.ok) {
           console.error('❌ API update failed:', response.statusText);
-        } else {
-          console.log('✅ Position saved to database successfully');
         }
       } catch (error) {
         console.error('❌ Error updating position:', error);
@@ -281,7 +345,6 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
       if (response.ok) {
         setBlocks(prev => prev.filter(b => b.id !== id));
-        console.log('✅ Bloc supprimé:', id);
       } else {
         console.error('❌ Erreur lors de la suppression du bloc');
       }
@@ -300,61 +363,38 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       ref={(node) => {
         if (node) drop(node);
       }}
+      tabIndex={0} // Permettre la réception des événements clavier
+      onClick={() => console.log('🎯 Canvas cliqué - Test des événements')}
+      onDoubleClick={(e) => {
+        // Créer un nouveau bloc en double-cliquant sur le canvas
+        if (e.target === e.currentTarget) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          createNewBlock(x, y);
+        }
+      }}
+      onScroll={handleScroll}
+      onWheel={handleWheel}
+      onKeyDown={handleKeyDown}
       style={{
         position: 'relative',
         width: '100%',
-        height: '100vh',
-        minHeight: '200vh', // Hauteur minimum de 2 écrans pour permettre le scroll
+        height: canvasHeight, // Utiliser la hauteur dynamique
+        minHeight: '300vh', // Hauteur minimum de 3 écrans pour permettre le scroll
         backgroundColor: isOver ? '#f0f8ff' : '#fafafa',
+        backgroundImage: `
+          linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px',
         overflowY: 'auto', // Scroll vertical
         overflowX: 'hidden', // Pas de scroll horizontal
         cursor: 'default',
         paddingBottom: '100px', // Espace en bas pour faciliter le placement
       }}
     >
-      {blocks.length === 0 && !loading && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
-          padding: '40px',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          border: '2px dashed #ddd',
-          maxWidth: '400px'
-        }}>
-          <h3 style={{ color: '#666', marginBottom: '16px' }}>📋 Page vide</h3>
-          <p style={{ color: '#888', marginBottom: '20px', lineHeight: '1.5' }}>
-            Cette page ne contient aucun bloc. 
-            <br />
-            Utilisez le bouton <strong>+</strong> pour créer votre premier bloc
-            <br />
-            ou vérifiez les autres pages dans la sidebar.
-          </p>
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              createNewBlock(200, 200)
-            }}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#2ECC71',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}
-          >
-            ➕ Créer le premier bloc
-          </button>
-        </div>
-      )}
+
 
       {blocks.map((block, index) => (
         <EditableBlock
@@ -367,7 +407,22 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         />
       ))}
       
-      
+      {/* Zone de travail étendue - Espace libre pour placer de nouveaux blocs */}
+      <div
+        style={{
+          position: 'absolute',
+          top: blocks.length > 0 ? Math.max(...blocks.map(b => b.y + b.height)) + 100 : 200,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80%',
+          height: '300px',
+          border: 'none', // Pas de bordure
+          borderRadius: '0', // Pas de bordure arrondie
+          backgroundColor: 'transparent', // Transparent
+          display: 'none', // Masquer complètement
+          zIndex: 1,
+        }}
+      />
 
       {/* Bouton flottant pour ajouter un bloc */}
       <button
@@ -377,11 +432,20 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           e.stopPropagation();
           console.log('🔘 CLIC BOUTON - Création de bloc en cours...');
           
-          // Position simple et fixe pour test
-          const x = 100;
-          const y = 100;
+          // Position intelligente basée sur le contenu existant
+          let x = 100;
+          let y = 100;
           
-          console.log('📍 Position:', { x, y, pageId });
+          if (blocks.length > 0) {
+            // Placer le nouveau bloc en dessous du bloc le plus bas
+            const maxY = Math.max(...blocks.map(block => block.y + block.height));
+            y = maxY + 50;
+            
+            // Centrer horizontalement
+            x = Math.max(100, Math.floor((window.innerWidth - 300) / 2));
+          }
+          
+          console.log('📍 Position intelligente:', { x, y, pageId });
           
           // Appel direct de création
           createNewBlock(x, y).then(() => {
@@ -423,32 +487,26 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
         +
       </button>
 
-
-
-      {/* Indicateur de scroll en bas - Masqué lors de l'impression */}
+      {/* Indicateur de scroll dynamique - Masqué lors de l'impression */}
       <div 
         className="scroll-indicator"
         style={{
-          position: 'absolute',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          padding: '8px 16px',
-          backgroundColor: 'rgba(0, 123, 255, 0.8)',
-          color: 'white',
-          borderRadius: '20px',
-          fontSize: '12px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          zIndex: 500,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
+          display: 'none', // Masquer complètement
         }}
       >
-        <span>📜</span>
-        <span>Zone de travail étendue - Scrollez pour voir plus !</span>
-        <span>⬇️</span>
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
+
+      {/* Barre de progression d'extension - Visible seulement pendant l'extension */}
+      {isExtending && (
+        <div
+          style={{
+            display: 'none', // Masquer complètement
+          }}
+        />
+      )}
     </div>
   );
 }; 
