@@ -1,0 +1,412 @@
+📋 CONTENU COMPLET DE L'APPLICATION BLOCK
+============================================================
+
+📅 Date d'extraction: 2025-08-19 20:03:15
+📊 Total des pages: 17
+
+📄 PAGE: TO DO LIST - GENERALE (ID: 19)
+   📍 Ordre: 1
+   📅 Créée: 2025-08-17T20:31:10.353581
+   🔄 Modifiée: 2025-08-19T08:44:47.103637
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (50, 50)
+      📏 Taille: 486 x 602
+      📝 Titre: TO DO - BLOCK
+      📄 Contenu: <span style="display: inline !important;">BLOCK&nbsp;</span><div>-&gt;PJ si je clique ca n'affiche pas, ca supprime<br><div>-&gt; Rétention 5 back up maximum pour gagner de la place</div><div>-&gt; Si...
+
+   🧱 BLOC 2: text
+      📍 Position: (778, 48)
+      📏 Taille: 346 x 315
+      📝 Titre: TO DO - ABONNEMENTS
+      📄 Contenu: <div>Vérifier relevés bancaires</div>Cursor AI -&gt; stop. 20 eur.<div>Netflix -&gt; fait ms verifier</div><div>VPN Mullvad -&gt; 5 EUR laisser</div>
+
+
+============================================================
+
+📄 PAGE: APPLICATION - SPOTIFY ALIKE (ID: 2)
+   📍 Ordre: 2
+   📅 Créée: 2025-08-15T18:20:47.230127
+   🔄 Modifiée: 2025-08-19T08:44:47.106843
+   🧱 Blocs: 7
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (86, 13)
+      📏 Taille: 455 x 582
+      📝 Titre: SPECS
+      📄 Contenu: <div><b>EXIGENCES MVP</b></div><div>-Installer tous les outils requis techniques.</div><div>-Télécharger tous les sons de 1337x.</div><div>-Collecter et stocker tous les magnets et données récupérés d...
+
+   🧱 BLOC 2: text
+      📍 Position: (596, 10)
+      📏 Taille: 489 x 346
+      📝 Titre: RTORRENT
+      📄 Contenu: <div>-Vérifiez que chaque torrent a ≥5 seeders (sinon, délais aléatoires).</div><div>-Exclure les fichiers FLAC trop lourds, récupérer des MP3.</div><div>-Ajoutez des trackers publics aux magnets pour...
+
+   🧱 BLOC 3: text
+      📍 Position: (630, 599)
+      📏 Taille: 1063 x 1084
+      📝 Titre: ARCHITECTURE - SPECIFIQUE
+      📄 Contenu: <b>-&gt; Ordinateur -&gt; Seedbox</b>&nbsp;&nbsp;<span style="color: rgb(64, 64, 64); font-family: quote-cjk-patch, Inter, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &...
+
+   🧱 BLOC 4: text
+      📍 Position: (40, 1782)
+      📏 Taille: 539 x 436
+      📝 Titre: BASE DE DONNÉES
+      📄 Contenu: <div>2. Structure de la Base de Données (SQLite)</div><div>Fichier db_setup.sql</div><div>CREATE TABLE IF NOT EXISTS magnets (</div><div>&nbsp; &nbsp; id INTEGER PRIMARY KEY AUTOINCREMENT,</div><div>&...
+
+   🧱 BLOC 5: text
+      📍 Position: (51, 598)
+      📏 Taille: 542 x 1138
+      📝 Titre: ARCHITECTURE - GENERAL
+      📄 Contenu: <div><div class="image-container" style="display: inline-block; position: relative; margin: 8px 0px;"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAugAAADQCAYAAABV7JR5AAAABHNCSVQICAgIfAhkiA...
+
+   🧱 BLOC 6: text
+      📍 Position: (1099, 160)
+      📏 Taille: 594 x 419
+      📝 Titre: RISQUES
+      📄 Contenu: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAugAAADQCAYAAABV7JR5AAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAodEVYdENyZWF0aW9uIFRpbWUAZGltLiAxNyBhb/t0IDIwMjUg...
+
+   🧱 BLOC 7: text
+      📍 Position: (647, 1783)
+      📏 Taille: 840 x 913
+      📝 Titre: DIAGRAM
+      📄 Contenu: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfEAAAKhCAYAAABAVJcXAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAodEVYdENyZWF0aW9uIFRpbWUAZGltLiAxNyBhb/t0IDIwMjUg...
+
+
+============================================================
+
+📄 PAGE: APPLICATION - BLOCK (ID: 9)
+   📍 Ordre: 3
+   📅 Créée: 2025-08-16T09:21:01.153391
+   🔄 Modifiée: 2025-08-19T08:44:47.103356
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 329 x 320
+      📝 Titre: ANOMALIES SEVERES
+      📄 Contenu: -Ref -&gt; éditeur
+
+   🧱 BLOC 2: text
+      📍 Position: (507, 90)
+      📏 Taille: 430 x 478
+      📝 Titre: ARCHITECTURE
+      📄 Contenu: To Do&nbsp;
+
+
+============================================================
+
+📄 PAGE: APPLICATION - CRM (ID: 20)
+   📍 Ordre: 4
+   📅 Créée: 2025-08-18T10:16:39.011982
+   🔄 Modifiée: 2025-08-19T08:44:47.108375
+   🧱 Blocs: 1
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (50, 50)
+      📏 Taille: 549 x 680
+      📝 Titre: ARCHITECTURE
+      📄 Contenu: <div>-Frontend (React.js)</div><div>Port 3002 (configuré dans vite.config.ts)</div><div>Framework : React 18 + TypeScript + Vite</div><div>UI : Material-UI (MUI)</div><div><br></div><div>-Backend (Nod...
+
+
+============================================================
+
+📄 PAGE: APPLICATION - LEM (ID: 21)
+   📍 Ordre: 5
+   📅 Créée: 2025-08-18T18:57:31.233056
+   🔄 Modifiée: 2025-08-19T08:44:47.107156
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (50, 50)
+      📏 Taille: 545 x 916
+      📝 Titre: SPECS
+      📄 Contenu: <div><div>https://app.lemlist.com/teams/tea_CjYDwzupJ2dBMrRJ7/lemleads</div><div><br></div><div><div><b>-<span style="transition-property: all; background-color: transparent; display: inline !importan...
+
+   🧱 BLOC 2: text
+      📍 Position: (689, 61)
+      📏 Taille: 443 x 576
+      📝 Titre: SCRAPING
+      📄 Contenu: <div><b>Méthodes Lem List</b></div><div>Selenium WebDriver avec rotation de navigateurs</div><div>Proxy rotation (IPs différentes pour chaque requête)</div><div>User-Agent rotation (simulation de diff...
+
+
+============================================================
+
+📄 PAGE: ENTREPRENEUR (ID: 5)
+   📍 Ordre: 6
+   📅 Créée: 2025-08-15T18:28:56.253267
+   🔄 Modifiée: 2025-08-19T08:44:47.113750
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 300 x 200
+      📝 Titre: CONTACTS
+      📄 Contenu: LEM List -&gt; Linkedin<div>https://www.lemlist.com/fr/tarifs?r=0</div>
+
+   🧱 BLOC 2: text
+      📍 Position: (443, 118)
+      📏 Taille: 538 x 607
+      📝 Titre: KEYWORDS LEM LIST
+      📄 Contenu: <div>CEO</div>CISO<div><span style="background-color: transparent; font-family: inherit; display: inline !important;">ESCP</span></div><div><span style="background-color: transparent; font-family: inh...
+
+
+============================================================
+
+📄 PAGE: PROJECT MANAGEMENT (ID: 4)
+   📍 Ordre: 7
+   📅 Créée: 2025-08-15T18:23:03.249673
+   🔄 Modifiée: 2025-08-19T08:44:47.104997
+   🧱 Blocs: 4
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 300 x 200
+      📝 Titre: ACTIONS
+
+   🧱 BLOC 2: text
+      📍 Position: (474, 103)
+      📏 Taille: 300 x 200
+      📝 Titre: BUDGET
+
+   🧱 BLOC 3: text
+      📍 Position: (841, 110)
+      📏 Taille: 300 x 200
+      📝 Titre: RESSOURCES
+
+   🧱 BLOC 4: text
+      📍 Position: (104, 375)
+      📏 Taille: 300 x 200
+      📝 Titre: RISKS
+
+
+============================================================
+
+📄 PAGE: INFRA - WIFI (ID: 10)
+   📍 Ordre: 8
+   📅 Créée: 2025-08-16T09:28:27.830054
+   🔄 Modifiée: 2025-08-19T08:44:47.108359
+   🧱 Blocs: 1
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 365 x 345
+      📝 Titre: CODES
+      📄 Contenu: Network FRITZ!Box 7530 ZO<div>Password 9243 6743 1784 9547 5479</div><div><br></div>
+
+
+============================================================
+
+📄 PAGE: INFRA - BACKUP (SYS+PERSO) - UBUNTU (ID: 14)
+   📍 Ordre: 9
+   📅 Créée: 2025-08-16T10:35:45.638651
+   🔄 Modifiée: 2025-08-19T08:44:47.114886
+   🧱 Blocs: 3
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (112, 61)
+      📏 Taille: 862 x 931
+      📝 Titre: AUTOMATIQUE - BACKUP TIMESHIFT & RSYNC -> LECIA
+      📄 Contenu: <span style="font-weight: 600; color: rgb(64, 64, 64); font-family: quote-cjk-patch, Inter, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Noto Sans&quot;, Ubuntu, C...
+
+   🧱 BLOC 2: text
+      📍 Position: (1001, 61)
+      📏 Taille: 655 x 507
+      📝 Titre: BACK-UP LECIA SCRIPT MANUEL (FINAL)
+      📄 Contenu: <div>-&gt; Lancer 2X semaine</div><div><br></div><div><b>-&gt; Script manuel back up systeme + fichiers persos</b></div><div>sudo rsync -aHAXv --progress --delete \</div><div>&nbsp; &nbsp; --exclude={...
+
+   🧱 BLOC 3: text
+      📍 Position: (1376, 566)
+      📏 Taille: 281 x 513
+      📝 Titre: FLASH UBUNTU USB - PROCEDURE INSTALL
+      📄 Contenu: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWUAAAFTCAYAAADhph0LAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAodEVYdENyZWF0aW9uIFRpbWUAdmVuLiAxNSBhb/t0IDIwMjUg...
+
+
+============================================================
+
+📄 PAGE: INFRA - LOCALHOST (ID: 1)
+   📍 Ordre: 10
+   📅 Créée: 2025-08-15T18:16:40.964064
+   🔄 Modifiée: 2025-08-19T08:44:47.113962
+   🧱 Blocs: 1
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 599 x 316
+      📝 Titre: SOURCES
+      📄 Contenu: 3001 BLOCK<div>3002 &amp;&nbsp;<span style="background-color: transparent; font-family: inherit; display: inline !important;">3003 CRM</span></div><div>3004 LANDING PAGE</div>
+
+
+============================================================
+
+📄 PAGE: COURS - CODE (ID: 7)
+   📍 Ordre: 11
+   📅 Créée: 2025-08-15T19:08:58.501029
+   🔄 Modifiée: 2025-08-19T08:44:47.110179
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 426 x 415
+      📝 Titre: BEST PRACTICES
+      📄 Contenu: -Dépendances<div>-Base données 1 user + pwd</div><div>-Git add, commit, push régulier</div><div>-Github</div><div>git clone</div><div>nom projet,&nbsp;<span style="background-color: transparent; font-...
+
+   🧱 BLOC 2: text
+      📍 Position: (616, 110)
+      📏 Taille: 431 x 425
+      📝 Titre: TO LEARN
+      📄 Contenu: -Comment rendre un projet "exécutable" par qqn d'autre sur windows et ubuntu<div>-Revient à dder comment on créer un logiciel téléchargeable</div>
+
+
+============================================================
+
+📄 PAGE: COURS - ANONYMISATION (ID: 22)
+   📍 Ordre: 12
+   📅 Créée: 2025-08-19T08:44:38.283232
+   🔄 Modifiée: 2025-08-19T08:44:47.110299
+   🧱 Blocs: 5
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (6, 53)
+      📏 Taille: 716 x 872
+      📝 Titre: NAV. ANONYME
+      📄 Contenu: <b>Masquer IP</b><div>-VPN sans logs Mullvad</div><div>-Masquer IP Publique Seedbox en configurant VPN</div><div>-Paiement XMR</div><div><br></div><div><b>OS</b></div><div>-Machine virtuelle avec OS d...
+
+   🧱 BLOC 2: text
+      📍 Position: (21, 967)
+      📏 Taille: 702 x 384
+      📝 Titre: Seebox avec Proxy rotatif
+      📄 Contenu: <ul><li><div style=""><span style="background-color: transparent; font-family: inherit; display: inline !important;"><span style="display: inline !important;">ultra.cc (Bulgarie) -&gt; proxy rotatif <...
+
+   🧱 BLOC 3: text
+      📍 Position: (789, 50)
+      📏 Taille: 855 x 1059
+      📝 Titre: INFORMATIONS SECURITE
+      📄 Contenu: <div>1. Pourquoi un VPN seul peut suffire ?</div><div>Masquage de l'IP : Mullvad remplace l'IP de ta seedbox par celle de ses serveurs. Si tout le trafic passe par le VPN, les trackers, les pairs et l...
+
+   🧱 BLOC 4: text
+      📍 Position: (7, 1382)
+      📏 Taille: 788 x 736
+      📝 Titre: INSTALLATIONS ANONYMISATION
+      📄 Contenu: <div>-<b>Navigateurs</b>&nbsp;</div><div><div><br></div><div><b>Mullvad browser</b></div><div>-Utiliser pour navigation activités borderline (torrents...)&nbsp;<b style="background-color: transparent;...
+
+   🧱 BLOC 5: text
+      📍 Position: (831, 1146)
+      📏 Taille: 854 x 817
+      📝 Titre: ARCHITECTURE SECURISÉE
+      📄 Contenu: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfwAAAPiCAYAAACaEW/RAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAodEVYdENyZWF0aW9uIFRpbWUAbWFyLiAxOSBhb/t0IDIwMjUg...
+
+
+============================================================
+
+📄 PAGE: COURS - UBUNTU (ID: 6)
+   📍 Ordre: 13
+   📅 Créée: 2025-08-15T19:05:05.769660
+   🔄 Modifiée: 2025-08-19T08:44:47.110688
+   🧱 Blocs: 2
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 503 x 596
+      📝 Titre: FLASH USB
+      📄 Contenu: <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWUAAAFTCAYAAADhph0LAAAABHNCSVQICAgIfAhkiAAAABl0RVh0U29mdHdhcmUAZ25vbWUtc2NyZWVuc2hvdO8Dvz4AAAAodEVYdENyZWF0aW9uIFRpbWUAdmVuLiAxNSBhb/t0IDIwMjUg...
+
+   🧱 BLOC 2: text
+      📍 Position: (796, 109)
+      📏 Taille: 300 x 200
+      📝 Titre: COMMANDES CLÉS
+      📄 Contenu: To do
+
+
+============================================================
+
+📄 PAGE: COURS - ARCHITECTURE (ID: 15)
+   📍 Ordre: 14
+   📅 Créée: 2025-08-17T10:26:28.448904
+   🔄 Modifiée: 2025-08-19T08:44:47.111546
+   🧱 Blocs: 1
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (100, 100)
+      📏 Taille: 300 x 200
+      📝 Titre: CREUSER
+      📄 Contenu: Microservices<div>Togaf</div>
+
+
+============================================================
+
+📄 PAGE: COURS - CYBER - SECURITY+ COMPTIA (ID: 16)
+   📍 Ordre: 15
+   📅 Créée: 2025-08-17T10:28:02.664465
+   🔄 Modifiée: 2025-08-19T08:44:47.111706
+   🧱 Blocs: 1
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (571, 2617)
+      📏 Taille: 300 x 200
+
+
+============================================================
+
+📄 PAGE: COURS - SAFe (ID: 8)
+   📍 Ordre: 16
+   📅 Créée: 2025-08-15T19:09:58.466849
+   🔄 Modifiée: 2025-08-19T08:44:47.112660
+   🧱 Blocs: 0
+--------------------------------------------------
+
+
+============================================================
+
+📄 PAGE: THPI - MICHEAU (ID: 3)
+   📍 Ordre: 17
+   📅 Créée: 2025-08-15T18:21:05.894789
+   🔄 Modifiée: 2025-08-19T08:44:47.112922
+   🧱 Blocs: 4
+--------------------------------------------------
+
+   🧱 BLOC 1: text
+      📍 Position: (33, 22)
+      📏 Taille: 390 x 704
+      📝 Titre: SYNTHESE ECHANGE FABRICE MICHEAU
+      📄 Contenu: <div><b>1. Carrière et poste</b></div><div>Expertise et niche : Je me positionne comme expert en stratégie, cybersécurité, gouvernance (ex : COBIT 5, AI), accompagnant la direction</div><div>générale ...
+      📎 Attachments: 1
+         • THPI_F-MICHEAU.pdf (file) - /uploads/1755274992186-THPI_F-MICHEAU.pdf
+
+   🧱 BLOC 2: text
+      📍 Position: (433, 19)
+      📏 Taille: 386 x 850
+      📝 Titre: REPONSE AUX QUESTIONS DE FABRICE
+      📄 Contenu: <div><b>Suis-je HPI ? Suis-je THPI ?</b></div><div>Vous semblez être THPI ou au-delà, avec des capacités de haute cognition, métacognition, vitesse de traitement et une conscience aiguë de</div><div>v...
+
+   🧱 BLOC 3: text
+      📍 Position: (849, 27)
+      📏 Taille: 645 x 830
+      📝 Titre: ACTIONS
+      📄 Contenu: <div>-&gt; Je créé une image soignée visuellement: site, profil Linkedin, CV, storytelling.</div><div>Construire un CV orienté stratégie, gestion de crises, enjeux, donner chiffres budgets, nombre hom...
+
+   🧱 BLOC 4: text
+      📍 Position: (20, 792)
+      📏 Taille: 498 x 607
+      📝 Titre: VIDEOS A VOIR
+      📄 Contenu: <div>Echange</div><div>https://us02web.zoom.us/rec/share/cnCWzgGJeT2XbJzuwMOy4DJ2R8YoVWBZcyVUtn9vG4hT_L2_noEBJwDSqMeU4aWr.SzryidzvOngCRek</div><div>------------</div><div>itw en intégrale sur le trava...
+
+
+============================================================
+

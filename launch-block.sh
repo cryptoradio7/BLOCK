@@ -43,9 +43,9 @@ echo "🔧 Mode DÉVELOPPEMENT - Hot-reload activé"
 echo "🧹 Nettoyage du cache de développement..."
 rm -rf .next
 
-# Démarrer le serveur de développement
-echo "🚀 Démarrage du serveur de développement..."
-nohup npm run dev > /tmp/block-app-dev.log 2>&1 &
+# Démarrer le serveur de développement sur le port 3001
+echo "🚀 Démarrage du serveur de développement sur le port $PORT..."
+nohup npm run dev -- --port $PORT > /tmp/block-app-dev.log 2>&1 &
 
 # Attendre que le serveur démarre (lancement immédiat)
 echo "⏳ Démarrage du serveur en arrière-plan..."
