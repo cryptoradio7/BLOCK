@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 export interface ImageDimensions {
   id?: number;
@@ -16,13 +16,23 @@ export interface ImageDimensions {
   updated_at?: string;
 }
 
-export const useImageDimensions = (blockId: number) => {
-  const [dimensions, setDimensions] = useState<ImageDimensions[]>([]);
+export const useImageDimensions = (blockId: number, initialDimensions: ImageDimensions[] = []) => {
+  const [dimensions, setDimensions] = useState<ImageDimensions[]>(initialDimensions);
   const [loading, setLoading] = useState(false);
+  const shouldSkipFetchRef = useRef(initialDimensions.length > 0);
+
+  useEffect(() => {
+    setDimensions(initialDimensions);
+    shouldSkipFetchRef.current = initialDimensions.length > 0;
+  }, [blockId, initialDimensions]);
 
   // Charger les dimensions des images pour un bloc
   const loadImageDimensions = useCallback(async () => {
     if (!blockId) return;
+    if (shouldSkipFetchRef.current) {
+      shouldSkipFetchRef.current = false;
+      return;
+    }
     
     setLoading(true);
     try {
@@ -30,7 +40,6 @@ export const useImageDimensions = (blockId: number) => {
       if (response.ok) {
         const data = await response.json();
         setDimensions(data);
-        console.log(`📏 Dimensions d'images chargées pour bloc ${blockId}:`, data.length);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des dimensions d\'images:', error);
@@ -70,7 +79,6 @@ export const useImageDimensions = (blockId: number) => {
           }
         });
 
-        console.log(`💾 Dimensions d'image sauvegardées pour ${imageData.image_name}`);
         return savedDimensions;
       }
     } catch (error) {
@@ -90,7 +98,6 @@ export const useImageDimensions = (blockId: number) => {
       if (response.ok) {
         // Retirer de l'état local
         setDimensions(prev => prev.filter(d => d.image_url !== imageUrl));
-        console.log(`🗑️ Dimensions d'image supprimées pour ${imageUrl}`);
         return true;
       }
     } catch (error) {

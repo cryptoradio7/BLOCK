@@ -18,57 +18,39 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
   // Fonction pour étendre dynamiquement le canvas en temps réel
   const extendCanvas = useCallback(() => {
     if (isExtending) {
-      console.log('⚠️ Extension déjà en cours, ignorée');
       return;
     }
     
-    console.log('🚀 DÉBUT EXTENSION CANVAS !');
     setIsExtending(true);
     
     // Ajouter de l'espace en temps réel
     setCanvasHeight(prevHeight => {
       const currentHeight = parseInt(prevHeight);
       const newHeight = currentHeight + 300; // +300px à chaque extension
-      console.log('📏 Extension canvas:', { currentHeight, newHeight, added: 300 });
       return `${newHeight}px`;
     });
     
     // Feedback visuel
     setTimeout(() => {
       setIsExtending(false);
-      console.log('✅ Extension terminée');
     }, 800);
   }, [isExtending]);
 
   // Gérer le scroll pour AJOUTER de l'espace en temps réel
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    console.log('🔄 SCROLL EVENT DÉTECTÉ !'); // Test simple
-    
     const target = e.target as HTMLDivElement;
     const scrollTop = target.scrollTop;
     const scrollHeight = target.scrollHeight;
     const clientHeight = target.clientHeight;
     
-    // Logs temporaires pour diagnostiquer
-    console.log('🔄 SCROLL EVENT DÉTECTÉ:', {
-      scrollTop,
-      scrollHeight,
-      clientHeight,
-      distanceFromBottom: scrollHeight - scrollTop - clientHeight,
-      threshold: 150
-    });
-    
     // Si on est à moins de 150px du bas, AJOUTER de l'espace
     if (scrollHeight - scrollTop - clientHeight < 150) {
-      console.log('🎯 DÉCLENCHEMENT EXTENSION !');
       extendCanvas();
     }
   }, [extendCanvas]);
 
   // Détecter aussi la molette de souris pour une meilleure réactivité
   const handleWheel = useCallback((e: React.WheelEvent<HTMLDivElement>) => {
-    console.log('🖱️ WHEEL EVENT DÉTECTÉ !'); // Test simple
-    
     // Si on scrolle vers le bas (deltaY positif)
     if (e.deltaY > 0) {
       const target = e.currentTarget;
@@ -76,17 +58,8 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
       const scrollHeight = target.scrollHeight;
       const clientHeight = target.clientHeight;
       
-      console.log('🖱️ WHEEL EVENT (vers le bas):', {
-        deltaY: e.deltaY,
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-        distanceFromBottom: scrollHeight - scrollTop - clientHeight
-      });
-      
       // Si on est proche du bas, étendre immédiatement
       if (scrollHeight - scrollTop - clientHeight < 200) {
-        console.log('🎯 EXTENSION IMMÉDIATE par molette !');
         extendCanvas();
       }
     }
@@ -121,34 +94,31 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
 
   // Charger les blocs depuis l'API
   useEffect(() => {
-    console.log('🚀 BlockCanvas monté - Test des événements');
     fetchBlocks();
   }, [pageId]);
 
   const fetchBlocks = async () => {
     try {
-      const response = await fetch('/api/blocks');
+      setLoading(true);
+      // OPTIMISATION: Filtrer par pageId côté serveur au lieu de charger tous les blocs
+      const response = await fetch(`/api/blocks?pageId=${pageId}`);
       if (response.ok) {
         const data = await response.json();
         
-        // Transformer les données pour correspondre au type BlockType et filtrer par page
-        const allTransformedBlocks = data.map((block: any) => ({
+        // Transformer les données pour correspondre au type BlockType
+        const transformedBlocks = data.map((block: any) => ({
           id: block.id,
           x: block.x || 0,
           y: block.y || 0,
           width: block.width || 300,
           height: block.height || 200,
           content: block.content || '',
-          title: block.title || '', // Récupérer le titre depuis la base de données
+          title: block.title || '',
           type: block.type || 'text',
           page_id: block.page_id,
-          attachments: block.attachments || [], // Récupérer les attachments depuis l'API
+          attachments: Array.isArray(block.attachments) ? block.attachments : [],
+          imageDimensions: Array.isArray(block.image_dimensions) ? block.image_dimensions : [],
         }));
-        
-        const transformedBlocks = allTransformedBlocks.filter((block: any) => {
-          const isMatch = block.page_id === pageId;
-          return isMatch;
-        });
         
         // 🔄 TRI POUR LECTURE NATURELLE : haut à gauche vers bas à droite
         const sortedBlocks = transformedBlocks.sort((a: any, b: any) => {
@@ -266,6 +236,7 @@ export const BlockCanvas = ({ pageId = 1 }: BlockCanvasProps) => {
           type: newBlock.type || 'text',
           page_id: newBlock.page_id,
           attachments: [],
+          imageDimensions: [],
         };
         
         setBlocks(prev => {

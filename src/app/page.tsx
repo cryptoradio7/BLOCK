@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Sidebar from '@/components/Sidebar'
 import Toolbar from '@/components/Toolbar'
 import { BlockCanvas } from '@/components/BlockCanvas'
-import { DndProvider } from '@/components/DndProvider'
 import { Page } from '@/types'
 
 export default function Home() {
@@ -22,7 +21,6 @@ export default function Home() {
   useEffect(() => {
     if (currentPageId) {
       localStorage.setItem('lastVisitedPageId', currentPageId)
-      console.log('💾 Page sauvegardée:', currentPageId)
     }
   }, [currentPageId])
 
@@ -37,10 +35,8 @@ export default function Home() {
           // 🔄 Charger la dernière page visitée ou la première page
           const lastVisitedPageId = localStorage.getItem('lastVisitedPageId')
           if (lastVisitedPageId && pagesData.find((p: Page) => p.id === lastVisitedPageId)) {
-            console.log('🔄 Restauration de la dernière page visitée:', lastVisitedPageId)
             setCurrentPageId(lastVisitedPageId)
           } else {
-            console.log('🆕 Première visite, sélection de la première page:', pagesData[0].id)
             setCurrentPageId(pagesData[0].id)
           }
         }
@@ -54,14 +50,6 @@ export default function Home() {
 
   const currentPage = pages.find(page => page.id === currentPageId)
   
-  // Debug: Log de la page actuelle
-  useEffect(() => {
-    if (currentPageId && currentPage) {
-      console.log('📄 Page active:', { id: currentPageId, title: currentPage.title });
-    } else {
-      console.log('⚠️ Page non trouvée:', { currentPageId, pagesCount: pages.length });
-    }
-  }, [currentPageId, currentPage, pages]);
 
   const addPage = async (title?: string) => {
     try {
@@ -541,53 +529,48 @@ export default function Home() {
   }
 
   return (
-    <DndProvider>
-      <div className="app">
-        <Sidebar 
-          pages={pages} 
-          currentPageId={currentPageId}
-          onPageSelect={setCurrentPageId}
-          onAddPage={addPage}
-          onPagesReorder={reorderPages}
-          onUpdatePageTitle={updatePageTitle}
-          onDeletePage={deletePage}
-          visible={sidebarVisible}
-          onToggleVisibility={() => setSidebarVisible(!sidebarVisible)}
+    <div className="app">
+      <Sidebar 
+        pages={pages} 
+        currentPageId={currentPageId}
+        onPageSelect={setCurrentPageId}
+        onAddPage={addPage}
+        onPagesReorder={reorderPages}
+        onUpdatePageTitle={updatePageTitle}
+        onDeletePage={deletePage}
+        visible={sidebarVisible}
+        onToggleVisibility={() => setSidebarVisible(!sidebarVisible)}
+      />
+      <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
+        <Toolbar 
+          onExportPDF={handleExportPDF}
         />
-        <div className={`main-content ${!sidebarVisible ? 'sidebar-hidden' : ''}`}>
-          <Toolbar 
-            onExportPDF={handleExportPDF}
-          />
-          
+        
 
-          
+        
           {currentPage && (
-            <>
-              {console.log('🔍 DEBUG - Page courante:', { id: currentPageId, title: currentPage.title, type: typeof currentPageId })}
-              <BlockCanvas pageId={parseInt(currentPageId)} />
-            </>
+            <BlockCanvas pageId={parseInt(currentPageId)} />
           )}
-          {!currentPage && (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
-              <p>Page non trouvée: {currentPageId}</p>
-              <p>Pages disponibles: {pages.map(p => p.id).join(', ')}</p>
-            </div>
-          )}
-          {!sidebarVisible && (
-            <button 
-              className="show-sidebar-button"
-              onClick={() => setSidebarVisible(true)}
-              title="Afficher la sidebar"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </svg>
-            </button>
-          )}
-        </div>
+        {!currentPage && (
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            <p>Page non trouvée: {currentPageId}</p>
+            <p>Pages disponibles: {pages.map(p => p.id).join(', ')}</p>
+          </div>
+        )}
+        {!sidebarVisible && (
+          <button 
+            className="show-sidebar-button"
+            onClick={() => setSidebarVisible(true)}
+            title="Afficher la sidebar"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        )}
       </div>
-    </DndProvider>
+    </div>
   )
 } 

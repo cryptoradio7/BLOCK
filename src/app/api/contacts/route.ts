@@ -179,6 +179,20 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Déterminer la source des données et les indicateurs de statut
+    const sourceDonnees = contact.source_donnees || 'import_manuel';
+    const isFormContact = sourceDonnees === 'formulaire_manuel';
+    
+    // Pour les contacts créés via formulaire, ajouter des indicateurs de statut
+    let statusIndicators = {};
+    if (isFormContact) {
+      statusIndicators = {
+        url_status: contact.site_web_entreprise ? 'checking' : 'unavailable',
+        dns_status: contact.site_web_entreprise ? 'checking' : 'unavailable', 
+        mx_status: contact.email ? 'checking' : 'unavailable'
+      };
+    }
+    
     // Insérer le contact
     const insertQuery = `
       INSERT INTO professional_contacts (
@@ -187,10 +201,10 @@ export async function POST(request: NextRequest) {
         telephone_mobile, linkedin_url, site_web_entreprise,
         taille_entreprise, secteur_activite, description_entreprise,
         source_donnees, confiance_email, confiance_telephone,
-        notes, tags, statut
+        notes, tags, statut, status_indicators
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
-        $16, $17, $18, $19, $20, $21, $22, $23, $24
+        $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
       ) RETURNING *
     `;
     
@@ -213,12 +227,13 @@ export async function POST(request: NextRequest) {
       contact.taille_entreprise || null,
       contact.secteur_activite || null,
       contact.description_entreprise || null,
-      contact.source_donnees || 'import_manuel',
+      sourceDonnees,
       contact.confiance_email || 0,
       contact.confiance_telephone || 0,
       contact.notes || null,
       contact.tags || [],
-      contact.statut || 'actif'
+      contact.statut || 'actif',
+      JSON.stringify(statusIndicators)
     ]);
     
     const newContact = result.rows[0];

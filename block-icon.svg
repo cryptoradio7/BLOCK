@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Gradient principal -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    
+    <!-- Gradient pour les blocs -->
+    <linearGradient id="blockGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff"/>
+      <stop offset="100%" style="stop-color:#0099cc"/>
+    </linearGradient>
+    
+    <linearGradient id="blockGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#ee5a5a"/>
+    </linearGradient>
+    
+    <linearGradient id="blockGradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4ecdc4"/>
+      <stop offset="100%" style="stop-color:#44a08d"/>
+    </linearGradient>
+    
+    <linearGradient id="blockGradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb"/>
+      <stop offset="100%" style="stop-color:#f5576c"/>
+    </linearGradient>
+    
+    <!-- Ombre portée -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fond arrondi -->
+  <rect x="16" y="16" width="480" height="480" rx="80" ry="80" fill="url(#bgGradient)"/>
+  
+  <!-- Bordure subtile -->
+  <rect x="16" y="16" width="480" height="480" rx="80" ry="80" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1"/>
+  
+  <!-- Grille de fond (subtile) -->
+  <g opacity="0.05">
+    <line x1="170" y1="60" x2="170" y2="452" stroke="#fff" stroke-width="1"/>
+    <line x1="256" y1="60" x2="256" y2="452" stroke="#fff" stroke-width="1"/>
+    <line x1="342" y1="60" x2="342" y2="452" stroke="#fff" stroke-width="1"/>
+    <line x1="60" y1="170" x2="452" y2="170" stroke="#fff" stroke-width="1"/>
+    <line x1="60" y1="256" x2="452" y2="256" stroke="#fff" stroke-width="1"/>
+    <line x1="60" y1="342" x2="452" y2="342" stroke="#fff" stroke-width="1"/>
+  </g>
+  
+  <!-- Bloc 1 - Haut gauche (Cyan) -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="80" width="140" height="100" rx="16" ry="16" fill="url(#blockGradient1)"/>
+    <rect x="80" y="80" width="140" height="100" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Bloc 2 - Haut droite (Rouge/Corail) -->
+  <g filter="url(#shadow)">
+    <rect x="240" y="100" width="180" height="120" rx="16" ry="16" fill="url(#blockGradient2)"/>
+    <rect x="240" y="100" width="180" height="120" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Bloc 3 - Milieu gauche (Vert/Teal) -->
+  <g filter="url(#shadow)">
+    <rect x="70" y="200" width="160" height="140" rx="16" ry="16" fill="url(#blockGradient3)"/>
+    <rect x="70" y="200" width="160" height="140" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Bloc 4 - Milieu droite (Violet/Rose) -->
+  <g filter="url(#shadow)">
+    <rect x="250" y="240" width="170" height="100" rx="16" ry="16" fill="url(#blockGradient4)"/>
+    <rect x="250" y="240" width="170" height="100" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Bloc 5 - Bas gauche (Cyan) -->
+  <g filter="url(#shadow)">
+    <rect x="90" y="360" width="130" height="80" rx="16" ry="16" fill="url(#blockGradient1)"/>
+    <rect x="90" y="360" width="130" height="80" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Bloc 6 - Bas droite (Rouge) -->
+  <g filter="url(#shadow)">
+    <rect x="240" y="360" width="180" height="90" rx="16" ry="16" fill="url(#blockGradient2)"/>
+    <rect x="240" y="360" width="180" height="90" rx="16" ry="16" fill="none" stroke="#fff" stroke-width="2" stroke-opacity="0.3"/>
+  </g>
+  
+  <!-- Lettre B stylisée (overlay subtil) -->
+  <g opacity="0.15">
+    <text x="256" y="300" font-family="Arial Black, sans-serif" font-size="200" font-weight="900" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">B</text>
+  </g>
+  
+  <!-- Points de connexion lumineux -->
+  <g filter="url(#glow)">
+    <circle cx="220" cy="130" r="6" fill="#fff" opacity="0.8"/>
+    <circle cx="150" cy="200" r="6" fill="#fff" opacity="0.8"/>
+    <circle cx="230" cy="290" r="6" fill="#fff" opacity="0.8"/>
+    <circle cx="220" cy="360" r="6" fill="#fff" opacity="0.8"/>
+  </g>
+  
+  <!-- Lignes de connexion -->
+  <g stroke="#fff" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="4,4">
+    <line x1="220" y1="136" x2="220" y2="194"/>
+    <line x1="156" y1="200" x2="224" y2="200"/>
+    <line x1="230" y1="296" x2="230" y2="354"/>
+  </g>
+</svg>
+
+

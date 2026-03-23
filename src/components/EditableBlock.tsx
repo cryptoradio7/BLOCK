@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, memo } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { Resizable } from 'react-resizable';
 import 'react-resizable/css/styles.css';
-import { useImageDimensions } from '@/hooks/useImageDimensions';
+import { useImageDimensions, ImageDimensions } from '@/hooks/useImageDimensions';
 
 export type BlockType = {
   id: number;
@@ -22,6 +22,7 @@ export type BlockType = {
     url: string;
     type: 'image' | 'file';
   }>;
+  imageDimensions?: ImageDimensions[];
 };
 
 interface EditableBlockProps {
@@ -44,7 +45,7 @@ const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
-export const EditableBlock = ({
+const EditableBlockComponent = ({
   block,
   readingOrder,
   onUpdate,
@@ -65,7 +66,7 @@ export const EditableBlock = ({
     saveImageDimensions, 
     deleteImageDimensions,
     getImageDimensions 
-  } = useImageDimensions(block.id);
+  } = useImageDimensions(block.id, block.imageDimensions || []);
   
   // Référence pour le contenu editable
   const contentRef = useRef<HTMLDivElement>(null);
@@ -107,15 +108,16 @@ export const EditableBlock = ({
           (img as HTMLImageElement).style.marginTop = `${savedDimensions.position_y}px`;
         }
         
-        console.log(`📏 Dimensions appliquées à ${imageUrl}: ${savedDimensions.width}x${savedDimensions.height}`);
       }
     });
   }, [imageDimensions, getImageDimensions]);
 
   // Charger les dimensions des images au montage du composant
   useEffect(() => {
-    loadImageDimensions();
-  }, [loadImageDimensions]);
+    if (imageDimensions.length === 0) {
+      loadImageDimensions();
+    }
+  }, [imageDimensions.length, loadImageDimensions]);
 
   // Appliquer les dimensions sauvegardées quand elles sont chargées
   useEffect(() => {
@@ -1399,4 +1401,24 @@ export const EditableBlock = ({
       </div>
     </Resizable>
   );
-}; 
+};
+
+// OPTIMISATION: Memoize le composant pour éviter les re-renders inutiles
+export const EditableBlock = memo(EditableBlockComponent, (prevProps, nextProps) => {
+  // Re-render seulement si le bloc change vraiment (id, contenu, position, taille)
+  // Retourne true si les props sont identiques (pas de re-render), false si différentes (re-render)
+  const propsEqual = (
+    prevProps.block.id === nextProps.block.id &&
+    prevProps.block.content === nextProps.block.content &&
+    prevProps.block.title === nextProps.block.title &&
+    prevProps.block.x === nextProps.block.x &&
+    prevProps.block.y === nextProps.block.y &&
+    prevProps.block.width === nextProps.block.width &&
+    prevProps.block.height === nextProps.block.height &&
+    prevProps.readingOrder === nextProps.readingOrder &&
+    prevProps.onUpdate === nextProps.onUpdate &&
+    prevProps.onMove === nextProps.onMove &&
+    prevProps.onDelete === nextProps.onDelete
+  );
+  return propsEqual;
+}); 

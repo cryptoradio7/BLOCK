@@ -1,46 +1,98 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 GET /api/blocks - Récupération des blocs...');
+    const { searchParams } = new URL(request.url);
+    const pageId = searchParams.get('pageId');
     
-    const result = await pool.query(`
+    // OPTIMISATION: Utiliser LEFT JOIN pour récupérer les attachments en une seule requête
+    // au lieu de N+1 queries (une requête par bloc)
+    let query = `
       SELECT 
-        id, 
-        type,
-        title,
-        content, 
-        x, 
-        y, 
-        width, 
-        height,
-        page_id,
-        created_at,
-        updated_at
-      FROM blocks 
-      ORDER BY created_at DESC
-    `);
-
-    // Récupérer les attachments pour chaque bloc
-    const blocksWithAttachments = await Promise.all(
-      result.rows.map(async (block) => {
-        const attachmentsResult = await pool.query(
-          'SELECT id, name, url, type FROM block_attachments WHERE block_id = $1',
-          [block.id]
-        );
-        
-        return {
-          ...block,
-          attachments: attachmentsResult.rows
-        };
-      })
-    );
+        b.id, 
+        b.type,
+        b.title,
+        b.content, 
+        b.x, 
+        b.y, 
+        b.width, 
+        b.height,
+        b.page_id,
+        b.created_at,
+        b.updated_at,
+        COALESCE(att.attachments, '[]'::json) AS attachments,
+        COALESCE(img.image_dimensions, '[]'::json) AS image_dimensions
+      FROM blocks b
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+            json_build_object(
+              'id', a.id,
+              'name', a.name,
+              'url', a.url,
+              'type', a.type
+            )
+        ) AS attachments
+        FROM block_attachments a
+        WHERE a.block_id = b.id
+      ) att ON true
+      LEFT JOIN LATERAL (
+        SELECT json_agg(
+          json_build_object(
+            'id', i.id,
+            'block_id', i.block_id,
+            'attachment_id', i.attachment_id,
+            'image_url', i.image_url,
+            'image_name', i.image_name,
+            'width', i.width,
+            'height', i.height,
+            'original_width', i.original_width,
+            'original_height', i.original_height,
+            'position_x', i.position_x,
+            'position_y', i.position_y,
+            'created_at', i.created_at,
+            'updated_at', i.updated_at
+          )
+        ) AS image_dimensions
+        FROM image_dimensions i
+        WHERE i.block_id = b.id
+      ) img ON true
+    `;
     
-    console.log('✅ Blocs avec attachments récupérés:', blocksWithAttachments.length);
-    return NextResponse.json(blocksWithAttachments);
+    const queryParams: any[] = [];
+    
+    // Filtrer par page_id si fourni (OPTIMISATION: filtre côté serveur au lieu de côté client)
+    if (pageId) {
+      query += ' WHERE b.page_id = $1';
+      queryParams.push(parseInt(pageId));
+    }
+    
+    query += `
+      ORDER BY b.created_at DESC
+    `;
+    
+    const result = await pool.query(query, queryParams);
+    
+    // Transformer les résultats pour correspondre au format attendu
+    const blocks = result.rows.map((row: any) => ({
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      content: row.content,
+      x: row.x,
+      y: row.y,
+      width: row.width,
+      height: row.height,
+      page_id: row.page_id,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      attachments: Array.isArray(row.attachments) ? row.attachments : [],
+      image_dimensions: Array.isArray(row.image_dimensions) ? row.image_dimensions : []
+    }));
+    
+    return NextResponse.json(blocks);
   } catch (error) {
-    console.error('❌ Erreur lors de la récupération des blocs:', error);
+    console.error('Erreur lors de la récupération des blocs:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la récupération des blocs' },
       { status: 500 }
@@ -50,8 +102,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('➕ POST /api/blocks - Création nouveau bloc...');
-    
     const body = await request.json();
     const { content, x, y, width, height, page_id } = body;
 
@@ -62,10 +112,9 @@ export async function POST(request: NextRequest) {
       ['text', '', content || '', x || 50, y || 50, width || 300, height || 200, page_id || 1]
     );
 
-    console.log('✅ Bloc créé avec ID:', result.rows[0].id);
     return NextResponse.json(result.rows[0]);
   } catch (error) {
-    console.error('❌ Erreur lors de la création du bloc:', error);
+    console.error('Erreur lors de la création du bloc:', error);
     return NextResponse.json(
       { error: 'Erreur lors de la création du bloc' },
       { status: 500 }

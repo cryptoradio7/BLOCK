@@ -38,6 +38,13 @@ export interface ProfessionalContact {
   date_derniere_verification?: string;
   verifie_par?: string;
   
+  // Indicateurs de statut pour les contacts créés via formulaire
+  status_indicators?: {
+    url_status?: 'available' | 'unavailable' | 'checking';
+    dns_status?: 'available' | 'unavailable' | 'checking';
+    mx_status?: 'available' | 'unavailable' | 'checking';
+  };
+  
   // Timestamps
   created_at?: string;
   updated_at?: string;

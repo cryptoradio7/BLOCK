@@ -174,6 +174,83 @@ export default function ContactsManager({ className = '' }: ContactsManagerProps
     }
   };
 
+  // Envoyer un email à un contact
+  const sendEmail = (contact: ProfessionalContact) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:entry',message:'Fonction sendEmail appelée',data:{contactId:contact.id,email:contact.email,emailReconstruit:contact.email_reconstruit},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    // Déterminer l'adresse email à utiliser
+    const emailAddress = contact.email || contact.email_reconstruit;
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:emailCheck',message:'Vérification adresse email',data:{emailAddress,hasEmail:!!contact.email,hasEmailReconstruit:!!contact.email_reconstruit},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    if (!emailAddress) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:noEmail',message:'Aucune adresse email disponible',data:{contactId:contact.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      alert('Aucune adresse email disponible pour ce contact');
+      return;
+    }
+    
+    // Construire le lien mailto
+    const subject = encodeURIComponent(`Contact - ${contact.entreprise || 'BLOCK'}`);
+    const body = encodeURIComponent(`Bonjour ${contact.prenom || contact.nom},\n\n`);
+    const mailtoLink = `mailto:${emailAddress}?subject=${subject}&body=${body}`;
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:mailtoLink',message:'Lien mailto créé',data:{mailtoLink,emailAddress,subject,bodyLength:body.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
+    
+    try {
+      // Ouvrir le client email
+      window.location.href = mailtoLink;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:windowLocation',message:'window.location.href appelé',data:{mailtoLink},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+      
+      // Afficher le message "envoyé" (mais ce n'est qu'une indication que le client email s'est ouvert)
+      const messageDiv = document.createElement('div');
+      messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2ECC71;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      `;
+      messageDiv.textContent = '📧 Email envoyé';
+      document.body.appendChild(messageDiv);
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:messageDisplayed',message:'Message envoyé affiché',data:{emailAddress},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      
+      setTimeout(() => {
+        if (document.body.contains(messageDiv)) {
+          document.body.removeChild(messageDiv);
+        }
+      }, 3000);
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:success',message:'Fonction sendEmail terminée avec succès',data:{emailAddress},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+    } catch (error) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/485b1759-96a2-4c35-aaf6-063ed38ff96c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ContactsManager.tsx:sendEmail:error',message:'Erreur lors de l\'envoi d\'email',data:{error:String(error),emailAddress},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      console.error('Erreur lors de l\'envoi d\'email:', error);
+      alert('Erreur lors de l\'ouverture du client email');
+    }
+  };
+
   // Appliquer les filtres
   const applyFilters = (newFilters: ContactFilters) => {
     setFilters(newFilters);
@@ -279,7 +356,16 @@ export default function ContactsManager({ className = '' }: ContactsManagerProps
                     <p className="text-gray-900">{selectedContact.telephone}</p>
                   </div>
                 )}
+                
                 <div className="pt-4 space-y-2">
+                  {(selectedContact.email || selectedContact.email_reconstruit) && (
+                    <button
+                      onClick={() => sendEmail(selectedContact)}
+                      className="w-full px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors"
+                    >
+                      📧 Envoyer Email
+                    </button>
+                  )}
                   <button
                     onClick={() => reconstructEmail(selectedContact.id!)}
                     className="w-full px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import '@/styles/globals.css'
 import { DndProvider } from '@/components/DndProvider'
+import FetchInterceptor from '@/components/FetchInterceptor'
 
 export const metadata: Metadata = {
   title: 'Agile Vision BLOCK - Gestionnaire de Pages',
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
+        <FetchInterceptor />
         <DndProvider>
           {children}
         </DndProvider>
