@@ -4,8 +4,8 @@ Type=Application
 Name=BLOCK
 GenericName=Gestionnaire de Pages
 Comment=Application BLOCK - Gestionnaire de pages et blocs avec interface drag & drop
-Exec=/home/egx/Bureau/APPS/BLOCK/launch-block.sh
-Icon=/home/egx/Bureau/APPS/BLOCK/block-icon.svg
+Exec=/home/egx/Bureau/APPS/block/launch-block.sh
+Icon=/home/egx/Bureau/APPS/block/block-icon.svg
 Terminal=false
 Categories=Development;WebDevelopment;Office;ProjectManagement;
 Keywords=block;pages;drag;drop;editor;agile;vizion;gestionnaire;
@@ -16,7 +16,7 @@ Actions=stop;logs;
 
 [Desktop Action stop]
 Name=Arrêter BLOCK
-Exec=/home/egx/Bureau/APPS/BLOCK/launch-block.sh stop
+Exec=/home/egx/Bureau/APPS/block/launch-block.sh stop
 
 [Desktop Action logs]
 Name=Voir les logs

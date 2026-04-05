@@ -6,11 +6,11 @@ DATE=$(date +%Y%m%d_%H%M%S)
 DB_NAME="block_app"
 BACKUP_DB_DIR="/home/egx/Bureau/backups/BLOCK/databases"
 BACKUP_IMAGES_DIR="/home/egx/Bureau/backups/BLOCK/images"
-IMAGES_SOURCE="/home/egx/Bureau/APPS/BLOCK/public/uploads"
+IMAGES_SOURCE="/home/egx/Bureau/APPS/block/public/uploads"
 LOG_FILE="/home/egx/Bureau/backups/BLOCK/backup_daily.log"
 
 # Récupérer la version Git actuelle
-cd /home/egx/Bureau/APPS/BLOCK
+cd /home/egx/Bureau/APPS/block
 GIT_VERSION=$(git rev-parse --short HEAD)
 GIT_BRANCH=$(git branch --show-current)
 

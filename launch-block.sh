@@ -2,10 +2,10 @@
 # Script de lancement pour l'application BLOCK
 # Usage: ./launch-block.sh [start|stop]
 
-PROJECT_DIR="/home/egx/Bureau/APPS/BLOCK"
+PROJECT_DIR="/home/egx/Bureau/APPS/block"
 PORT=3001
 URL="http://localhost:${PORT}"
-LOG_FILE="/home/egx/Bureau/APPS/BLOCK/.cursor/debug.log"
+LOG_FILE="/home/egx/Bureau/APPS/block/.cursor/debug.log"
 
 # #region agent log
 log_debug() {
@@ -176,8 +176,8 @@ if command -v google-chrome > /dev/null; then
     google-chrome \
         --app="$URL" \
         --new-window \
-        --user-data-dir="$HOME/.config/google-chrome-BLOCK" \
-        --class="BLOCK" \
+        --user-data-dir="$HOME/.config/google-chrome-block" \
+        --class="block" \
         "$URL" > /dev/null 2>&1 &
     # #region agent log
     log_debug "H1" "Chrome opened" "{\"url\":\"$URL\"}"
